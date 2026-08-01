@@ -32,6 +32,15 @@ class UpdateModelDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(64)
+  category?: string;
+
+  @IsOptional()
+  @IsUUID()
+  cover_asset_id?: string;
+
+  @IsOptional()
+  @IsString()
   description?: string;
 
   @IsOptional()

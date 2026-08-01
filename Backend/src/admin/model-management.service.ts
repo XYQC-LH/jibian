@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { Template } from "@prisma/client";
 import { Redis } from "ioredis";
+import { AssetsService } from "../assets/assets.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateTemplateDto } from "../templates/dto/update-template.dto";
 import { TemplatesService } from "../templates/templates.service";
@@ -12,6 +13,8 @@ const PRICING_MULTIPLIER_REDIS_KEY = "jibian:pricing:global_multiplier";
 
 export interface UpdateModelPayload {
   display_name?: string;
+  category?: string;
+  cover_asset_id?: string;
   description?: string;
   credits_cost?: number;
   order?: number | null;
@@ -32,6 +35,7 @@ export class ModelManagementService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly templates: TemplatesService,
+    private readonly assets: AssetsService,
     private readonly config: ConfigService,
   ) {
     this.redisUrl = this.config.get<string>("REDIS_URL") ?? "redis://localhost:6379";
@@ -90,8 +94,22 @@ export class ModelManagementService {
     for (const row of taskRows) {
       usageByTemplate.set(row.templateId, (usageByTemplate.get(row.templateId) ?? 0) + 1);
     }
+    const coverAssetIds = templates
+      .map((template) => template.coverAssetId)
+      .filter((id): id is string => Boolean(id));
+    const coverAssets = coverAssetIds.length > 0
+      ? await this.prisma.asset.findMany({ where: { id: { in: coverAssetIds } } })
+      : [];
+    const coverUrlByAsset = new Map<string, string>();
+    for (const asset of coverAssets) {
+      coverUrlByAsset.set(asset.id, this.assets.getPublicUrl(asset.storageKey));
+    }
     const items = templates.map((template) =>
-      this.toModel(template, usageByTemplate.get(template.id) ?? 0),
+      this.toModel(
+        template,
+        usageByTemplate.get(template.id) ?? 0,
+        template.coverAssetId ? coverUrlByAsset.get(template.coverAssetId) ?? null : null,
+      ),
     );
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -119,6 +137,12 @@ export class ModelManagementService {
     if (payload.display_name !== undefined) {
       updateDto.name = payload.display_name;
     }
+    if (payload.category !== undefined) {
+      updateDto.category = payload.category;
+    }
+    if (payload.cover_asset_id !== undefined) {
+      updateDto.cover_asset_id = payload.cover_asset_id;
+    }
     if (payload.credits_cost !== undefined) {
       updateDto.price_credits = payload.credits_cost;
     }
@@ -135,7 +159,18 @@ export class ModelManagementService {
       ? (await this.templates.updateAdmin(modelId, updateDto)).data
       : existing;
 
-    return { success: true, data: this.toModel(updated, await this.countUsage(modelId)) };
+    let coverUrl: string | null = null;
+    if (updated.coverAssetId) {
+      const coverAsset = await this.prisma.asset.findUnique({ where: { id: updated.coverAssetId } });
+      if (coverAsset) {
+        coverUrl = this.assets.getPublicUrl(coverAsset.storageKey);
+      }
+    }
+
+    return {
+      success: true,
+      data: this.toModel(updated, await this.countUsage(modelId), coverUrl),
+    };
   }
 
   async reorder(items: ReorderModelItem[]) {
@@ -213,13 +248,16 @@ export class ModelManagementService {
     return this.prisma.task.count({ where: { templateId } });
   }
 
-  private toModel(template: Template, usageCount: number) {
+  private toModel(template: Template, usageCount: number, coverUrl: string | null = null) {
     const isEnabled = template.status === "published";
     return {
       id: template.id,
       model_id: template.id,
       name: template.name,
       display_name: template.name,
+      category: template.category,
+      cover_asset_id: template.coverAssetId,
+      cover_url: coverUrl,
       description: "",
       type: "image",
       output_type: "image",

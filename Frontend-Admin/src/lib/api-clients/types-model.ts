@@ -3,6 +3,9 @@ import type { ExposedField } from './types-payment';
 export interface Model {
   id: string;
   name: string;
+  category?: string;
+  cover_asset_id?: string | null;
+  cover_url?: string | null;
   type: 'image' | 'video' | 'music' | 'audio' | 'other';
   output_type?: string;
   order?: number;
@@ -84,6 +87,8 @@ export interface ModelExtraField {
 
 export interface ModelUpdateRequest {
   display_name?: string;
+  category?: string;
+  cover_asset_id?: string;
   description?: string;
   credits_cost?: number;
   order?: number | null;

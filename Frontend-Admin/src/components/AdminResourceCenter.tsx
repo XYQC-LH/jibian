@@ -89,12 +89,6 @@ const AdminResourceCenter: React.FC = () => {
               models.setEditingModel(null);
             }}
             onSave={models.handleEditModelSave}
-            onUpdateModelPricingMultiplier={(nextMultiplier) => {
-              void models.updateModelPricingMultiplier(models.editingModel!, nextMultiplier);
-            }}
-            onUpdateAcceptGlobalPricingMultiplier={(nextAccept) => {
-              void models.updateModelAcceptGlobalPricingMultiplier(models.editingModel!, nextAccept);
-            }}
           />
         )}
 

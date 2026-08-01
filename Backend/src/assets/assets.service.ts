@@ -38,6 +38,23 @@ export class AssetsService {
     };
   }
 
+  async createUploadUrlForAdmin(dto: CreateUploadUrlDto) {
+    const storageKey = `${dto.asset_type}/admin/${Date.now()}.bin`;
+    const asset = await this.prisma.asset.create({
+      data: {
+        ownerUserId: null,
+        assetType: dto.asset_type,
+        storageKey,
+      },
+    });
+
+    return {
+      asset_id: asset.id,
+      storage_key: storageKey,
+      upload_url: this.assetUrls.createUploadUrl(storageKey),
+    };
+  }
+
   getPublicUrl(storageKey: string) {
     return this.assetUrls.getPublicUrl(storageKey);
   }

@@ -84,19 +84,6 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
 
   const logoUrl = getModelLogoUrl(model.id);
   const isEnabled = model.is_enabled ?? model.is_active;
-  const pricingEditable = model.pricing_editable ?? true;
-  const pricingSpecCount = Number(model.pricing_spec_count ?? 0) || 0;
-  const pricingSummaryStatus = String(model.pricing_summary_status || '').trim().toLowerCase();
-  const pricingSummaryError = String(model.pricing_summary_error || '').trim();
-  const unifiedQuotedCredits = model.pricing_default_quoted_credits_cost;
-  const unifiedAnchorCost = model.pricing_default_anchor_cost_cny;
-  const showUnifiedPricingSummary = (model.pricing_mode === 'dynamic') || pricingSpecCount > 0;
-  const pricingSummaryLabel =
-    pricingSummaryStatus === 'ready'
-      ? formatCreditsCost(unifiedQuotedCredits)
-      : pricingSummaryStatus === 'error'
-        ? '定价未就绪'
-        : '-';
 
   return (
     <div
@@ -166,13 +153,9 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
         </div>
       </div>
 
-      {/* metrics row: anchor cost | success rate */}
+      {/* metrics row: success rate */}
       <div className="flex items-center justify-between mb-2 text-sm">
-        <div>
-          {unifiedAnchorCost != null && (
-            <span className="text-text-primary font-medium">{formatCny(unifiedAnchorCost)}</span>
-          )}
-        </div>
+        <div />
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-text-muted">{'成功率'}</span>
           <span className="font-medium text-green-400">{model.performance.success_rate.toFixed(1)}%</span>
@@ -190,25 +173,16 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
       {/* bottom row: credits + usage */}
       <div className="flex items-center justify-between text-xs mb-3">
         <div className="flex items-center gap-1.5">
-          <span className="text-text-muted">
-            {showUnifiedPricingSummary ? '统一报价' : '积分'}
+          <span className="text-text-muted">积分</span>
+          <span className="font-medium text-text-primary">
+            {formatCreditsCost(model.cost_credits)}
           </span>
-          <span className={`font-medium ${pricingSummaryStatus === 'error' ? 'text-amber-300' : 'text-text-primary'}`}>
-            {showUnifiedPricingSummary ? pricingSummaryLabel : formatCreditsCost(model.cost_credits)}
-          </span>
-          {!showUnifiedPricingSummary && !pricingEditable && (
-            <span className="text-amber-300">JSON</span>
-          )}
         </div>
         <div className="flex items-center gap-3 text-text-muted">
           <span>{'日均'} <span className="text-text-primary">{model.performance.daily_usage}</span></span>
           <span>{'总计'} <span className="text-text-primary">{model.performance.total_usage.toLocaleString()}</span></span>
         </div>
       </div>
-
-      {pricingSummaryError && (
-        <p className="text-xs text-amber-300">{pricingSummaryError}</p>
-      )}
     </div>
   );
 };

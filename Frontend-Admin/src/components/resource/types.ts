@@ -3,6 +3,9 @@ export type AIModelType = 'image' | 'video' | 'music' | 'audio' | 'llm' | 'text'
 export interface AIModel {
   id: string;
   name: string;
+  category?: string;
+  cover_asset_id?: string | null;
+  cover_url?: string | null;
   description?: string;
   type: AIModelType;
   output_type?: AIModelType | string;
