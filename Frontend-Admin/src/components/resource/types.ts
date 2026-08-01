@@ -7,6 +7,7 @@ export interface AIModel {
   cover_asset_id?: string | null;
   cover_url?: string | null;
   description?: string;
+  prompt?: string;
   type: AIModelType;
   output_type?: AIModelType | string;
   order?: number;
