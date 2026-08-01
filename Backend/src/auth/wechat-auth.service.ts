@@ -18,6 +18,7 @@ type Code2SessionResponse = {
 type WechatSession = {
   openid: string;
   unionid?: string;
+  isMock?: boolean;
 };
 
 @Injectable()
@@ -46,11 +47,27 @@ export class WechatAuthService {
         },
       });
 
-      const account = await tx.creditAccount.upsert({
-        where: { userId: user.id },
-        update: {},
-        create: { userId: user.id, balance: 0, updatedAt: now },
+      const existingAccount = await tx.creditAccount.findUnique({ where: { userId: user.id } });
+      if (existingAccount) {
+        return { user, account: existingAccount };
+      }
+
+      const initialCredits = session.isMock ? this.getMockInitialCredits() : 0;
+      const account = await tx.creditAccount.create({
+        data: { userId: user.id, balance: initialCredits, updatedAt: now },
       });
+      if (initialCredits > 0) {
+        await tx.creditLedger.create({
+          data: {
+            userId: user.id,
+            type: "adjustment",
+            amount: initialCredits,
+            refType: "mock_login_bonus",
+            refId: user.id,
+            balanceAfter: initialCredits,
+          },
+        });
+      }
 
       return { user, account };
     });
@@ -69,12 +86,18 @@ export class WechatAuthService {
     const appSecret = this.config.get<string>("WECHAT_APP_SECRET")?.trim();
 
     if (code.startsWith("mock") || !appId || !appSecret) {
-      const isProduction = process.env.NODE_ENV === "production";
-      const allowMock = process.env.ALLOW_MOCK_WECHAT === "true";
-      if (isProduction || !allowMock) {
+      // Mock 登录仅由显式开关 ALLOW_MOCK_WECHAT=true 控制（与 NODE_ENV 无关），
+      // 便于在未配置真实微信 AppID/Secret 的部署环境联调；默认关闭保持安全。
+      const allowMock = this.config.get<string>("ALLOW_MOCK_WECHAT") === "true";
+      if (!allowMock) {
         throw new ServiceUnavailableException("Wechat login is not configured");
       }
-      return { openid: `mock_${code}`.slice(0, 128) };
+
+      const configuredOpenid = this.config.get<string>("MOCK_WECHAT_OPENID")?.trim();
+      return {
+        openid: (configuredOpenid || `mock_${code}`).slice(0, 128),
+        isMock: true,
+      };
     }
 
     const params = new URLSearchParams({
@@ -117,5 +140,14 @@ export class WechatAuthService {
       openid: data.openid.slice(0, 128),
       ...(data.unionid ? { unionid: data.unionid.slice(0, 128) } : {}),
     };
+  }
+
+  private getMockInitialCredits() {
+    const value = Number(this.config.get<string>("MOCK_WECHAT_INITIAL_CREDITS") ?? 0);
+    if (!Number.isFinite(value) || value <= 0) {
+      return 0;
+    }
+
+    return Math.floor(value);
   }
 }

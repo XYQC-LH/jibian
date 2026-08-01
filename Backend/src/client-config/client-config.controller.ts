@@ -7,11 +7,12 @@ export class ClientConfigController {
 
   @Get("client")
   client() {
-    const apiBaseUrl = (this.config.get<string>("API_BASE_URL") ?? "http://localhost:3000")
-      .replace(/\/$/, "");
+    const publicBaseUrl = (this.config.get<string>("API_BASE_URL") ?? "https://api.jibian.art")
+      .replace(/\/+$/, "")
+      .replace(/\/api$/, "");
 
     return {
-      api_base_url: `${apiBaseUrl}/api`,
+      api_base_url: `${publicBaseUrl}/api`,
     };
   }
 }
