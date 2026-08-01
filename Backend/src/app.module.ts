@@ -6,6 +6,7 @@ import { AccountDeletionModule } from "./account-deletion/account-deletion.modul
 import { AdminAuthModule } from "./auth/admin-auth.module";
 import { AdminModule } from "./admin/admin.module";
 import { AssetsModule } from "./assets/assets.module";
+import { ClientConfigModule } from "./client-config/client-config.module";
 import { CreditsModule } from "./credits/credits.module";
 import { FavoritesModule } from "./favorites/favorites.module";
 import { ModerationModule } from "./moderation/content-moderation.module";
@@ -34,6 +35,7 @@ import { UsersModule } from "./users/users.module";
       }),
     }),
     PrismaModule,
+    ClientConfigModule,
     AccountDeletionModule,
     AdminAuthModule,
     AdminModule,

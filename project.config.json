@@ -65,8 +65,8 @@
   "libVersion": "latest",
   "appid": "wx80fdb2e6af350b32",
   "projectname": "jibian",
-  "miniprogramRoot": "Frontend-Wechat/",
-  "srcMiniprogramRoot": "Frontend-Wechat/",
+  "miniprogramRoot": "wechat/",
+  "srcMiniprogramRoot": "wechat/",
   "condition": {
     "miniprogram": {
       "list": [

@@ -76,6 +76,7 @@ App({
     this.globalData.account = normalizeAccount(wx.getStorageSync(ACCOUNT_KEY));
     this.globalData.accessToken = wx.getStorageSync(ACCESS_TOKEN_KEY) || "";
     this.globalData.user = normalizeUser(wx.getStorageSync(USER_KEY));
+    require("./config/env").fetchRemoteConfig();
     this.ensureLogin(true);
     this.ensureTemplates();
   },

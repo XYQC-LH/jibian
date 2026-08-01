@@ -6,11 +6,8 @@ import {
   BarChart3,
   Image,
   Layers,
-  Loader2,
-  Music,
   Save,
   Server,
-  Video,
 } from 'lucide-react';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import toast from 'react-hot-toast';
@@ -90,7 +87,7 @@ const ModelDispatchTab: React.FC = () => {
   const [modelTypeMap, setModelTypeMap] = useState<Map<string, string>>(new Map());
 
   const [search, setSearch] = useState('');
-  const [activeType, setActiveType] = useState<'image' | 'video' | 'music'>('image');
+  const [activeType, setActiveType] = useState<'image'>('image');
   const [togglingSources, setTogglingSources] = useState<Set<string>>(new Set());
 
   const loadData = useCallback(async () => {
@@ -298,8 +295,6 @@ const ModelDispatchTab: React.FC = () => {
   const typedSections = useMemo<TypedSection[]>(() => {
     const defs: Omit<TypedSection, 'groups'>[] = [
       { id: 'image', title: '图片模型', description: '图片生成、图片编辑相关', icon: Image },
-      { id: 'video', title: '视频模型', description: '视频生成、视频编辑相关', icon: Video },
-      { id: 'music', title: '音乐模型', description: '音乐、音频生成相关', icon: Music },
     ];
 
     const sections: TypedSection[] = defs.map((d) => ({ ...d, groups: [] }));
@@ -362,8 +357,6 @@ const ModelDispatchTab: React.FC = () => {
         <div className="flex items-center gap-1 border-b border-white/10 pb-1">
           {([
             { id: 'image' as const, label: '图片', icon: Image },
-            { id: 'video' as const, label: '视频', icon: Video },
-            { id: 'music' as const, label: '音乐', icon: Music },
           ]).map((tab) => {
             const TabIcon = tab.icon;
             const isActive = activeType === tab.id;
