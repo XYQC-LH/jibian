@@ -1,0 +1,121 @@
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../../prisma/prisma.service";
+import { SourceAdapter, StandardGenerateInput, StandardGenerateOutput } from "../contracts/standard-generate.contract";
+
+@Injectable()
+export class GrsaiGptImage2Adapter implements SourceAdapter {
+  readonly sourceId = "grsai-gpt-image-2";
+  private readonly upstreamModelName = "gpt-image-2";
+  private readonly defaultAspectRatio = "1024x1024";
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
+
+  isConfigured(): boolean {
+    return Boolean(this.normalizeBaseUrl(this.config.get<string>("GRSAI_API_HOST") ?? "") && this.config.get<string>("GRSAI_API_KEY"));
+  }
+
+  async generate(input: StandardGenerateInput): Promise<StandardGenerateOutput> {
+    const baseUrl = this.normalizeBaseUrl(this.config.get<string>("GRSAI_API_HOST") ?? "");
+    const apiKey = this.config.get<string>("GRSAI_API_KEY") ?? "";
+    if (!baseUrl || !apiKey) {
+      return { ok: false, errorMessage: "GRSAI GPT Image 2 missing GRSAI_API_HOST or GRSAI_API_KEY" };
+    }
+
+    const payload = {
+      model: this.upstreamModelName,
+      prompt: input.prompt,
+      aspectRatio: this.defaultAspectRatio,
+      images: [input.imageUrl],
+      replyType: "async",
+      webHook: "-1",
+    };
+
+    const submit = await fetch(`${baseUrl}/v1/api/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const submitBody = await this.readJson(submit);
+    if (!submit.ok) {
+      return { ok: false, errorMessage: this.errorMessage(submitBody, `GRSAI request failed: ${submit.status}`) };
+    }
+
+    const immediateUrl = this.extractResultUrl(submitBody);
+    if (immediateUrl) {
+      return this.createAsset(immediateUrl);
+    }
+
+    const upstreamJobId = this.extractJobId(submitBody);
+    if (!upstreamJobId) {
+      return { ok: false, errorMessage: "GRSAI response missing task id" };
+    }
+
+    for (let index = 0; index < 120; index += 1) {
+      await this.sleep(Math.min(1000 * 2 ** Math.min(index, 3), 8000));
+      const poll = await fetch(`${baseUrl}/v1/api/result?id=${encodeURIComponent(upstreamJobId)}`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      const pollBody = await this.readJson(poll);
+      if (!poll.ok) {
+        return { ok: false, errorMessage: this.errorMessage(pollBody, `GRSAI poll failed: ${poll.status}`) };
+      }
+      const status = this.extractStatus(pollBody);
+      if (status === "failed" || status === "violation") {
+        return { ok: false, errorMessage: this.errorMessage(pollBody, "GRSAI generation failed") };
+      }
+      const imageUrl = this.extractResultUrl(pollBody);
+      if (status === "succeeded" && imageUrl) {
+        return this.createAsset(imageUrl);
+      }
+    }
+
+    return { ok: false, errorMessage: "GRSAI polling timeout" };
+  }
+
+  private normalizeBaseUrl(value: string) {
+    const trimmed = value.trim().replace(/\/+$/, "");
+    if (!trimmed) return "";
+    return trimmed.startsWith("http://") || trimmed.startsWith("https://") ? trimmed : `https://${trimmed}`;
+  }
+
+  private async createAsset(storageKey: string): Promise<StandardGenerateOutput> {
+    const asset = await this.prisma.asset.create({ data: { assetType: "generated_image", storageKey } });
+    return { ok: true, assetId: asset.id };
+  }
+
+  private async readJson(response: Response): Promise<unknown> {
+    try { return await response.json(); } catch { return await response.text(); }
+  }
+
+  private extractStatus(body: unknown) {
+    return body && typeof body === "object" ? String((body as Record<string, unknown>).status || "").toLowerCase() : "";
+  }
+
+  private extractJobId(body: unknown) {
+    return body && typeof body === "object" ? String((body as Record<string, unknown>).id || "").trim() : "";
+  }
+
+  private extractResultUrl(body: unknown) {
+    if (!body || typeof body !== "object") return "";
+    const results = (body as Record<string, unknown>).results;
+    const first = Array.isArray(results) ? results[0] as Record<string, unknown> | undefined : undefined;
+    return String(first?.url || "").trim();
+  }
+
+  private errorMessage(body: unknown, fallback: string) {
+    if (!body || typeof body !== "object") return String(body || fallback);
+    const record = body as Record<string, unknown>;
+    return String(record.error || record.message || fallback);
+  }
+
+  private sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+}

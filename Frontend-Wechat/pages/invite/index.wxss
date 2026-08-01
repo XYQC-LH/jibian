@@ -1,0 +1,145 @@
+.invite-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 24rpx 48rpx;
+  background: linear-gradient(180deg, #F6F4FF 0%, #FFFFFF 42%, #FFF7FC 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.nav-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84rpx;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  color: var(--text-primary);
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.nav-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.invite-hero {
+  box-sizing: border-box;
+  margin-top: 24rpx;
+  padding: 34rpx;
+  border-radius: 34rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #8D6CFF 0%, #D86DF2 54%, #FF6CAE 100%);
+}
+
+.hero-title,
+.hero-copy,
+.code-label,
+.code-value {
+  display: block;
+}
+
+.hero-title {
+  font-size: 46rpx;
+  font-weight: 900;
+}
+
+.hero-copy {
+  margin-top: 14rpx;
+  font-size: 25rpx;
+  line-height: 1.45;
+  opacity: 0.86;
+}
+
+.code-card {
+  margin-top: 34rpx;
+  box-sizing: border-box;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.code-label {
+  font-size: 22rpx;
+  font-weight: 800;
+  opacity: 0.82;
+}
+
+.code-value {
+  margin-top: 8rpx;
+  font-size: 42rpx;
+  font-weight: 900;
+  letter-spacing: 2rpx;
+}
+
+.step-card {
+  box-sizing: border-box;
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border-radius: 28rpx;
+  background: #FFFFFF;
+}
+
+.section-title {
+  display: block;
+  margin-bottom: 16rpx;
+  color: var(--text-primary);
+  font-size: 31rpx;
+  font-weight: 900;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  min-height: 64rpx;
+}
+
+.step-index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 999rpx;
+  color: var(--accent-primary);
+  background: var(--accent-soft);
+  font-size: 21rpx;
+  font-weight: 900;
+}
+
+.step-copy {
+  color: var(--text-secondary);
+  font-size: 25rpx;
+  line-height: 1.4;
+}
+
+.share-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 86rpx;
+  margin-top: 28rpx;
+  border: 0;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #8D6CFF, #FF62B0);
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.share-button::after {
+  border: 0;
+}

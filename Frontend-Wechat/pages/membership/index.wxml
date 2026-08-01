@@ -1,0 +1,71 @@
+<view class="membership-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="member-nav">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="member-title">会员订阅</text>
+    <view class="support-button" style="right: {{menuButtonRightGap}}px;">耳机</view>
+  </view>
+
+  <view class="member-tabs">
+    <view class="member-tab member-tab-active">会员订阅</view>
+    <view class="member-tab" bindtap="goCredits">积分充值</view>
+  </view>
+
+  <view class="member-hero">
+    <view>
+      <text class="hero-title">开通会员</text>
+      <text class="hero-copy">高清大图、专属效果、出图加速</text>
+    </view>
+    <view class="hero-stack">
+        <text>高级模板</text>
+      <text>专属画质</text>
+      <text>全部折扣</text>
+    </view>
+  </view>
+
+  <view class="vip-panel">
+    <view class="vip-head">
+      <text class="vip-mark">◆</text>
+      <text class="vip-title">即变 VIP</text>
+    </view>
+
+    <view class="plan-row">
+      <block wx:for="{{plans}}" wx:key="id">
+        <view
+          class="plan-card {{activePlan === item.id ? 'plan-card-active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectPlan"
+          hover-class="button-pressed"
+        >
+          <text class="plan-name">{{item.name}}</text>
+          <text class="plan-price">{{item.price}}</text>
+          <text class="plan-origin">{{item.origin}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="benefit-section">
+      <text class="benefit-title">会员权益</text>
+      <view class="benefit-row">
+        <text class="benefit-check">✓</text>
+        <text class="benefit-copy">高清无水印，作品更适合发布</text>
+      </view>
+      <view class="benefit-row">
+        <text class="benefit-check">✓</text>
+        <text class="benefit-copy">专属模板折扣，热门玩法优先体验</text>
+      </view>
+      <view class="benefit-row">
+        <text class="benefit-check">✓</text>
+        <text class="benefit-copy">出图加速，减少排队等待时间</text>
+      </view>
+    </view>
+
+    <view class="agreement-row" bindtap="toggleAgreement">
+      <view class="agreement-check {{agreed ? 'agreement-check-active' : ''}}">{{agreed ? "✓" : ""}}</view>
+      <text class="agreement-copy">同意《会员协议》和《续费说明》</text>
+    </view>
+  </view>
+
+  <view class="subscribe-button {{agreed ? '' : 'subscribe-button-disabled'}}" bindtap="subscribe" hover-class="button-pressed">
+    立即订阅 ¥108
+  </view>
+</view>

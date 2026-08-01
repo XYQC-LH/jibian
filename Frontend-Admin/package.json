@@ -1,0 +1,50 @@
+{
+  "name": "jibian-admin-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "scripts": {
+    "dev": "cross-env PORT=3810 API_INTERNAL_URL=http://localhost:8000 NEXT_PUBLIC_ENABLE_MOCKS=true next dev -p 3810",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0 && node ../scripts/run-check-encoding.mjs --check --check-mojibake --paths ./src",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "check:api-base": "node ../scripts/check-api-base-usage.mjs",
+    "check:encoding": "node ../scripts/run-check-encoding.mjs --check --check-mojibake --paths ./src",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:all": "npm run test:regression && npm run type-check",
+    "type-check": "tsc --noEmit",
+    "test:regression": "node ./scripts/run-regression-tests.cjs"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "axios": "^1.6.2",
+    "clsx": "^2.0.0",
+    "lucide-react": "^0.303.0",
+    "next": "^16.0.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.4.1",
+    "recharts": "^3.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.16",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.0.10",
+    "postcss": "^8.4.32",
+    "prettier": "^3.1.0",
+    "tailwindcss": "^3.3.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

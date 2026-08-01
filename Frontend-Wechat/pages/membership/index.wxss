@@ -1,0 +1,263 @@
+.membership-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 24rpx 44rpx;
+  background: linear-gradient(180deg, #FFF7FD 0%, #FFFFFF 34%, #FFFFFF 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.member-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 82rpx;
+}
+
+.back-button,
+.support-button {
+  position: absolute;
+  top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 58rpx;
+}
+
+.back-button {
+  left: 0;
+  width: 58rpx;
+  color: var(--text-primary);
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.support-button {
+  right: 0;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  color: var(--text-primary);
+  background: rgba(60, 60, 67, 0.07);
+  font-size: 21rpx;
+  font-weight: 800;
+}
+
+.member-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.member-tabs {
+  display: flex;
+  width: 256rpx;
+  height: 58rpx;
+  margin: 16rpx auto 34rpx;
+  padding: 5rpx;
+  border-radius: 999rpx;
+  background: #F7BEDB;
+}
+
+.member-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+
+.member-tab-active {
+  color: var(--text-primary);
+  background: #FFFFFF;
+}
+
+.member-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 154rpx;
+}
+
+.hero-title,
+.hero-copy,
+.hero-stack text {
+  display: block;
+}
+
+.hero-title {
+  color: var(--text-primary);
+  font-size: 42rpx;
+  font-weight: 900;
+}
+
+.hero-copy {
+  margin-top: 12rpx;
+  color: var(--text-secondary);
+  font-size: 22rpx;
+}
+
+.hero-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  width: 154rpx;
+  box-sizing: border-box;
+  padding: 18rpx;
+  border-radius: 30rpx;
+  color: var(--accent-primary);
+  background: linear-gradient(135deg, #F5DCFF, #D7DFFF);
+  font-size: 19rpx;
+  font-weight: 900;
+}
+
+.vip-panel {
+  position: relative;
+  margin: 24rpx -24rpx 0;
+  padding: 30rpx 24rpx 32rpx;
+  border-radius: 34rpx 34rpx 0 0;
+  background: #FFFFFF;
+}
+
+.vip-head {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.vip-mark {
+  color: #FF4FB3;
+  font-size: 30rpx;
+}
+
+.vip-title {
+  color: var(--text-primary);
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.plan-row {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 26rpx;
+}
+
+.plan-card {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 18rpx 8rpx 16rpx;
+  border: 2rpx solid #F1E7F7;
+  border-radius: 24rpx;
+  background: #FFF7FE;
+  text-align: center;
+}
+
+.plan-card-active {
+  border-color: #FF4FB3;
+  background: #FFF0F8;
+}
+
+.plan-name,
+.plan-price,
+.plan-origin {
+  display: block;
+}
+
+.plan-name {
+  color: var(--text-primary);
+  font-size: 22rpx;
+  font-weight: 900;
+}
+
+.plan-price {
+  margin-top: 14rpx;
+  color: #FF2D8F;
+  font-size: 39rpx;
+  font-weight: 900;
+}
+
+.plan-origin {
+  margin-top: 10rpx;
+  color: #9C9CA3;
+  font-size: 19rpx;
+}
+
+.benefit-section {
+  margin-top: 30rpx;
+}
+
+.benefit-title {
+  display: block;
+  color: var(--text-primary);
+  font-size: 29rpx;
+  font-weight: 900;
+}
+
+.benefit-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.benefit-check {
+  color: #FF4FB3;
+  font-size: 23rpx;
+  font-weight: 900;
+}
+
+.benefit-copy {
+  color: var(--text-secondary);
+  font-size: 23rpx;
+  line-height: 1.4;
+}
+
+.agreement-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 30rpx;
+}
+
+.agreement-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  border: 2rpx solid #D8D8DE;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  font-size: 18rpx;
+  font-weight: 900;
+}
+
+.agreement-check-active {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+}
+
+.agreement-copy {
+  color: var(--text-tertiary);
+  font-size: 21rpx;
+}
+
+.subscribe-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  margin-top: 20rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #FF52A5, #FF3F9A);
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.subscribe-button-disabled {
+  opacity: 0.45;
+}

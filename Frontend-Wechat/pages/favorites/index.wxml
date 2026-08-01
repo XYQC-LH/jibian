@@ -1,0 +1,31 @@
+<view class="favorites-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="nav-bar">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="nav-title">收藏玩法</text>
+  </view>
+
+  <view class="hero-card">
+    <text class="hero-title">常用效果放这里</text>
+    <text class="hero-copy">你在灵感页点亮的玩法会保存在这里，方便下次直接使用。</text>
+  </view>
+
+  <view class="favorite-grid" wx:if="{{favorites.length}}">
+    <block wx:for="{{favorites}}" wx:key="id">
+      <view class="favorite-card" bindtap="goCreate" data-id="{{item.id}}" hover-class="button-pressed">
+        <image class="favorite-image" src="{{item.cover}}" mode="aspectFill" />
+        <view class="favorite-remove" catchtap="removeFavorite" data-id="{{item.id}}">★</view>
+        <text class="favorite-name">{{item.name}}</text>
+        <view class="favorite-meta">
+          <text>{{item.category}}</text>
+          <text>{{item.price}} 积分</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="empty-card" wx:else>
+    <text class="empty-title">还没有收藏</text>
+    <text class="empty-copy">去灵感页把喜欢的玩法收起来。</text>
+    <view class="empty-button" bindtap="goInspiration" hover-class="button-pressed">去看看</view>
+  </view>
+</view>

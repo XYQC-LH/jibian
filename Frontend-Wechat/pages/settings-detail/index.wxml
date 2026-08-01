@@ -1,0 +1,25 @@
+<view class="settings-detail-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="settings-nav">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="settings-title">{{title}}</text>
+  </view>
+
+  <view class="settings-card">
+    <block wx:for="{{rows}}" wx:key="title">
+      <view
+        class="settings-row"
+        data-title="{{item.title}}"
+        data-target="{{item.target}}"
+        bindtap="tapRow"
+        hover-class="button-pressed"
+      >
+        <view class="settings-copy">
+          <text class="row-title">{{item.title}}</text>
+          <text class="row-desc">{{item.desc}}</text>
+        </view>
+        <text class="row-value" wx:if="{{item.value}}">{{item.value}}</text>
+        <text class="row-chevron">›</text>
+      </view>
+    </block>
+  </view>
+</view>

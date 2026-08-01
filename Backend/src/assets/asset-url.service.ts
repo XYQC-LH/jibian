@@ -1,0 +1,238 @@
+import { createHash, createHmac } from "node:crypto";
+import { Injectable, ServiceUnavailableException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+
+type StorageConfig = {
+  bucket: string;
+  region: string;
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  publicBaseUrl?: string;
+};
+
+@Injectable()
+export class AssetUrlService {
+  constructor(private readonly config: ConfigService) {}
+
+  createUploadUrl(storageKey: string) {
+    const storageConfig = this.getStorageConfig();
+    if (!storageConfig) {
+      if (this.readEnv("NODE_ENV") === "production") {
+        throw new ServiceUnavailableException("Storage is not configured");
+      }
+
+      return `mock://upload/${storageKey}`;
+    }
+
+    return this.createS3PresignedPutUrl(storageKey, storageConfig);
+  }
+
+  getPublicUrl(storageKey: string) {
+    if (storageKey.startsWith("http://") || storageKey.startsWith("https://")) {
+      return storageKey;
+    }
+
+    const storageConfig = this.getStorageConfig();
+    const publicBaseUrl = storageConfig?.publicBaseUrl
+      ?? this.readEnv("ASSET_PUBLIC_BASE_URL")
+      ?? this.readEnv("COS_PUBLIC_BASE_URL");
+
+    if (storageConfig && !publicBaseUrl) {
+      return this.createS3PresignedGetUrl(storageKey, storageConfig);
+    }
+
+    if (!publicBaseUrl) {
+      if (this.readEnv("NODE_ENV") === "production") {
+        throw new ServiceUnavailableException("Storage is not configured");
+      }
+
+      return `${this.getApiBaseUrl()}/api/assets/mock/${this.encodeStorageKey(storageKey)}`;
+    }
+
+    return `${publicBaseUrl.replace(/\/$/, "")}/${this.encodeStorageKey(storageKey)}`;
+  }
+
+  getMockAssetStorageKey(path: string) {
+    return path
+      .split("/")
+      .map((segment) => decodeURIComponent(segment))
+      .join("/");
+  }
+
+  private getStorageConfig(): StorageConfig | null {
+    const bucket = this.readEnv("ASSET_STORAGE_BUCKET") ?? this.readEnv("COS_BUCKET_PRIVATE");
+    const region = this.readEnv("ASSET_STORAGE_REGION") ?? this.readEnv("COS_REGION");
+    const endpoint = this.readEnv("ASSET_STORAGE_ENDPOINT") ?? this.readEnv("COS_ENDPOINT");
+    const accessKeyId = this.readEnv("ASSET_STORAGE_ACCESS_KEY_ID") ?? this.readEnv("COS_SECRET_ID");
+    const secretAccessKey = this.readEnv("ASSET_STORAGE_SECRET_ACCESS_KEY")
+      ?? this.resolveSecretRef()
+      ?? this.readEnv("COS_SECRET_KEY");
+
+    if (!bucket || !region || !endpoint || !accessKeyId || !secretAccessKey) {
+      return null;
+    }
+
+    return {
+      bucket,
+      region,
+      endpoint: endpoint.replace(/\/$/, ""),
+      accessKeyId,
+      secretAccessKey,
+      publicBaseUrl: this.readEnv("ASSET_PUBLIC_BASE_URL") ?? this.readEnv("COS_PUBLIC_BASE_URL"),
+    };
+  }
+
+  private createS3PresignedPutUrl(storageKey: string, storageConfig: StorageConfig) {
+    const now = new Date();
+    const amzDate = this.formatAmzDate(now);
+    const dateStamp = amzDate.slice(0, 8);
+    const credentialScope = `${dateStamp}/${storageConfig.region}/s3/aws4_request`;
+    const signedHeaders = "host";
+    const { baseUrl, host, objectPath } = this.resolveObjectAddress(storageConfig, storageKey);
+    const query = new URLSearchParams({
+      "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+      "X-Amz-Credential": `${storageConfig.accessKeyId}/${credentialScope}`,
+      "X-Amz-Date": amzDate,
+      "X-Amz-Expires": String(this.getUploadUrlExpiresSeconds()),
+      "X-Amz-SignedHeaders": signedHeaders,
+    });
+    const canonicalQueryString = this.toCanonicalQueryString(query);
+    const canonicalRequest = [
+      "PUT",
+      objectPath,
+      canonicalQueryString,
+      `host:${host}\n`,
+      signedHeaders,
+      "UNSIGNED-PAYLOAD",
+    ].join("\n");
+    const stringToSign = [
+      "AWS4-HMAC-SHA256",
+      amzDate,
+      credentialScope,
+      this.sha256(canonicalRequest),
+    ].join("\n");
+    const signingKey = this.getSignatureKey(storageConfig.secretAccessKey, dateStamp, storageConfig.region, "s3");
+    const signature = createHmac("sha256", signingKey).update(stringToSign).digest("hex");
+
+    return `${baseUrl}${objectPath}?${canonicalQueryString}&X-Amz-Signature=${signature}`;
+  }
+
+  private createS3PresignedGetUrl(storageKey: string, storageConfig: StorageConfig) {
+    const now = new Date();
+    const amzDate = this.formatAmzDate(now);
+    const dateStamp = amzDate.slice(0, 8);
+    const credentialScope = `${dateStamp}/${storageConfig.region}/s3/aws4_request`;
+    const signedHeaders = "host";
+    const { baseUrl, host, objectPath } = this.resolveObjectAddress(storageConfig, storageKey);
+    const query = new URLSearchParams({
+      "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+      "X-Amz-Credential": `${storageConfig.accessKeyId}/${credentialScope}`,
+      "X-Amz-Date": amzDate,
+      "X-Amz-Expires": String(this.getUploadUrlExpiresSeconds()),
+      "X-Amz-SignedHeaders": signedHeaders,
+    });
+    const canonicalQueryString = this.toCanonicalQueryString(query);
+    const canonicalRequest = [
+      "GET",
+      objectPath,
+      canonicalQueryString,
+      `host:${host}\n`,
+      signedHeaders,
+      "UNSIGNED-PAYLOAD",
+    ].join("\n");
+    const stringToSign = [
+      "AWS4-HMAC-SHA256",
+      amzDate,
+      credentialScope,
+      this.sha256(canonicalRequest),
+    ].join("\n");
+    const signingKey = this.getSignatureKey(storageConfig.secretAccessKey, dateStamp, storageConfig.region, "s3");
+    const signature = createHmac("sha256", signingKey).update(stringToSign).digest("hex");
+
+    return `${baseUrl}${objectPath}?${canonicalQueryString}&X-Amz-Signature=${signature}`;
+  }
+
+  private resolveObjectAddress(storageConfig: StorageConfig, storageKey: string) {
+    const endpoint = new URL(storageConfig.endpoint);
+    const encodedKey = this.encodeStorageKey(storageKey);
+    if (
+      endpoint.hostname === `cos.${storageConfig.region}.myqcloud.com` &&
+      (endpoint.pathname === "/" || endpoint.pathname === "")
+    ) {
+      const host = `${storageConfig.bucket}.cos.${storageConfig.region}.myqcloud.com`;
+      return {
+        baseUrl: `${endpoint.protocol}//${host}`,
+        host,
+        objectPath: `/${encodedKey}`,
+      };
+    }
+
+    return {
+      baseUrl: storageConfig.endpoint,
+      host: endpoint.host,
+      objectPath: `/${storageConfig.bucket}/${encodedKey}`,
+    };
+  }
+
+  private getUploadUrlExpiresSeconds() {
+    const configured = Number(
+      this.readEnv("ASSET_UPLOAD_URL_EXPIRES_SECONDS")
+        ?? this.readEnv("STORAGE_UPLOAD_EXPIRE_SECONDS")
+        ?? 900,
+    );
+    if (!Number.isFinite(configured) || configured <= 0) {
+      return 900;
+    }
+
+    return Math.floor(configured);
+  }
+
+  private readEnv(key: string) {
+    const value = this.config.get<string>(key);
+    return value && value.trim() ? value.trim() : undefined;
+  }
+
+  private getApiBaseUrl() {
+    return (
+      this.readEnv("API_PUBLIC_BASE_URL")
+      ?? this.readEnv("BACKEND_PUBLIC_BASE_URL")
+      ?? `http://localhost:${this.readEnv("PORT") ?? "3000"}`
+    ).replace(/\/$/, "");
+  }
+
+  private resolveSecretRef() {
+    const ref = this.readEnv("COS_SECRET_REF");
+    if (!ref) {
+      return undefined;
+    }
+
+    return this.readEnv(ref);
+  }
+
+  private encodeStorageKey(storageKey: string) {
+    return storageKey.split("/").map(encodeURIComponent).join("/");
+  }
+
+  private toCanonicalQueryString(query: URLSearchParams) {
+    return [...query.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join("&");
+  }
+
+  private formatAmzDate(date: Date) {
+    return date.toISOString().replace(/[:-]|\.\d{3}/g, "");
+  }
+
+  private sha256(value: string) {
+    return createHash("sha256").update(value).digest("hex");
+  }
+
+  private getSignatureKey(secretAccessKey: string, dateStamp: string, region: string, service: string) {
+    const dateKey = createHmac("sha256", `AWS4${secretAccessKey}`).update(dateStamp).digest();
+    const regionKey = createHmac("sha256", dateKey).update(region).digest();
+    const serviceKey = createHmac("sha256", regionKey).update(service).digest();
+    return createHmac("sha256", serviceKey).update("aws4_request").digest();
+  }
+}

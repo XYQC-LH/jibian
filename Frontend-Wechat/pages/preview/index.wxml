@@ -1,0 +1,13 @@
+<view class="preview-page">
+  <image class="preview-image" src="{{image}}" mode="aspectFit" bindtap="toggleToolbar" />
+
+  <view class="preview-top {{toolbarVisible ? 'preview-top-show' : ''}}">
+    <view class="preview-back" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="preview-title">{{title}}</text>
+  </view>
+
+  <view class="preview-actions {{toolbarVisible ? 'preview-actions-show' : ''}}">
+    <button class="preview-action" open-type="share" hover-class="button-pressed">分享</button>
+    <view class="preview-action" bindtap="downloadImage" hover-class="button-pressed">下载</view>
+  </view>
+</view>

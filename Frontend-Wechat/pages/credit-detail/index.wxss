@@ -1,0 +1,147 @@
+.detail-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 24rpx 48rpx;
+  background: var(--bg-surface);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.detail-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 82rpx;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  color: var(--text-primary);
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.detail-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.summary-card {
+  box-sizing: border-box;
+  padding: 28rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #FFFFFF, #F9EEFF);
+}
+
+.summary-label,
+.summary-value,
+.summary-copy {
+  display: block;
+}
+
+.summary-label {
+  color: var(--text-secondary);
+  font-size: 23rpx;
+  font-weight: 800;
+}
+
+.summary-value {
+  margin-top: 8rpx;
+  color: var(--accent-primary);
+  font-size: 56rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.summary-copy {
+  margin-top: 14rpx;
+  color: var(--text-tertiary);
+  font-size: 22rpx;
+}
+
+.detail-tabs {
+  display: flex;
+  gap: 26rpx;
+  margin: 30rpx 4rpx 18rpx;
+}
+
+.detail-tab {
+  color: var(--text-tertiary);
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
+.detail-tab-active {
+  color: var(--text-primary);
+}
+
+.record-list {
+  overflow: hidden;
+  border-radius: 26rpx;
+  background: #FFFFFF;
+}
+
+.record-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 112rpx;
+  box-sizing: border-box;
+  padding: 22rpx 24rpx;
+}
+
+.record-row + .record-row {
+  border-top: 1rpx solid #F0F0F5;
+}
+
+.record-title,
+.record-time,
+.record-amount,
+.record-status {
+  display: block;
+}
+
+.record-title {
+  color: var(--text-primary);
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.record-time {
+  margin-top: 8rpx;
+  color: #9C9CA3;
+  font-size: 21rpx;
+}
+
+.record-right {
+  text-align: right;
+}
+
+.record-amount {
+  color: var(--accent-primary);
+  font-size: 29rpx;
+  font-weight: 900;
+}
+
+.record-amount-muted {
+  color: #B8B8BE;
+}
+
+.record-status {
+  margin-top: 8rpx;
+  color: #34C759;
+  font-size: 21rpx;
+  font-weight: 800;
+}
+
+.record-status-failed {
+  color: var(--accent-pink);
+}

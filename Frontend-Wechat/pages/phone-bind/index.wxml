@@ -1,0 +1,38 @@
+<view class="phone-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="nav-bar">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="nav-title">手机号绑定</text>
+  </view>
+
+  <block wx:if="{{bound}}">
+    <view class="success-panel">
+      <view class="success-icon">✓</view>
+      <text class="success-title">绑定成功</text>
+      <text class="success-copy">已绑定手机号 {{maskedPhone}}</text>
+      <view class="safe-tip">用于订单通知、账号找回和积分安全提醒</view>
+      <view class="finish-button" bindtap="finish" hover-class="button-pressed">完成</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="form-panel">
+      <view class="field-group">
+        <text class="field-label">手机号</text>
+        <view class="phone-input-row">
+          <text class="area-code">+86</text>
+          <input class="input-control" value="{{phone}}" type="number" maxlength="11" placeholder="请输入手机号" bindinput="inputPhone" />
+        </view>
+      </view>
+
+      <view class="field-group">
+        <text class="field-label">验证码</text>
+        <view class="code-row">
+          <input class="code-input" value="{{code}}" type="number" maxlength="6" placeholder="请输入验证码" bindinput="inputCode" />
+          <view class="code-button" bindtap="sendCode" hover-class="button-pressed">获取验证码</view>
+        </view>
+      </view>
+
+      <view class="bind-button" bindtap="bindPhone" hover-class="button-pressed">绑定</view>
+    </view>
+  </block>
+</view>

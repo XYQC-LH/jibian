@@ -1,0 +1,289 @@
+.profile-page {
+  min-height: 1623rpx;
+  box-sizing: border-box;
+  padding: 0 31rpx 180rpx;
+  background: var(--bg-surface);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 73rpx;
+}
+
+.profile-title {
+  color: var(--text-primary);
+  font-size: 46rpx;
+  font-weight: 700;
+  line-height: 58rpx;
+}
+
+.settings-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 999rpx;
+  background: transparent;
+}
+
+.settings-icon {
+  color: var(--text-secondary);
+  font-size: 34rpx;
+  line-height: 1;
+}
+
+.user-card,
+.credit-card {
+  box-sizing: border-box;
+  margin-top: 27rpx;
+  border-radius: 46rpx;
+  background: #FFFFFF;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 23rpx;
+  height: 215rpx;
+  padding: 31rpx;
+  box-shadow: 0 19rpx 46rpx rgba(175, 82, 222, 0.09);
+}
+
+.avatar {
+  box-sizing: border-box;
+  width: 138rpx;
+  height: 138rpx;
+  border-radius: 999rpx;
+  background: #EDEDF2;
+  border: 6rpx solid #FFFFFF;
+}
+
+.user-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name,
+.user-desc,
+.user-badge,
+.credit-title,
+.credit-copy {
+  display: block;
+}
+
+.user-name {
+  color: var(--text-primary);
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 48rpx;
+}
+
+.user-desc {
+  margin-top: 8rpx;
+  color: var(--text-secondary);
+  font-size: 23rpx;
+  line-height: 29rpx;
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 12rpx;
+  padding: 10rpx 19rpx;
+  border-radius: 999rpx;
+  color: var(--accent-primary);
+  background: var(--accent-soft);
+  font-size: 23rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.user-badge-star {
+  font-size: 21rpx;
+}
+
+.chevron {
+  color: #C2C2C7;
+  font-size: 42rpx;
+  line-height: 1;
+}
+
+.credit-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 23rpx;
+  height: 173rpx;
+  overflow: hidden;
+  padding: 31rpx 38rpx 31rpx 96rpx;
+  border-radius: 35rpx;
+  background: linear-gradient(90deg, #5FD3DC 0%, #F6A6DD 55%, #EDE4F3 100%);
+  box-shadow: 0 15rpx 35rpx rgba(159, 140, 255, 0.22);
+}
+
+.credit-glow {
+  position: absolute;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.credit-glow-right {
+  top: -62rpx;
+  right: -19rpx;
+  width: 215rpx;
+  height: 215rpx;
+}
+
+.credit-glow-left {
+  left: -46rpx;
+  bottom: -104rpx;
+  width: 185rpx;
+  height: 185rpx;
+}
+
+.credit-crown {
+  position: absolute;
+  top: 38rpx;
+  left: 35rpx;
+  color: #FFE56B;
+  font-size: 46rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.credit-title {
+  color: #FFFFFF;
+  font-size: 35rpx;
+  font-weight: 700;
+  line-height: 50rpx;
+}
+
+.credit-copy {
+  margin-top: 2rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 23rpx;
+  font-weight: 500;
+  line-height: 33rpx;
+}
+
+.credit-action {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  width: 150rpx;
+  height: 65rpx;
+  margin-top: 23rpx;
+  padding: 0;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: linear-gradient(90deg, #FF77B9 0%, #A58CFF 100%);
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.credit-action-arrow {
+  margin-top: -2rpx;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.quick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 19rpx;
+}
+
+.quick-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: calc((100% - 19rpx) / 2);
+  height: 158rpx;
+  border-radius: 35rpx;
+  background: #FFFFFF;
+}
+
+.quick-icon,
+.quick-label {
+  display: block;
+}
+
+.quick-icon {
+  color: var(--text-primary);
+  font-size: 35rpx;
+  font-weight: 700;
+  line-height: 42rpx;
+}
+
+.quick-label {
+  margin-top: 8rpx;
+  color: var(--text-primary);
+  font-size: 23rpx;
+  font-weight: 700;
+  line-height: 31rpx;
+}
+
+.profile-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 27rpx 0 27rpx;
+}
+
+.profile-section-title {
+  color: var(--text-primary);
+  font-size: 31rpx;
+  font-weight: 700;
+  line-height: 46rpx;
+}
+
+.profile-section-more {
+  color: var(--accent-primary);
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.recent-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 23rpx;
+}
+
+.recent-card {
+  box-sizing: border-box;
+  width: calc((100% - 23rpx) / 2);
+  height: 277rpx;
+  overflow: hidden;
+  padding: 15rpx;
+  border-radius: 35rpx;
+  background: #FFFFFF;
+}
+
+.recent-cover {
+  display: block;
+  width: 100%;
+  height: 200rpx;
+  border-radius: 31rpx;
+  background: #EDEDF2;
+}
+
+.recent-name {
+  display: block;
+  margin-top: 13rpx;
+  color: var(--text-primary);
+  font-size: 23rpx;
+  font-weight: 700;
+  line-height: 29rpx;
+}

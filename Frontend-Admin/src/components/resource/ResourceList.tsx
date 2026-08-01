@@ -1,0 +1,348 @@
+'use client';
+
+import React, { useState, useCallback } from 'react';
+import {
+  Edit,
+  GripVertical,
+} from 'lucide-react';
+import { getModelLogoUrl } from '@/components/icons/models';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragCancelEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+import type { AIModel } from './types';
+
+interface SortableModelCardProps {
+  model: AIModel;
+  onEditInfo: () => void;
+  onToggleEnabled: (nextEnabled: boolean) => void;
+  toggleLoading: boolean;
+  dragOverlay?: boolean;
+  dragDisabled?: boolean;
+}
+
+const normalizeCreditsCost = (value: unknown, defaultValue = 1): number => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return defaultValue;
+  const normalized = Math.round(parsed * 10) / 10;
+  return normalized >= 0 ? normalized : defaultValue;
+};
+
+const formatCreditsCost = (value: unknown): string => {
+  const normalized = normalizeCreditsCost(value);
+  return Number.isInteger(normalized) ? String(normalized) : normalized.toFixed(1);
+};
+
+const formatCny = (value: unknown): string => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return '-';
+  return `¥${parsed.toFixed(2)}`;
+};
+
+const ModelCard: React.FC<SortableModelCardProps> = ({
+  model,
+  onEditInfo,
+  onToggleEnabled,
+  toggleLoading,
+  dragOverlay = false,
+  dragDisabled = false,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: model.id,
+    disabled: dragOverlay || dragDisabled,
+  });
+
+  const style: React.CSSProperties = {
+    transform: dragOverlay ? undefined : CSS.Transform.toString(transform),
+    transition: dragOverlay ? undefined : transition || (isDragging ? undefined : 'transform 220ms ease'),
+    opacity: dragOverlay ? 1 : isDragging ? 0.35 : 1,
+    zIndex: dragOverlay || isDragging ? 50 : undefined,
+    willChange: dragOverlay || isDragging ? 'transform' : undefined,
+  };
+
+  const logoUrl = getModelLogoUrl(model.id);
+  const isEnabled = model.is_enabled ?? model.is_active;
+  const pricingEditable = model.pricing_editable ?? true;
+  const pricingSpecCount = Number(model.pricing_spec_count ?? 0) || 0;
+  const pricingSummaryStatus = String(model.pricing_summary_status || '').trim().toLowerCase();
+  const pricingSummaryError = String(model.pricing_summary_error || '').trim();
+  const unifiedQuotedCredits = model.pricing_default_quoted_credits_cost;
+  const unifiedAnchorCost = model.pricing_default_anchor_cost_cny;
+  const showUnifiedPricingSummary = (model.pricing_mode === 'dynamic') || pricingSpecCount > 0;
+  const pricingSummaryLabel =
+    pricingSummaryStatus === 'ready'
+      ? formatCreditsCost(unifiedQuotedCredits)
+      : pricingSummaryStatus === 'error'
+        ? '定价未就绪'
+        : '-';
+
+  return (
+    <div
+      ref={dragOverlay ? undefined : setNodeRef}
+      style={style}
+      className={`card-primary p-5 transition-all duration-200 ${
+        dragOverlay
+          ? 'rotate-[0.6deg] scale-[1.02] border-white/20 shadow-[0_18px_45px_rgba(0,0,0,0.35)]'
+          : 'hover:border-white/20'
+      } ${isDragging ? 'shadow-[0_12px_30px_rgba(0,0,0,0.28)]' : ''}`}
+    >
+      {/* header: drag + logo + id/name + toggle */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <button
+            type="button"
+            className={`flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-text-muted transition shrink-0 ${
+              dragOverlay
+                ? 'cursor-grabbing text-white/80'
+                : dragDisabled
+                  ? 'cursor-default opacity-50'
+                  : 'cursor-grab touch-none hover:border-white/20 hover:bg-white/[0.08] hover:text-white/80 active:cursor-grabbing'
+            }`}
+            onPointerDown={(event) => event.stopPropagation()}
+            {...(dragOverlay ? {} : attributes)}
+            {...(dragOverlay ? {} : listeners)}
+          >
+            <GripVertical size={16} />
+          </button>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0">
+            <img
+              src={logoUrl}
+              alt={`${model.name || model.id} logo`}
+              className="w-full h-full object-contain rounded-lg"
+              loading="lazy"
+            />
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-semibold text-sm text-text-primary truncate">{model.id}</h4>
+            <p className="text-xs text-text-muted truncate">{model.name || '-'}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          <button
+            type="button"
+            onClick={onEditInfo}
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-text-muted hover:border-white/20 hover:text-text-primary transition"
+            aria-label="编辑信息"
+          >
+            <Edit size={12} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onToggleEnabled(!isEnabled)}
+            disabled={toggleLoading}
+            aria-label={isEnabled ? '停用模型' : '启用模型'}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+              isEnabled ? 'bg-green-500/80' : 'bg-gray-500/40'
+            } ${toggleLoading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isEnabled ? 'translate-x-4' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* metrics row: anchor cost | success rate */}
+      <div className="flex items-center justify-between mb-2 text-sm">
+        <div>
+          {unifiedAnchorCost != null && (
+            <span className="text-text-primary font-medium">{formatCny(unifiedAnchorCost)}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-text-muted">{'成功率'}</span>
+          <span className="font-medium text-green-400">{model.performance.success_rate.toFixed(1)}%</span>
+        </div>
+      </div>
+
+      {/* success rate bar */}
+      <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-3">
+        <div
+          className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-300"
+          style={{ width: `${model.performance.success_rate}%` }}
+        />
+      </div>
+
+      {/* bottom row: credits + usage */}
+      <div className="flex items-center justify-between text-xs mb-3">
+        <div className="flex items-center gap-1.5">
+          <span className="text-text-muted">
+            {showUnifiedPricingSummary ? '统一报价' : '积分'}
+          </span>
+          <span className={`font-medium ${pricingSummaryStatus === 'error' ? 'text-amber-300' : 'text-text-primary'}`}>
+            {showUnifiedPricingSummary ? pricingSummaryLabel : formatCreditsCost(model.cost_credits)}
+          </span>
+          {!showUnifiedPricingSummary && !pricingEditable && (
+            <span className="text-amber-300">JSON</span>
+          )}
+        </div>
+        <div className="flex items-center gap-3 text-text-muted">
+          <span>{'日均'} <span className="text-text-primary">{model.performance.daily_usage}</span></span>
+          <span>{'总计'} <span className="text-text-primary">{model.performance.total_usage.toLocaleString()}</span></span>
+        </div>
+      </div>
+
+      {pricingSummaryError && (
+        <p className="text-xs text-amber-300">{pricingSummaryError}</p>
+      )}
+    </div>
+  );
+};
+
+interface ResourceListProps {
+  models: AIModel[];
+  loading: boolean;
+  onEditInfo: (model: AIModel) => void;
+  onToggleEnabled: (model: AIModel, nextEnabled: boolean) => void;
+  togglingModelId?: string | null;
+  onReorderModels?: (reordered: AIModel[]) => void;
+  dragDisabled?: boolean;
+}
+
+const ResourceList: React.FC<ResourceListProps> = ({
+  models,
+  loading,
+  onEditInfo,
+  onToggleEnabled,
+  togglingModelId,
+  onReorderModels,
+  dragDisabled = false,
+}) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 },
+    })
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+  }, []);
+
+  const handleDragCancel = useCallback((_event?: DragCancelEvent) => {
+    setActiveId(null);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveId(null);
+      const { active, over } = event;
+      if (!over || active.id === over.id || !onReorderModels) return;
+
+      const oldIndex = models.findIndex((m) => m.id === active.id);
+      const newIndex = models.findIndex((m) => m.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const reordered = arrayMove(models, oldIndex, newIndex);
+      onReorderModels(reordered);
+    },
+    [models, onReorderModels]
+  );
+
+  const disableDrag = dragDisabled || !onReorderModels;
+  const activeModel = activeId ? models.find((item) => item.id === activeId) ?? null : null;
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="card-primary p-5">
+            <div className="animate-pulse space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 bg-white/10 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-white/10 rounded w-3/4" />
+                  <div className="h-3 bg-white/10 rounded w-1/2" />
+                </div>
+              </div>
+              <div className="h-1.5 bg-white/10 rounded-full" />
+              <div className="h-3 bg-white/10 rounded w-2/3" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (models.length === 0) {
+    return (
+      <div className="card-primary p-12 text-center">
+        <p className="text-text-muted">{'暂无模型数据'}</p>
+      </div>
+    );
+  }
+
+  const sortableIds = models.map((m) => m.id);
+
+  const grid = (
+    <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      {models.map((model) => (
+        <ModelCard
+          key={model.id}
+          model={model}
+          onEditInfo={() => onEditInfo(model)}
+          onToggleEnabled={(nextEnabled) => onToggleEnabled(model, nextEnabled)}
+          toggleLoading={togglingModelId === model.id}
+          dragDisabled={disableDrag}
+        />
+      ))}
+    </div>
+  );
+
+  if (disableDrag) {
+    return grid;
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragCancel={handleDragCancel}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+        {grid}
+      </SortableContext>
+      <DragOverlay>
+        {activeModel ? (
+          <div className="pointer-events-none w-[min(100vw-2rem,26rem)]">
+            <ModelCard
+              model={activeModel}
+              onEditInfo={() => undefined}
+              onToggleEnabled={() => undefined}
+              toggleLoading={false}
+              dragOverlay
+            />
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  );
+};
+
+export default ResourceList;

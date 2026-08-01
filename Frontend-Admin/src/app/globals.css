@@ -1,0 +1,429 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* 完全复用用户端的基础与组件样式，确保视觉与交互统一 */
+@layer base {
+  :root {
+    --background: 10 10 12;
+    --surface: 14 14 17;
+    --card: 5 5 7;
+    --border: rgba(255, 255, 255, 0.05);
+    --text-primary: 255 255 255;
+    --text-secondary: 203 213 225;
+    --text-muted: 148 163 184;
+    --accent: 168 85 247;
+    --accent-hover: 139 92 246;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    @apply bg-background font-sans;
+    color: rgb(var(--text-primary));
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.3);
+    border-radius: 3px;
+    border: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(148, 163, 184, 0.5);
+  }
+
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-in {
+    animation: fade-in 0.5s ease-in-out;
+  }
+
+  .slide-in-from-bottom-4 {
+    animation: slide-up 0.4s ease-out;
+    transform: translateY(0);
+  }
+
+  .fade-in {
+    animation: fade-in 0.3s ease-in-out;
+  }
+
+  .zoom-in-95 {
+    animation: zoom-in 0.2s ease-out;
+  }
+
+  @keyframes zoom-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .bg-gradient-radial {
+    background: radial-gradient(
+      circle at 20% 50%,
+      rgba(168, 85, 247, 0.15) 0%,
+      transparent 50%
+    );
+  }
+
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(10, 10, 12, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-md {
+    backdrop-filter: blur(8px);
+    background: rgba(10, 10, 12, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-sm {
+    backdrop-filter: blur(4px);
+    background: rgba(10, 10, 12, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium py-2.5 px-6 rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-white/10 text-white font-medium py-2.5 px-6 rounded-xl transition-all hover:bg-white/20 border border-white/10 hover:border-white/20;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white font-medium py-2.5 px-6 rounded-xl transition-all hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] border border-red-500/30;
+  }
+
+  .btn-ghost {
+    @apply text-slate-400 font-medium py-2 px-4 rounded-lg transition-all hover:text-slate-300 hover:bg-white/5;
+  }
+
+  .card-primary {
+    @apply bg-surface border rounded-2xl p-6 transition-all hover:border-white/10;
+    border-color: var(--border);
+  }
+
+  .card-secondary {
+    @apply bg-card border rounded-xl p-4 transition-all hover:bg-white/5;
+    border-color: var(--border);
+  }
+
+  .input-primary {
+    @apply bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/30 transition-all;
+    color: rgb(var(--text-primary));
+  }
+
+  /* 修复 select 下拉选项的颜色显示问题 */
+  select {
+    color-scheme: dark;
+  }
+
+  select option {
+    background-color: rgb(14 14 17);
+    color: rgb(255 255 255);
+    padding: 8px 12px;
+  }
+
+  select option:hover,
+  select option:checked {
+    background-color: rgb(168 85 247);
+    color: rgb(255 255 255);
+  }
+
+  select option:disabled {
+    background-color: rgb(5 5 7);
+    color: rgb(148 163 184);
+    opacity: 0.5;
+  }
+
+  ::selection {
+    @apply bg-purple-500/30 text-white;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  .btn-primary-sm {
+    @apply btn bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500 shadow-lg shadow-purple-500/20;
+  }
+
+  .btn-secondary-sm {
+    @apply btn bg-white/10 text-white border border-white/10 hover:bg-white/20;
+  }
+
+  .btn-ghost-sm {
+    @apply btn hover:bg-white/5;
+    color: rgb(var(--text-secondary));
+  }
+  
+  .btn-ghost-sm:hover {
+    color: rgb(var(--text-primary));
+  }
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-online {
+    @apply bg-green-500;
+  }
+
+  .status-generating {
+    @apply bg-yellow-500;
+  }
+
+  .status-offline {
+    @apply bg-gray-500;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded-full;
+  }
+
+  .badge-primary {
+    @apply badge bg-purple-500/10 text-purple-400 border border-purple-500/20;
+  }
+
+  .badge-success {
+    @apply badge bg-green-500/10 text-green-400 border border-green-500/20;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-500/10 text-yellow-400 border border-yellow-500/20;
+  }
+
+  .badge-error {
+    @apply badge bg-red-500/10 text-red-400 border border-red-500/20;
+  }
+
+  /* 管理员端特有的统计卡、边框高亮等，继续沿用用户端扩展样式 */
+  .admin-gradient-border {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+
+  .admin-glow {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.1), 0 0 40px rgba(59, 130, 246, 0.05);
+  }
+
+  .admin-card-hover {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .admin-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(168, 85, 247, 0.1), 0 0 16px rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+
+  .admin-stat-card {
+    background: linear-gradient(135deg, rgba(10, 10, 12, 0.8), rgba(14, 14, 17, 0.8));
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .admin-stat-card:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(59, 130, 246, 0.05));
+    transform: scale(1.02);
+    box-shadow: 0 12px 24px rgba(168, 85, 247, 0.15);
+  }
+
+  .admin-section-title {
+    position: relative;
+    padding-left: 12px;
+  }
+
+  .admin-section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #a855f7, #3b82f6);
+    border-radius: 2px;
+  }
+
+  /* 用户管理相关样式 */
+  .user-table-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .user-table-row.active {
+    border-left: 3px solid #a855f7;
+  }
+
+  .user-avatar-gradient {
+    background: linear-gradient(135deg, #a855f7, #3b82f6);
+  }
+
+  .user-stats-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .user-modal-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+  }
+
+  .user-modal-content {
+    background: linear-gradient(135deg, rgba(10, 10, 12, 0.95), rgba(14, 14, 17, 0.95));
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .quota-progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .quota-progress-fill {
+    background: linear-gradient(90deg, #a855f7, #3b82f6);
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+  }
+
+  .user-action-button {
+    transition: all 0.2s ease;
+  }
+
+  .user-action-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+  }
+
+  .user-filter-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgb(255, 255, 255);
+    transition: all 0.2s ease;
+  }
+
+  .user-filter-select:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #a855f7;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+  }
+
+  .user-search-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgb(255, 255, 255);
+    transition: all 0.2s ease;
+  }
+
+  .user-search-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #a855f7;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+  }
+
+  .user-search-input::placeholder {
+    color: rgba(148, 163, 184, 0.7);
+  }
+}

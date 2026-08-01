@@ -1,0 +1,38 @@
+<view class="redeem-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="redeem-nav">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="redeem-title">兑换码</text>
+  </view>
+
+  <view class="balance-card">
+    <text class="balance-label">当前积分</text>
+    <text class="balance-value">{{creditBalance}}</text>
+    <text class="balance-copy">输入活动兑换码，积分直接进入账户余额。</text>
+  </view>
+
+  <view class="redeem-card">
+    <text class="field-label">兑换码</text>
+    <input class="code-input" value="{{code}}" placeholder="例如 JIBIAN2026" maxlength="24" bindinput="inputCode" />
+    <view class="redeem-button" bindtap="redeemCode" hover-class="button-pressed">立即兑换</view>
+    <text class="redeem-tip">兑换码由活动发放，兑换后积分自动到账。</text>
+  </view>
+
+  <view class="record-section">
+    <text class="section-title">兑换记录</text>
+    <view class="record-list" wx:if="{{records.length}}">
+      <block wx:for="{{records}}" wx:key="id">
+        <view class="record-row">
+          <view>
+            <text class="record-code">{{item.code}}</text>
+            <text class="record-time">{{item.timeText}}</text>
+          </view>
+          <text class="record-amount">+{{item.amount}}</text>
+        </view>
+      </block>
+    </view>
+    <view class="empty-card" wx:else>
+      <text class="empty-title">还没有兑换记录</text>
+      <text class="empty-copy">拿到活动码后可以在这里兑换积分。</text>
+    </view>
+  </view>
+</view>

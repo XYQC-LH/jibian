@@ -1,0 +1,51 @@
+<view class="search-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="search-nav">
+    <view class="search-box">
+      <text class="search-icon">⌕</text>
+      <input
+        class="search-input"
+        value="{{keyword}}"
+        placeholder="搜索头像、写真、风格"
+        focus="{{true}}"
+        bindinput="inputKeyword"
+      />
+      <view class="clear-button" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
+    </view>
+    <view class="cancel-button" style="margin-right: {{menuButtonRightGap}}px;" bindtap="goBack" hover-class="button-pressed">取消</view>
+  </view>
+
+  <view class="hot-section">
+    <text class="section-title">热门搜索</text>
+    <view class="hot-row">
+      <block wx:for="{{hotWords}}" wx:key="*this">
+        <view class="hot-chip" data-word="{{item}}" bindtap="selectHotWord" hover-class="button-pressed">{{item}}</view>
+      </block>
+    </view>
+  </view>
+
+  <view class="result-head">
+    <text class="section-title">{{keyword ? "搜索结果" : "推荐玩法"}}</text>
+    <text class="result-count">{{results.length}} 个</text>
+  </view>
+
+  <view class="result-grid" wx:if="{{results.length}}">
+    <block wx:for="{{results}}" wx:key="id">
+      <view class="result-card" data-id="{{item.id}}" bindtap="goCreate" hover-class="button-pressed">
+        <image class="result-image" src="{{item.cover}}" mode="aspectFill" />
+        <view class="result-copy">
+          <text class="result-name">{{item.name}}</text>
+          <text class="result-desc">{{item.description}}</text>
+          <view class="result-meta">
+            <text>{{item.category}}</text>
+            <text>{{item.price}} 积分</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="empty-card" wx:else>
+    <text class="empty-title">没有找到相关玩法</text>
+    <text class="empty-copy">换个关键词试试，比如头像、写真或街拍。</text>
+  </view>
+</view>

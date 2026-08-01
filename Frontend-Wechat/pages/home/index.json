@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "即变",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "bottom-nav": "../../components/bottom-nav/index"
+  }
+}

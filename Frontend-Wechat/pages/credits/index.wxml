@@ -1,0 +1,48 @@
+<view class="credits-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="credits-nav">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="credits-title">积分充值</text>
+    <view class="support-button" style="right: {{menuButtonRightGap}}px;" bindtap="goRedeem" hover-class="button-pressed">兑换码</view>
+  </view>
+
+  <view class="credit-balance-card">
+    <text class="balance-label">当前积分</text>
+    <text class="balance-value">{{creditBalance}}</text>
+    <text class="balance-copy">积分可用于人物写真、头像和角色玩法变图</text>
+  </view>
+
+  <view class="recharge-tabs">
+    <view class="recharge-tab" bindtap="goMembership">会员订阅</view>
+    <view class="recharge-tab recharge-tab-active">积分充值</view>
+  </view>
+
+  <view class="detail-switch">
+    <view class="detail-item detail-item-active" bindtap="goDetail">充值明细</view>
+    <view class="detail-item" bindtap="goDetail">积分明细</view>
+  </view>
+
+  <text class="section-title">选择充值</text>
+
+  <view class="package-grid">
+    <block wx:for="{{packages}}" wx:key="id">
+      <view
+        class="package-card {{activePackage === item.id ? 'package-card-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectPackage"
+        hover-class="button-pressed"
+      >
+        <text class="package-badge" wx:if="{{item.badge}}">{{item.badge}}</text>
+        <text class="package-price">{{item.price}}</text>
+        <text class="package-label">{{item.label}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="pay-footer">
+    <view class="pay-note">
+      <text>已选：{{activePrice}}</text>
+      <text>预计到账积分</text>
+    </view>
+    <view class="pay-button" bindtap="confirmRecharge" hover-class="button-pressed">立即充值 {{activePrice}}</view>
+  </view>
+</view>

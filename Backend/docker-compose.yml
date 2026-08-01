@@ -1,0 +1,78 @@
+# Production compose configuration.
+# All secrets and environment-specific values are interpolated from a .env
+# file placed next to this file (Backend/.env). Missing required variables
+# fail fast on `docker compose up`.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jibian-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "5432:5432"
+    volumes:
+      - jibian_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: jibian-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    container_name: jibian-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      PORT: ${PORT:-8000}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:?ADMIN_SESSION_SECRET is required}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME is required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      ASSET_PUBLIC_BASE_URL: ${ASSET_PUBLIC_BASE_URL:?ASSET_PUBLIC_BASE_URL is required}
+      ASSET_STORAGE_BUCKET: ${ASSET_STORAGE_BUCKET:-}
+      ASSET_STORAGE_REGION: ${ASSET_STORAGE_REGION:-}
+      ASSET_STORAGE_ENDPOINT: ${ASSET_STORAGE_ENDPOINT:-}
+      ASSET_STORAGE_ACCESS_KEY_ID: ${ASSET_STORAGE_ACCESS_KEY_ID:-}
+      ASSET_STORAGE_SECRET_ACCESS_KEY: ${ASSET_STORAGE_SECRET_ACCESS_KEY:-}
+      COS_SECRET_REF: ${COS_SECRET_REF:-}
+      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
+      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
+      T8_BASE_URL: ${T8_BASE_URL:-}
+      T8_API_KEY: ${T8_API_KEY:-}
+      GRSAI_API_HOST: ${GRSAI_API_HOST:-}
+      GRSAI_API_KEY: ${GRSAI_API_KEY:-}
+      KUAI_BASE_URL: ${KUAI_BASE_URL:-}
+      KUAI_API_KEY: ${KUAI_API_KEY:-}
+      ALLOW_MOCK_WECHAT: ${ALLOW_MOCK_WECHAT:-false}
+      ALLOW_MOCK_SOURCE: ${ALLOW_MOCK_SOURCE:-false}
+      MODERATION_ENABLED: ${MODERATION_ENABLED:-true}
+      MODERATION_API_URL: ${MODERATION_API_URL:-}
+      MODERATION_API_KEY: ${MODERATION_API_KEY:-}
+    ports:
+      - "8000:8000"
+    command: sh -c "npx prisma db push && npx prisma db seed && node dist/main.js"
+
+volumes:
+  jibian_postgres_data:

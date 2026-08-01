@@ -1,0 +1,129 @@
+.gallery-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 16rpx 180rpx;
+  background: #FFFFFF;
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.gallery-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-top: 22rpx;
+}
+
+.gallery-title,
+.gallery-subtitle {
+  display: block;
+}
+
+.gallery-title {
+  color: var(--text-primary);
+  font-size: 46rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.gallery-subtitle {
+  margin-top: 12rpx;
+  color: #7B7B84;
+  font-size: 22rpx;
+  line-height: 1.35;
+}
+
+.manage-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52rpx;
+  padding: 0 24rpx;
+  border-radius: 999rpx;
+  color: var(--accent-primary);
+  background: var(--accent-soft);
+  font-size: 22rpx;
+  font-weight: 900;
+}
+
+.gallery-groups {
+  margin-top: 20rpx;
+}
+
+.gallery-group {
+  margin-top: 24rpx;
+}
+
+.group-title {
+  display: block;
+  margin-bottom: 12rpx;
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.gallery-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.gallery-image {
+  display: block;
+  width: calc((100% - 16rpx) / 3);
+  height: 154rpx;
+  background: #ECECF1;
+}
+
+.gallery-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 610rpx;
+  text-align: center;
+}
+
+.empty-orb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 188rpx;
+  height: 188rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #F0DDF8, #DCEBFF 50%, #FFE1EE);
+}
+
+.empty-orb-core {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.9);
+}
+
+.empty-title {
+  margin-top: 32rpx;
+  color: var(--text-primary);
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.empty-copy {
+  margin-top: 12rpx;
+  color: #7B7B84;
+  font-size: 25rpx;
+}
+
+.empty-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 212rpx;
+  height: 72rpx;
+  margin-top: 34rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #8D6CFF, #F06CB5);
+  font-size: 25rpx;
+  font-weight: 900;
+}

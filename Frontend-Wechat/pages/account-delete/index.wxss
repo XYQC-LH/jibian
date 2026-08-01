@@ -1,0 +1,185 @@
+.delete-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 24rpx 48rpx;
+  background: var(--bg-surface);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.nav-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84rpx;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  color: var(--text-primary);
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.nav-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.warning-panel,
+.verify-panel {
+  box-sizing: border-box;
+  margin-top: 40rpx;
+  padding: 34rpx;
+  border-radius: 30rpx;
+  background: #FFFFFF;
+}
+
+.warning-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 86rpx;
+  height: 86rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: #FF3B30;
+  font-size: 46rpx;
+  font-weight: 900;
+}
+
+.warning-title,
+.verify-title {
+  display: block;
+  margin-top: 24rpx;
+  color: var(--text-primary);
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.warning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  margin-top: 28rpx;
+  color: var(--text-secondary);
+  font-size: 25rpx;
+  line-height: 1.45;
+}
+
+.danger-button,
+.cancel-button,
+.finish-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  margin-top: 28rpx;
+  border-radius: 36rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.danger-button {
+  color: #FFFFFF;
+  background: #FF3B30;
+}
+
+.cancel-button {
+  color: var(--text-primary);
+  background: #FFFFFF;
+}
+
+.verify-copy,
+.success-copy {
+  display: block;
+  margin-top: 14rpx;
+  color: var(--text-secondary);
+  font-size: 25rpx;
+  line-height: 1.45;
+}
+
+.phone-display {
+  margin-top: 26rpx;
+  box-sizing: border-box;
+  padding: 24rpx;
+  border-radius: 22rpx;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.code-row {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 22rpx;
+}
+
+.code-input {
+  flex: 1;
+  min-width: 0;
+  height: 90rpx;
+  box-sizing: border-box;
+  padding: 0 24rpx;
+  border: 2rpx solid #E2E2E8;
+  border-radius: 22rpx;
+  background: #FFFFFF;
+  color: var(--text-primary);
+  font-size: 27rpx;
+}
+
+.code-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 210rpx;
+  height: 90rpx;
+  border-radius: 22rpx;
+  color: #FFFFFF;
+  background: #A58CFF;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.success-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 230rpx;
+  text-align: center;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #A58CFF, #FF77B9);
+  font-size: 76rpx;
+  font-weight: 900;
+}
+
+.success-title {
+  margin-top: 32rpx;
+  color: var(--text-primary);
+  font-size: 40rpx;
+  font-weight: 900;
+}
+
+.finish-button {
+  width: 100%;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #A58CFF, #FF77B9);
+}

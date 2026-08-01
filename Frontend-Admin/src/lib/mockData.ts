@@ -1,0 +1,275 @@
+import type { User } from '@/types';
+import type { UIMappedTask, TaskStats, TrendPoint } from '@/components/admin/task-center/types';
+import type { AIModel } from '@/components/resource/types';
+import type { PricingSettings } from '@/lib/api-clients/types';
+
+export const ENABLE_MOCKS = process.env.NEXT_PUBLIC_ENABLE_MOCKS !== 'false';
+
+export const mockAdminUser: User = {
+  id: 'local-admin',
+  email: 'admin@jibian.local',
+  username: 'admin',
+  login_account: 'admin',
+  credits: 0,
+  permissions: [
+    'admin.dashboard.read',
+    'admin.tasks.read',
+    'admin.resources.read',
+    'admin.users.read',
+    'admin.finance.read',
+  ],
+  created_at: '2026-08-01T00:00:00.000Z',
+  is_active: true,
+  status: 'active',
+};
+
+export const mockSystemStats = {
+  users: {
+    total: 1286,
+    active: 342,
+    recent_active: 342,
+    today_registrations: 48,
+    new: 48,
+  },
+  tasks: {
+    total: 924,
+    completed: 872,
+    failed: 18,
+    generating: 22,
+    pending: 12,
+  },
+  credits: {
+    total_earned: 386420,
+    monthly_earned: 82400,
+    daily_spent: 13680,
+    total_balance: 158900,
+  },
+  transactions: {
+    total: 216,
+    completed: 203,
+    failed: 4,
+    pending: 9,
+    average_value: 19.9,
+    conversion_rate: 7.8,
+  },
+  trends: Array.from({ length: 14 }).map((_, index) => {
+    const date = new Date('2026-07-19T00:00:00.000Z');
+    date.setDate(date.getDate() + index);
+    const tasks = 38 + index * 3 + (index % 3) * 6;
+    return {
+      date: date.toISOString(),
+      tasks,
+      tasks_completed: Math.max(0, tasks - 3 - (index % 2)),
+      users: 18 + index * 2,
+      revenue: 220 + index * 36,
+      transactions: 8 + index,
+    };
+  }),
+  models: {
+    '即变人物写真': { revenue: 12800, tasks: 426, users: 288 },
+    '即变头像生成': { revenue: 8600, tasks: 318, users: 204 },
+    '即变角色封面': { revenue: 5200, tasks: 180, users: 126 },
+  },
+  payment_methods: {
+    wechat_pay: { revenue: 18400, count: 182 },
+    redeem_code: { revenue: 8200, count: 74 },
+  },
+  performance: {
+    avg_response_time: 1.4,
+    system_uptime: 99.7,
+    queue_size: 12,
+    cpu_usage: 36,
+    memory_usage: 58,
+  },
+};
+
+const buildModeration = (decision: 'pass' | 'block' | 'not_checked' = 'pass') => ({
+  input: {
+    checked: decision !== 'not_checked',
+    decision,
+    ok: decision === 'not_checked' ? null : decision === 'pass',
+    reason: decision === 'block' ? '占位：疑似不合规图片' : null,
+    provider: decision === 'not_checked' ? null : 'mock-safe-service',
+    checkedAt: decision === 'not_checked' ? null : new Date().toISOString(),
+  },
+  output: {
+    checked: decision !== 'not_checked',
+    decision,
+    ok: decision === 'not_checked' ? null : decision === 'pass',
+    reason: decision === 'block' ? '占位：输出审核未通过' : null,
+    provider: decision === 'not_checked' ? null : 'mock-safe-service',
+    checkedAt: decision === 'not_checked' ? null : new Date().toISOString(),
+  },
+  hasBlock: decision === 'block',
+});
+
+export const mockTaskStats: TaskStats = {
+  total: 924,
+  completed: 872,
+  failed: 18,
+  generating: 22,
+  pending: 12,
+  avgProcessingTime: 42,
+  successRate: 97.9,
+};
+
+export const mockTaskTrends: TrendPoint[] = mockSystemStats.trends.map((item) => ({
+  time: item.date,
+  completed: item.tasks_completed,
+  failed: Math.max(0, item.tasks - item.tasks_completed - 1),
+  new: item.tasks,
+  otherFailed: 1,
+}));
+
+export const mockAdminTasks: UIMappedTask[] = [
+  {
+    id: 'REQ-20260801-0001',
+    type: 'image',
+    model: '即变人物写真',
+    modelName: 'portrait-style-v1',
+    vendor: 'mock-provider-a',
+    sourceId: 'provider_attempt_001',
+    attempts: [{ attempt_no: 1, status: 'success', source_id: 'mock-a', vendor: 'provider-a' }],
+    taskClass: 'base',
+    user: 'openid_9c8a...1123',
+    status: 'succeeded',
+    progress: 100,
+    duration: '48s',
+    cost: 12,
+    createdAt: '2026-08-01T09:10:00.000Z',
+    completedAt: '2026-08-01T09:10:48.000Z',
+    moderation: buildModeration('pass'),
+    purgeError: null,
+  },
+  {
+    id: 'REQ-20260801-0002',
+    type: 'image',
+    model: '即变头像生成',
+    modelName: 'avatar-style-v1',
+    vendor: 'mock-provider-a',
+    sourceId: 'provider_attempt_002',
+    attempts: [{ attempt_no: 1, status: 'running', source_id: 'mock-a', vendor: 'provider-a' }],
+    taskClass: 'base',
+    user: 'openid_6a2f...88cd',
+    status: 'generating',
+    progress: 68,
+    etaSeconds: 18,
+    duration: '-',
+    cost: 8,
+    createdAt: '2026-08-01T09:18:00.000Z',
+    moderation: buildModeration('pass'),
+    purgeError: null,
+  },
+  {
+    id: 'REQ-20260801-0003',
+    type: 'image',
+    model: '即变角色封面',
+    modelName: 'cover-role-v1',
+    vendor: 'mock-provider-b',
+    sourceId: 'provider_attempt_003',
+    attempts: [
+      { attempt_no: 1, status: 'timeout', source_id: 'mock-a', vendor: 'provider-a' },
+      { attempt_no: 2, status: 'success', source_id: 'mock-b', vendor: 'provider-b' },
+    ],
+    taskClass: 'base',
+    user: 'openid_e51b...709a',
+    status: 'succeeded',
+    progress: 100,
+    duration: '1m 12s',
+    cost: 16,
+    createdAt: '2026-08-01T09:22:00.000Z',
+    completedAt: '2026-08-01T09:23:12.000Z',
+    moderation: buildModeration('pass'),
+    purgeError: null,
+  },
+  {
+    id: 'REQ-20260801-0004',
+    type: 'image',
+    model: '即变人物写真',
+    modelName: 'portrait-style-v1',
+    vendor: 'mock-provider-a',
+    sourceId: 'provider_attempt_004',
+    attempts: [{ attempt_no: 1, status: 'failed', source_id: 'mock-a', vendor: 'provider-a' }],
+    taskClass: 'base',
+    user: 'openid_a7d1...43bf',
+    status: 'failed',
+    progress: 0,
+    duration: '-',
+    cost: 0,
+    createdAt: '2026-08-01T09:28:00.000Z',
+    moderation: buildModeration('block'),
+    purgeError: null,
+    error: '占位：输入审核未通过，已自动退款。',
+  },
+];
+
+export const mockAIModels: AIModel[] = [
+  {
+    id: 'portrait-style-v1',
+    name: '即变人物写真',
+    description: '上传一张头像，生成轻写真风格人物图。',
+    type: 'image',
+    output_type: 'image',
+    order: 1,
+    usage_count: 426,
+    provider: 'mock-provider-a',
+    cost_credits: 12,
+    pricing_mode: 'fixed',
+    pricing_editable: true,
+    is_active: true,
+    is_enabled: true,
+    status: 'active',
+    is_available: true,
+    model_config: {},
+    performance: { avg_processing_time: 48, success_rate: 98.2, daily_usage: 86, total_usage: 426 },
+    created_at: '2026-08-01T00:00:00.000Z',
+    updated_at: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'avatar-style-v1',
+    name: '即变头像生成',
+    description: '适合朋友圈、微信头像和社交平台头像。',
+    type: 'image',
+    output_type: 'image',
+    order: 2,
+    usage_count: 318,
+    provider: 'mock-provider-a',
+    cost_credits: 8,
+    pricing_mode: 'fixed',
+    pricing_editable: true,
+    is_active: true,
+    is_enabled: true,
+    status: 'active',
+    is_available: true,
+    model_config: {},
+    performance: { avg_processing_time: 36, success_rate: 97.6, daily_usage: 64, total_usage: 318 },
+    created_at: '2026-08-01T00:00:00.000Z',
+    updated_at: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'cover-role-v1',
+    name: '即变角色封面',
+    description: '把人物照片生成角色化封面视觉。',
+    type: 'image',
+    output_type: 'image',
+    order: 3,
+    usage_count: 180,
+    provider: 'mock-provider-b',
+    cost_credits: 16,
+    pricing_mode: 'fixed',
+    pricing_editable: true,
+    is_active: true,
+    is_enabled: true,
+    status: 'active',
+    is_available: true,
+    model_config: {},
+    performance: { avg_processing_time: 72, success_rate: 95.8, daily_usage: 34, total_usage: 180 },
+    created_at: '2026-08-01T00:00:00.000Z',
+    updated_at: '2026-08-01T00:00:00.000Z',
+  },
+];
+
+export const mockPricingSettings: PricingSettings = {
+  global_pricing_multiplier: 1,
+  finance_credit_per_cny: 10,
+};

@@ -1,0 +1,102 @@
+{
+  "description": "即变微信小程序 MVP",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "file",
+        "value": "assets/design/hero-bg.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/design/jimeng-feed-1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/design/jimeng-feed-2.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/design/jimeng-feed-3.png"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
+    "lazyloadPlaceholderEnable": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "enableEngineNative": false,
+    "useIsolateContext": true,
+    "userConfirmedBundleSwitch": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "disableUseStrict": false,
+    "minifyWXML": true,
+    "showES6CompileOption": false,
+    "compileWorklet": false,
+    "localPlugins": false,
+    "useCompilerPlugins": false,
+    "condition": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "latest",
+  "appid": "wx80fdb2e6af350b32",
+  "projectname": "jibian",
+  "miniprogramRoot": "Frontend-Wechat/",
+  "srcMiniprogramRoot": "Frontend-Wechat/",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "首页",
+          "pathName": "pages/home/index",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "玩法列表",
+          "pathName": "pages/templates/index",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "我的",
+          "pathName": "pages/profile/index",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "设置",
+          "pathName": "pages/settings/index",
+          "query": "",
+          "scene": null
+        }
+      ]
+    }
+  },
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

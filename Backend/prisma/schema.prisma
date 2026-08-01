@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  openid     String   @unique @db.VarChar(128)
+  unionid    String?  @db.VarChar(128)
+  nickname   String?  @db.VarChar(64)
+  avatarUrl  String?  @map("avatar_url") @db.Text
+  phone      String?  @db.VarChar(32)
+  phoneBound Boolean  @default(false) @map("phone_bound")
+  status     String   @default("active") @db.VarChar(32)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  assets        Asset[]
+  tasks         Task[]
+  creditAccount CreditAccount?
+  creditLedger  CreditLedger[]
+  userCreations UserCreation[]
+  favorites     Favorite[]
+
+  @@map("users")
+}
+
+model AdminUser {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username    String   @unique @db.VarChar(64)
+  passwordHash String  @map("password_hash") @db.Text
+  envSyncedAt DateTime @map("env_synced_at") @db.Timestamptz
+
+  @@map("admin_users")
+}
+
+model Task {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  templateId          String    @map("template_id") @db.Uuid
+  inputAssetId        String    @map("input_asset_id") @db.Uuid
+  resultAssetId       String?   @map("result_asset_id") @db.Uuid
+  status              String    @default("running") @db.VarChar(32)
+  expectedResultCount Int       @default(1) @map("expected_result_count")
+  creditCost          Int       @default(0) @map("credit_cost")
+  creditStatus        String    @default("charged") @map("credit_status") @db.VarChar(32)
+  isVisible           Boolean   @default(false) @map("is_visible")
+  errorMessage        String?   @map("error_message") @db.Text
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  finishedAt          DateTime? @map("finished_at") @db.Timestamptz
+  durationMs          Int?      @map("duration_ms")
+
+  user        User          @relation(fields: [userId], references: [id])
+  template    Template      @relation(fields: [templateId], references: [id])
+  inputAsset  Asset         @relation("TaskInputAsset", fields: [inputAssetId], references: [id])
+  resultAsset Asset?        @relation("TaskResultAsset", fields: [resultAssetId], references: [id])
+  sourceRuns  SourceRun[]
+  creations   UserCreation[]
+
+  @@map("tasks")
+}
+
+model SourceRun {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  taskId             String   @map("task_id") @db.Uuid
+  sourceId           String   @map("source_id") @db.VarChar(128)
+  upstreamJobId      String?  @map("upstream_job_id") @db.VarChar(128)
+  status             String   @db.VarChar(32)
+  costAmount         Decimal? @map("cost_amount") @db.Decimal(12, 4)
+  sourceErrorMessage String?  @map("source_error_message") @db.Text
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  task Task @relation(fields: [taskId], references: [id])
+
+  @@map("source_runs")
+}
+
+model Template {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String @db.VarChar(80)
+  category     String @db.VarChar(64)
+  coverAssetId String? @map("cover_asset_id") @db.Uuid
+  prompt       String @db.Text
+  priceCredits Int    @default(0) @map("price_credits")
+  resultCount  Int    @default(1) @map("result_count")
+  sortOrder    Int    @default(0) @map("sort_order")
+  status       String @default("draft") @db.VarChar(32)
+
+  coverAsset Asset? @relation("TemplateCoverAsset", fields: [coverAssetId], references: [id])
+  tasks      Task[]
+  favorites  Favorite[]
+
+  @@map("templates")
+}
+
+model GenerationTimeAnchor {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resultCount           Int      @unique @map("result_count")
+  anchorDurationSeconds Decimal  @default(30) @map("anchor_duration_seconds") @db.Decimal(10, 3)
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("generation_time_anchors")
+}
+
+model Asset {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerUserId String?  @map("owner_user_id") @db.Uuid
+  assetType   String   @map("asset_type") @db.VarChar(32)
+  storageKey  String   @unique @map("storage_key") @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  ownerUser      User?          @relation(fields: [ownerUserId], references: [id])
+  taskInputs     Task[]         @relation("TaskInputAsset")
+  taskResults    Task[]         @relation("TaskResultAsset")
+  templateCovers Template[]     @relation("TemplateCoverAsset")
+  userCreations  UserCreation[]
+
+  @@map("assets")
+}
+
+model ReviewRecord {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetType  String   @map("target_type") @db.VarChar(64)
+  targetId    String   @map("target_id") @db.Uuid
+  reviewStage String   @map("review_stage") @db.VarChar(32)
+  status      String   @default("pending") @db.VarChar(32)
+  policyHit   Json?    @map("policy_hit")
+  reason      String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("review_records")
+}
+
+model CreditAccount {
+  userId    String   @id @map("user_id") @db.Uuid
+  balance   Int      @default(0)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("credit_accounts")
+}
+
+model CreditLedger {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  type         String   @db.VarChar(32)
+  amount       Int
+  refType      String   @map("ref_type") @db.VarChar(64)
+  refId        String   @map("ref_id") @db.Uuid
+  balanceAfter Int      @map("balance_after")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("credit_ledger")
+}
+
+model RedeemCode {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String    @unique @db.VarChar(64)
+  amount    Int
+  status    String    @default("active") @db.VarChar(32)
+  maxUses   Int       @default(1) @map("max_uses")
+  usedCount Int       @default(0) @map("used_count")
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("redeem_codes")
+}
+
+model UserCreation {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  taskId       String   @map("task_id") @db.Uuid
+  title        String?  @db.VarChar(120)
+  coverAssetId String   @map("cover_asset_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user       User  @relation(fields: [userId], references: [id])
+  task       Task  @relation(fields: [taskId], references: [id])
+  coverAsset Asset @relation(fields: [coverAssetId], references: [id])
+
+  @@map("user_creations")
+}
+
+model Favorite {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  templateId String   @map("template_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user     User     @relation(fields: [userId], references: [id])
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([userId, templateId])
+  @@map("favorites")
+}

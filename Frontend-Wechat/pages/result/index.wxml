@@ -1,0 +1,51 @@
+<view class="result-page" style="padding-top: {{statusBarHeight}}px;">
+  <image class="result-preview" src="{{resultImage}}" mode="aspectFill" bindtap="previewResult" />
+  <view class="preview-fade"></view>
+
+  <view class="top-bar">
+    <text class="page-title">变好了</text>
+    <view class="success-pill" style="margin-right: {{menuButtonRightGap}}px;" bindtap="goGallery" hover-class="button-pressed">已进图库</view>
+  </view>
+
+  <view class="result-sheet" wx:if="{{resultImage}}">
+    <view class="sheet-handle"></view>
+    <view class="sheet-head">
+      <view>
+        <text class="result-title">{{template.name}}</text>
+        <text class="result-copy">点一下图片看全屏，喜欢就存下来或晒给朋友。</text>
+      </view>
+      <view class="result-price">{{template.price}} 积分</view>
+    </view>
+
+    <view class="source-row" wx:if="{{sourceImage}}">
+      <image class="source-thumb" src="{{sourceImage}}" mode="aspectFill" />
+      <view class="source-copy">
+        <text class="source-title">原图已暂存</text>
+        <text class="source-desc">{{ratio ? "出图比例 " + ratio : "只用于这次变图"}}</text>
+      </view>
+    </view>
+
+    <view class="scene-row">
+      <text wx:if="{{ratio}}">比例 {{ratio}}</text>
+      <block wx:for="{{scenes}}" wx:key="*this">
+        <text>{{item}}</text>
+      </block>
+    </view>
+
+    <view class="save-strip">
+      <view class="save-copy">
+        <text class="save-title">保存结果</text>
+        <text class="save-subtitle">这张图已在本地记录里</text>
+      </view>
+      <view class="capsule-row">
+        <view class="capsule-action" bindtap="restart" hover-class="button-pressed">再变一次</view>
+        <button class="capsule-action share-action" open-type="share" hover-class="button-pressed">晒一下</button>
+        <view class="capsule-action capsule-primary" bindtap="downloadHd" hover-class="button-pressed">下载</view>
+      </view>
+    </view>
+
+    <view class="text-action" bindtap="previewResult" hover-class="button-pressed">全屏看看</view>
+  </view>
+
+  <bottom-nav active="create"></bottom-nav>
+</view>

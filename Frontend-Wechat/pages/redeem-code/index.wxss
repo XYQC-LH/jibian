@@ -1,0 +1,198 @@
+.redeem-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 24rpx 48rpx;
+  background: linear-gradient(180deg, #F2F7FF 0%, #FFFFFF 38%, #FFF7FC 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.redeem-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 82rpx;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  color: var(--text-primary);
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.redeem-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.balance-card,
+.redeem-card,
+.empty-card {
+  box-sizing: border-box;
+  border-radius: 28rpx;
+}
+
+.balance-card {
+  min-height: 166rpx;
+  padding: 28rpx 30rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #B678FF 0%, #78D7F1 100%);
+}
+
+.balance-label,
+.balance-value,
+.balance-copy,
+.field-label,
+.redeem-tip,
+.section-title,
+.record-code,
+.record-time,
+.record-amount,
+.empty-title,
+.empty-copy {
+  display: block;
+}
+
+.balance-label {
+  font-size: 22rpx;
+  font-weight: 800;
+  opacity: 0.82;
+}
+
+.balance-value {
+  margin-top: 4rpx;
+  font-size: 52rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.balance-copy {
+  margin-top: 14rpx;
+  font-size: 21rpx;
+  opacity: 0.86;
+}
+
+.redeem-card {
+  margin-top: 22rpx;
+  padding: 28rpx;
+  background: #FFFFFF;
+}
+
+.field-label {
+  color: var(--text-primary);
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
+.code-input {
+  height: 92rpx;
+  margin-top: 16rpx;
+  box-sizing: border-box;
+  padding: 0 24rpx;
+  border: 2rpx solid #E2E2E8;
+  border-radius: 22rpx;
+  color: var(--text-primary);
+  background: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 800;
+}
+
+.redeem-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84rpx;
+  margin-top: 20rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: var(--accent-gradient);
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.redeem-tip {
+  margin-top: 16rpx;
+  color: #7B7B84;
+  font-size: 22rpx;
+  line-height: 1.45;
+}
+
+.record-section {
+  margin-top: 28rpx;
+}
+
+.section-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.record-list {
+  overflow: hidden;
+  margin-top: 16rpx;
+  border-radius: 24rpx;
+  background: #FFFFFF;
+}
+
+.record-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 104rpx;
+  box-sizing: border-box;
+  padding: 20rpx 24rpx;
+}
+
+.record-row + .record-row {
+  border-top: 1rpx solid #F0F0F5;
+}
+
+.record-code {
+  color: var(--text-primary);
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
+.record-time {
+  margin-top: 6rpx;
+  color: var(--text-tertiary);
+  font-size: 22rpx;
+}
+
+.record-amount {
+  color: #34A853;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320rpx;
+  margin-top: 16rpx;
+  background: #FFFFFF;
+  text-align: center;
+}
+
+.empty-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.empty-copy {
+  margin-top: 12rpx;
+  color: #7B7B84;
+  font-size: 24rpx;
+}

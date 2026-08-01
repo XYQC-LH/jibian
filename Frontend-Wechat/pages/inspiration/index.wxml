@@ -1,0 +1,67 @@
+<view class="inspiration-page">
+  <view class="inspiration-header">
+    <text class="inspiration-title">灵感</text>
+    <view class="collect-button" hover-class="button-pressed">☆</view>
+  </view>
+
+  <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="category-track">
+      <block wx:for="{{categories}}" wx:key="*this">
+        <view
+          class="category-chip {{activeCategory === item ? 'category-chip-active' : ''}}"
+          data-category="{{item}}"
+          bindtap="selectCategory"
+        >
+          {{item}}
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view class="inspiration-grid">
+    <view class="masonry-column">
+      <block wx:for="{{columns.left}}" wx:key="id">
+        <view class="inspiration-card" data-id="{{item.id}}" bindtap="goCreate" hover-class="button-pressed">
+          <view class="cover-wrap">
+            <image class="cover-image" src="{{item.cover}}" mode="widthFix" />
+            <view
+              class="favorite-button {{item.favorite ? 'favorite-button-active' : ''}}"
+              catchtap="toggleFavorite"
+              data-id="{{item.id}}"
+            >
+              {{item.favorite ? "★" : "☆"}}
+            </view>
+          </view>
+          <text class="card-name">{{item.name}}</text>
+          <view class="card-footer">
+            <text class="card-price">{{item.price}} 积分</text>
+            <view class="use-button" catchtap="goCreate" data-id="{{item.id}}">使用</view>
+          </view>
+        </view>
+      </block>
+    </view>
+    <view class="masonry-column">
+      <block wx:for="{{columns.right}}" wx:key="id">
+        <view class="inspiration-card" data-id="{{item.id}}" bindtap="goCreate" hover-class="button-pressed">
+          <view class="cover-wrap">
+            <image class="cover-image" src="{{item.cover}}" mode="widthFix" />
+            <view
+              class="favorite-button {{item.favorite ? 'favorite-button-active' : ''}}"
+              catchtap="toggleFavorite"
+              data-id="{{item.id}}"
+            >
+              {{item.favorite ? "★" : "☆"}}
+            </view>
+          </view>
+          <text class="card-name">{{item.name}}</text>
+          <view class="card-footer">
+            <text class="card-price">{{item.price}} 积分</text>
+            <view class="use-button" catchtap="goCreate" data-id="{{item.id}}">使用</view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <bottom-nav active="inspiration"></bottom-nav>
+</view>

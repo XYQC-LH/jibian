@@ -1,0 +1,41 @@
+<view class="gallery-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="gallery-header">
+    <view>
+      <text class="gallery-title">图库</text>
+      <text class="gallery-subtitle">你变好的作品会自动保存至这里</text>
+    </view>
+    <view class="manage-button" wx:if="{{hasRecords}}" style="margin-right: {{menuButtonRightGap}}px;" bindtap="goManage" hover-class="button-pressed">选择</view>
+  </view>
+
+  <block wx:if="{{hasRecords}}">
+    <view class="gallery-groups">
+      <block wx:for="{{groups}}" wx:key="title" wx:for-item="group">
+        <view class="gallery-group">
+          <text class="group-title">{{group.title}}</text>
+          <view class="gallery-grid">
+            <block wx:for="{{group.items}}" wx:key="id" wx:for-item="work">
+              <image
+                class="gallery-image"
+                src="{{work.image}}"
+                mode="aspectFill"
+                data-url="{{work.image}}"
+                bindtap="previewImage"
+              />
+            </block>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <view class="gallery-empty" wx:else>
+    <view class="empty-orb">
+      <view class="empty-orb-core"></view>
+    </view>
+    <text class="empty-title">还没有作品</text>
+    <text class="empty-copy">去变出你的第一张作品吧</text>
+    <view class="empty-button" bindtap="goCreate" hover-class="button-pressed">马上开变</view>
+  </view>
+
+  <bottom-nav active="gallery"></bottom-nav>
+</view>

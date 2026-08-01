@@ -1,0 +1,32 @@
+<view class="detail-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="detail-nav">
+    <view class="back-button" bindtap="goBack" hover-class="button-pressed">‹</view>
+    <text class="detail-title">充值明细</text>
+  </view>
+
+  <view class="summary-card">
+    <text class="summary-label">累计充值</text>
+    <text class="summary-value">+{{totalCredits}}</text>
+    <text class="summary-copy">本地测试数据，真实支付订单会在接口联调后同步</text>
+  </view>
+
+  <view class="detail-tabs">
+    <view class="detail-tab detail-tab-active">充值明细</view>
+    <view class="detail-tab">消费明细</view>
+  </view>
+
+  <view class="record-list">
+    <block wx:for="{{records}}" wx:key="title">
+      <view class="record-row">
+        <view>
+          <text class="record-title">{{item.title}}</text>
+          <text class="record-time">{{item.time}}</text>
+        </view>
+        <view class="record-right">
+          <text class="record-amount {{item.failed ? 'record-amount-muted' : ''}}">{{item.amount}}</text>
+          <text class="record-status {{item.failed ? 'record-status-failed' : ''}}">{{item.status}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

@@ -1,0 +1,64 @@
+<view class="profile-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="profile-header">
+    <text class="profile-title">我的</text>
+    <view class="settings-button" style="margin-right: {{menuButtonRightGap}}px;" bindtap="goSettings" hover-class="button-pressed">
+      <text class="settings-icon">⚙</text>
+    </view>
+  </view>
+
+  <view class="user-card">
+    <image class="avatar" src="{{userAvatar}}" mode="aspectFill" />
+    <view class="user-copy">
+      <text class="user-name">{{userName}}</text>
+      <text class="user-desc">{{userIdText}}</text>
+      <view class="user-badge">
+        <text class="user-badge-star">✦</text>
+        <text>积分 {{creditBalance}}</text>
+      </view>
+    </view>
+    <text class="chevron">›</text>
+  </view>
+
+  <view class="credit-card">
+    <view class="credit-glow credit-glow-right"></view>
+    <view class="credit-glow credit-glow-left"></view>
+    <text class="credit-crown">♕</text>
+    <view>
+      <text class="credit-title">积分充值，多充多送</text>
+      <text class="credit-copy">积分可用于所有模板生成，失败自动返还</text>
+    </view>
+    <view class="credit-action" bindtap="recharge" hover-class="button-pressed">
+      <text>去充值</text>
+      <text class="credit-action-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="profile-section-head">
+    <text class="profile-section-title">我的功能</text>
+  </view>
+
+  <view class="quick-grid">
+    <block wx:for="{{quickActions}}" wx:key="label">
+      <view class="quick-card" bindtap="openQuickAction" data-target="{{item.target}}" hover-class="button-pressed">
+        <text class="quick-icon">{{item.icon}}</text>
+        <text class="quick-label">{{item.label}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="profile-section-head">
+    <text class="profile-section-title">最近作品</text>
+    <text class="profile-section-more" bindtap="showAllRecent">查看全部</text>
+  </view>
+
+  <view class="recent-grid">
+    <block wx:for="{{recent}}" wx:key="id">
+      <view class="recent-card" bindtap="openRecent" data-id="{{item.id}}" hover-class="button-pressed">
+        <image class="recent-cover" src="{{item.result || item.cover}}" mode="aspectFill" />
+        <text class="recent-name">{{item.name}}</text>
+      </view>
+    </block>
+  </view>
+
+  <bottom-nav active="profile"></bottom-nav>
+</view>

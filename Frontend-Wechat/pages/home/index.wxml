@@ -1,0 +1,67 @@
+<view class="home-page">
+  <view class="hero-fallback"></view>
+  <image class="hero-bg" src="/assets/design/hero-bg.webp" mode="aspectFill" />
+
+  <view class="content-sheet">
+    <text class="home-title">今天想变成什么样?</text>
+
+    <view class="credit-pill" bindtap="goProfile" hover-class="button-pressed">
+      <text class="credit-star">✦</text>
+      <text class="credit-value">{{creditBalance}}</text>
+    </view>
+
+    <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="category-track">
+        <block wx:for="{{categories}}" wx:key="label">
+          <view
+            class="category-chip {{item.active ? 'category-chip-active' : ''}}"
+            bindtap="selectCategory"
+            data-category="{{item.label}}"
+          >
+            <text class="category-icon">{{item.icon}}</text>
+            <text>{{item.label}}</text>
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+
+    <scroll-view scroll-y class="home-scroll">
+      <block wx:for="{{sections}}" wx:key="title" wx:for-item="section">
+        <view class="home-section">
+          <view class="home-section-head">
+            <text class="home-section-icon home-section-icon-{{section.iconClass}}">{{section.icon}}</text>
+            <text class="home-section-title">{{section.title}}</text>
+          </view>
+          <scroll-view
+            class="template-row"
+            scroll-x
+            enhanced
+            show-scrollbar="{{false}}"
+          >
+            <view class="template-track" style="width: {{section.trackWidth}}rpx;">
+              <block wx:for="{{section.cards}}" wx:key="id" wx:for-item="card">
+                <view
+                  class="home-card"
+                  bindtap="goCreate"
+                  data-id="{{card.id}}"
+                  hover-class="button-pressed"
+                >
+                  <image class="home-card-image" src="{{card.cover}}" mode="aspectFill" />
+                  <view class="home-card-shade"></view>
+                  <text class="home-card-name">{{card.name}}</text>
+                </view>
+              </block>
+            </view>
+          </scroll-view>
+        </view>
+      </block>
+
+      <view class="home-empty" wx:if="{{!sections[0].cards.length}}">
+        <text class="home-empty-title">这个分类还在补图</text>
+        <text class="home-empty-copy">先看看热门玩法，下一版会继续增加模板。</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <bottom-nav active="home"></bottom-nav>
+</view>

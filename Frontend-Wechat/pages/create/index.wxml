@@ -1,0 +1,89 @@
+<view class="create-page" style="padding-top: {{statusBarHeight}}px;">
+  <view class="create-atmosphere"></view>
+
+  <view class="template-nav-shell">
+    <scroll-view class="template-nav" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="template-nav-track">
+        <block wx:for="{{templateNavItems}}" wx:key="id">
+          <view
+            class="template-nav-pill {{template.id === item.id ? 'template-nav-pill-active' : ''}}"
+            bindtap="selectTemplate"
+            data-id="{{item.id}}"
+            hover-class="button-pressed"
+          >
+            {{item.label}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="preview-card">
+    <image class="preview-image" src="{{previewImage}}" mode="aspectFill" />
+    <view class="preview-fade"></view>
+    <text class="preview-title">{{template.name}}</text>
+    <button class="preview-share" open-type="share" hover-class="button-pressed">↗</button>
+    <view class="preview-generating" wx:if="{{generating}}">
+      <text class="generating-title">正在变化中...</text>
+      <text class="generating-copy">正在清洗毛刺风格</text>
+      <view class="generating-track">
+        <view class="generating-bar" style="width: {{progress}}%;"></view>
+      </view>
+      <text class="generating-percent">{{progress}}%</text>
+    </view>
+  </view>
+
+  <view class="action-panel">
+    <view class="panel-handle"></view>
+
+    <view class="panel-head">
+      <text class="panel-title">你的照片</text>
+      <view class="change-template" bindtap="openTemplatePicker" hover-class="button-pressed">换模板</view>
+    </view>
+
+    <view class="asset-row">
+      <view class="photo-slot" bindtap="chooseImage" hover-class="button-pressed">
+        <image wx:if="{{imagePath}}" class="photo-slot-image" src="{{imagePath}}" mode="aspectFill" />
+        <view wx:else class="photo-empty">
+          <text class="upload-mark">⇧</text>
+          <text class="upload-copy">去上传</text>
+        </view>
+        <view wx:if="{{imagePath}}" class="remove-photo" catchtap="removeImage">×</view>
+      </view>
+
+      <view class="template-mini" bindtap="openTemplatePicker" hover-class="button-pressed">
+        <image class="template-mini-image" src="{{template.cover}}" mode="aspectFill" />
+        <view class="template-mini-fade"></view>
+        <text class="template-mini-name">{{template.name}}</text>
+      </view>
+    </view>
+
+    <text class="ratio-title">想要变成的比例</text>
+
+    <scroll-view class="ratio-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="ratio-track">
+        <block wx:for="{{ratios}}" wx:key="*this">
+          <view
+            class="ratio-chip {{selectedRatio === item ? 'ratio-chip-active' : ''}}"
+            bindtap="selectRatio"
+            data-ratio="{{item}}"
+            hover-class="button-pressed"
+          >
+            {{item}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+
+    <view
+      class="primary-action {{generating ? 'primary-action-disabled' : ''}}"
+      bindtap="startGenerate"
+      hover-class="button-pressed"
+    >
+      <block wx:if="{{generating}}">正在变...</block>
+      <block wx:else>马上开变</block>
+    </view>
+  </view>
+
+  <bottom-nav active="create"></bottom-nav>
+</view>

@@ -1,0 +1,12 @@
+{
+  "name": "jibian-miniprogram-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "即变微信小程序自动化冒烟测试",
+  "scripts": {
+    "test": "node smoke-test.js"
+  },
+  "dependencies": {
+    "miniprogram-automator": "^0.12.1"
+  }
+}

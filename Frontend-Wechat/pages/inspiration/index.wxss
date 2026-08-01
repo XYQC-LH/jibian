@@ -1,0 +1,154 @@
+.inspiration-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 16rpx 180rpx;
+  background: #F4F3FA;
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.inspiration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66rpx;
+}
+
+.inspiration-title {
+  color: var(--text-primary);
+  font-size: 44rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.collect-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54rpx;
+  height: 54rpx;
+  color: var(--text-primary);
+  font-size: 33rpx;
+  line-height: 1;
+}
+
+.category-scroll {
+  width: 100%;
+  margin: 14rpx 0 24rpx;
+  white-space: nowrap;
+}
+
+.category-track {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  min-width: 700rpx;
+}
+
+.category-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 86rpx;
+  height: 48rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  color: #62606A;
+  background: #FFFFFF;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.category-chip-active {
+  color: var(--accent-primary);
+  background: #F0DDF8;
+}
+
+.inspiration-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.masonry-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  min-width: 0;
+}
+
+.inspiration-card {
+  width: 100%;
+}
+
+.cover-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20rpx;
+  background: #E7E4EF;
+}
+
+.cover-image {
+  display: block;
+  width: 100%;
+}
+
+.favorite-button {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 999rpx;
+  color: #B8B5C2;
+  background: rgba(255, 255, 255, 0.86);
+  font-size: 25rpx;
+  font-weight: 900;
+}
+
+.favorite-button-active {
+  color: #FFB340;
+}
+
+.card-name {
+  display: block;
+  margin-top: 12rpx;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 24rpx;
+  font-weight: 900;
+  line-height: 1.32;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9rpx;
+}
+
+.card-price {
+  color: #8D63D9;
+  font-size: 20rpx;
+  font-weight: 800;
+}
+
+.use-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72rpx;
+  height: 36rpx;
+  padding: 0 14rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #D99AF7, #F06CB5);
+  font-size: 20rpx;
+  font-weight: 900;
+}

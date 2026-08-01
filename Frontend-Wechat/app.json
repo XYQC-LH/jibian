@@ -1,0 +1,33 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/search/index",
+    "pages/inspiration/index",
+    "pages/templates/index",
+    "pages/create/index",
+    "pages/gallery/index",
+    "pages/gallery-manage/index",
+    "pages/result/index",
+    "pages/preview/index",
+    "pages/profile/index",
+    "pages/settings/index",
+    "pages/settings-detail/index",
+    "pages/phone-bind/index",
+    "pages/account-delete/index",
+    "pages/membership/index",
+    "pages/credits/index",
+    "pages/redeem-code/index",
+    "pages/credit-detail/index",
+    "pages/favorites/index",
+    "pages/invite/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "即变",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,156 @@
+.gallery-manage-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0 24rpx 180rpx;
+  background: #F5F4FA;
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.manage-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 82rpx;
+}
+
+.close-button,
+.select-all {
+  position: absolute;
+  top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 58rpx;
+}
+
+.close-button {
+  left: 0;
+  width: 58rpx;
+  color: var(--text-primary);
+  font-size: 42rpx;
+  font-weight: 400;
+}
+
+.select-all {
+  right: 0;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  color: var(--accent-primary);
+  background: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.manage-title {
+  color: var(--text-primary);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.manage-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 26rpx;
+}
+
+.manage-card {
+  position: relative;
+  overflow: hidden;
+  width: calc((100% - 16rpx) / 3);
+  height: 210rpx;
+  border-radius: 14rpx;
+  background: #ECECF1;
+}
+
+.manage-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.check-badge {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34rpx;
+  height: 34rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.88);
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: rgba(17, 17, 17, 0.16);
+  font-size: 22rpx;
+  font-weight: 900;
+}
+
+.check-badge-active {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+}
+
+.manage-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 560rpx;
+  text-align: center;
+}
+
+.manage-empty-title,
+.manage-empty-copy {
+  display: block;
+}
+
+.manage-empty-title {
+  color: var(--text-primary);
+  font-size: 31rpx;
+  font-weight: 900;
+}
+
+.manage-empty-copy {
+  margin-top: 12rpx;
+  color: #7B7B84;
+  font-size: 24rpx;
+}
+
+.manage-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  box-sizing: border-box;
+  height: 128rpx;
+  padding-top: 18rpx;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  min-width: 120rpx;
+  color: #3C3C43;
+}
+
+.action-icon {
+  font-size: 34rpx;
+  line-height: 1;
+}
+
+.action-label {
+  font-size: 23rpx;
+  font-weight: 800;
+}
+
+.action-danger {
+  color: var(--accent-pink);
+}

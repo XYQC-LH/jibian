@@ -1,0 +1,148 @@
+page {
+  --accent-primary: #AF52DE;
+  --accent-indigo: #5856D6;
+  --accent-pink: #FF2D55;
+  --accent-soft: #F4ECFD;
+  --bg-canvas: #FFFFFF;
+  --bg-surface: #F2F2F7;
+  --bg-elevated: #FFFFFF;
+  --text-primary: #20151D;
+  --text-secondary: #6B5D67;
+  --text-tertiary: #8E7F8B;
+  --separator: #E5E5EA;
+  --jibian-sky-cyan: #5FD3DC;
+  --jibian-bubble-pink: #F6A6DD;
+  --jibian-soft-violet: #9E8CFF;
+  --cta-violet: #A58CFF;
+  --cta-pink: #FF77B9;
+  --bg-sky: #F3FAFF;
+  --bg-pink: #FDF2FF;
+  --bg-violet: #F7F3FF;
+  --glass-white: #FFFFFFB8;
+  --card-stroke: #DDEBFF;
+  --shadow-glow: #8EA3FF2E;
+  --accent-gradient: linear-gradient(135deg, var(--cta-violet), var(--cta-pink));
+  --hero-gradient: linear-gradient(135deg, var(--jibian-sky-cyan), var(--jibian-bubble-pink) 55%, var(--jibian-soft-violet));
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 32rpx;
+  background: var(--bg-canvas);
+}
+
+.safe-bottom {
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.section-title {
+  color: var(--text-primary);
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.22;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 28rpx;
+  line-height: 1.55;
+}
+
+.primary-button,
+.secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.primary-button {
+  color: #FFFFFF;
+  background: var(--accent-gradient);
+}
+
+.secondary-button {
+  color: var(--text-primary);
+  background: rgba(60, 60, 67, 0.08);
+}
+
+.button-pressed {
+  transform: scale(0.98);
+}
+
+.card {
+  overflow: hidden;
+  border: 2rpx solid var(--card-stroke);
+  border-radius: 28rpx;
+  background: var(--bg-elevated);
+  box-shadow: 0 8rpx 32rpx var(--shadow-glow);
+}
+
+.card-image {
+  display: block;
+  width: 100%;
+  background: var(--bg-surface);
+}
+
+.muted {
+  color: var(--text-tertiary);
+}
+
+.template-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+}
+
+.template-card {
+  width: calc((100% - 24rpx) / 2);
+}
+
+.template-cover {
+  width: 100%;
+  height: 420rpx;
+  border-radius: 28rpx;
+}
+
+.template-name {
+  margin-top: 14rpx;
+  color: var(--text-primary);
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.template-meta {
+  margin-top: 6rpx;
+  color: var(--text-tertiary);
+  font-size: 24rpx;
+  line-height: 1.35;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #ECECF1;
+}
+
+.skeleton::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
