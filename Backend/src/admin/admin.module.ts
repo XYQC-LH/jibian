@@ -1,6 +1,8 @@
 import { Module } from "@nestjs/common";
 import { AdminAuthModule } from "../auth/admin-auth.module";
+import { AssetsModule } from "../assets/assets.module";
 import { TemplatesModule } from "../templates/templates.module";
+import { AdminAssetsController } from "./admin-assets.controller";
 import { AdminFinanceController } from "./admin-finance.controller";
 import { AdminFinanceService } from "./admin-finance.service";
 import { AdminMonitorController } from "./admin-monitor.controller";
@@ -14,8 +16,9 @@ import { AdminUsersController } from "./admin-users.controller";
 import { AdminUsersService } from "./admin-users.service";
 
 @Module({
-  imports: [AdminAuthModule, TemplatesModule],
+  imports: [AdminAuthModule, TemplatesModule, AssetsModule],
   controllers: [
+    AdminAssetsController,
     AdminTasksController,
     AdminTemplatesController,
     AdminStatisticsController,

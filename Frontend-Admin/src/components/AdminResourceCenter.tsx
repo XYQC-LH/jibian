@@ -1,15 +1,20 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Settings } from 'lucide-react';
+import { Plus, Settings, Tags } from 'lucide-react';
 import ResourceActions from '@/components/resource/ResourceActions';
 import AdminResourceModelsSection from '@/components/admin/resource/AdminResourceModelsSection';
+import AddTemplateModal from '@/components/admin/resource/AddTemplateModal';
+import CategoryManageModal from '@/components/admin/resource/CategoryManageModal';
 import EditModelModal from '@/components/admin/resource/EditModelModal';
 import { useAdminModels } from '@/components/admin/resource/useAdminModels';
 import { useAdminTemplateStats } from '@/components/admin/resource/useAdminTemplateStats';
 
 const AdminResourceCenter: React.FC = () => {
   const [reloadKey, setReloadKey] = useState(0);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [categoryVersion, setCategoryVersion] = useState(0);
 
   const models = useAdminModels(reloadKey);
   const templateStats = useAdminTemplateStats(reloadKey);
@@ -41,7 +46,17 @@ const AdminResourceCenter: React.FC = () => {
             </h1>
             <p className="text-text-muted">玩法模板 · 模型配置</p>
           </div>
-          <ResourceActions serviceStatus={serviceStatus} onRefresh={handleRefreshAll} />
+          <div className="flex flex-wrap gap-3 items-center">
+            <button className="btn-primary" onClick={() => setShowAddModal(true)}>
+              <Plus size={16} className="mr-2" />
+              添加模板
+            </button>
+            <button className="btn-secondary border border-white/10" onClick={() => setShowCategoryModal(true)}>
+              <Tags size={16} className="mr-2" />
+              分类管理
+            </button>
+            <ResourceActions serviceStatus={serviceStatus} onRefresh={handleRefreshAll} />
+          </div>
         </div>
 
         <AdminResourceModelsSection
@@ -80,6 +95,21 @@ const AdminResourceCenter: React.FC = () => {
             onUpdateAcceptGlobalPricingMultiplier={(nextAccept) => {
               void models.updateModelAcceptGlobalPricingMultiplier(models.editingModel!, nextAccept);
             }}
+          />
+        )}
+
+        {showAddModal && (
+          <AddTemplateModal
+            categoryVersion={categoryVersion}
+            onClose={() => setShowAddModal(false)}
+            onCreated={handleRefreshAll}
+          />
+        )}
+
+        {showCategoryModal && (
+          <CategoryManageModal
+            onClose={() => setShowCategoryModal(false)}
+            onChanged={() => setCategoryVersion((prev) => prev + 1)}
           />
         )}
       </div>
