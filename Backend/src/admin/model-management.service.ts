@@ -6,6 +6,7 @@ import { AssetsService } from "../assets/assets.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateTemplateDto } from "../templates/dto/update-template.dto";
 import { TemplatesService } from "../templates/templates.service";
+import { toTemplateUuid } from "../templates/local-template-ids";
 
 const GLOBAL_PRICING_MULTIPLIER = 1;
 const FINANCE_CREDIT_PER_CNY = 10;
@@ -129,7 +130,9 @@ export class ModelManagementService {
   }
 
   async update(modelId: string, payload: UpdateModelPayload) {
-    const existing = await this.prisma.template.findUnique({ where: { id: modelId } });
+    // 模板 id 为 UUID 列，前端可能传 slug，统一转成 uuid 再查询
+    const uuid = toTemplateUuid(modelId);
+    const existing = await this.prisma.template.findUnique({ where: { id: uuid } });
     if (!existing) {
       throw new NotFoundException("Model not found");
     }
@@ -150,6 +153,9 @@ export class ModelManagementService {
     if (payload.credits_cost !== undefined) {
       updateDto.price_credits = payload.credits_cost;
     }
+    if (payload.prompt !== undefined) {
+      updateDto.prompt = payload.prompt;
+    }
     if (payload.order != null) {
       updateDto.sort_order = payload.order;
     }
@@ -160,7 +166,7 @@ export class ModelManagementService {
     }
 
     const updated = Object.keys(updateDto).length > 0
-      ? (await this.templates.updateAdmin(modelId, updateDto)).data
+      ? (await this.templates.updateAdmin(uuid, updateDto)).data
       : existing;
 
     let coverUrl: string | null = null;
@@ -173,7 +179,7 @@ export class ModelManagementService {
 
     return {
       success: true,
-      data: this.toModel(updated, await this.countUsage(modelId), coverUrl),
+      data: this.toModel(updated, await this.countUsage(uuid), coverUrl),
     };
   }
 
@@ -185,7 +191,7 @@ export class ModelManagementService {
     const results = await this.prisma.$transaction(
       items.map((item) =>
         this.prisma.template.updateMany({
-          where: { id: item.model_id },
+          where: { id: toTemplateUuid(item.model_id) },
           data: { sortOrder: item.order },
         }),
       ),
@@ -227,7 +233,8 @@ export class ModelManagementService {
   }
 
   async getModelPricing(modelId: string) {
-    const existing = await this.prisma.template.findUnique({ where: { id: modelId } });
+    const uuid = toTemplateUuid(modelId);
+    const existing = await this.prisma.template.findUnique({ where: { id: uuid } });
     if (!existing) {
       throw new NotFoundException("Model not found");
     }

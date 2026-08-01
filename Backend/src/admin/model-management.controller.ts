@@ -44,6 +44,11 @@ class UpdateModelDto {
   description?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  prompt?: string;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   credits_cost?: number;
@@ -62,7 +67,8 @@ class UpdateModelDto {
 }
 
 class ReorderItemDto {
-  @IsUUID()
+  // 允许 slug（如 pearl-portrait）或 UUID，service 内部转成 uuid 再查询
+  @IsString()
   model_id!: string;
 
   @IsInt()
