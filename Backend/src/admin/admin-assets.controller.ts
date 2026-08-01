@@ -22,8 +22,8 @@ export class AdminAssetsController {
   ) {}
 
   @Post("upload-url")
-  createUploadUrl(@Body() dto: CreateUploadUrlDto) {
-    return this.assets.createUploadUrlForAdmin(dto);
+  async createUploadUrl(@Body() dto: CreateUploadUrlDto) {
+    return { success: true, data: await this.assets.createUploadUrlForAdmin(dto) };
   }
 
   @Get(":assetId/resolve-link")
