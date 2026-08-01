@@ -57,7 +57,7 @@ export function useTaskDetail(isAuthorized: boolean): UseTaskDetailReturn {
       setDetailError(null)
       setDetailTask(null)
       try {
-        const detail = await apiClient.task.getAdminTask(Number(normalizedTaskId))
+        const detail = await apiClient.task.getAdminTask(normalizedTaskId)
         setDetailTask(detail)
       } catch (error: unknown) {
         setDetailError(getErrorMessage(error, '加载任务详情失败'))
@@ -72,7 +72,7 @@ export function useTaskDetail(isAuthorized: boolean): UseTaskDetailReturn {
     if (!isAuthorized) return
 
     const requestedTaskId = String(searchParams?.get('task_id') || '').trim()
-    if (!requestedTaskId || !/^\d+$/.test(requestedTaskId)) return
+    if (!requestedTaskId) return
     if (detailTaskIdRef.current === requestedTaskId) return
     if (detailLoading) return
 

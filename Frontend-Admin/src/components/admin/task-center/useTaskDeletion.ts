@@ -33,15 +33,14 @@ export function useTaskDeletion(
     if (!target) return
 
     const rawId = String(target.id || '').trim()
-    const taskId = Number(rawId)
-    if (!Number.isFinite(taskId) || taskId <= 0) {
+    if (!rawId) {
       toast.error('任务 ID 无效，无法删除')
       closeDeleteDialog()
       return
     }
 
     try {
-      await apiClient.task.deleteAdminTask(taskId)
+      await apiClient.task.deleteAdminTask(rawId)
       setRecentTasks((prev) =>
         prev.map((t) => (t.id === rawId ? { ...t, purgeError: null } : t)),
       )

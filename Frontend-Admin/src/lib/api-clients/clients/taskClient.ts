@@ -126,14 +126,14 @@ export class TaskAdminClient extends BaseAdminClient {
     };
   }
 
-  async getAdminTask(taskId: number): Promise<Task> {
-    const response = await this.client.get<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/tasks/${taskId}`);
+  async getAdminTask(taskId: string): Promise<Task> {
+    const response = await this.client.get<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/tasks/${encodeURIComponent(taskId)}`);
     const task = ensureData(response.data, 'Failed to fetch admin task');
     return mapAdminTaskRecord(task);
   }
 
-  async deleteAdminTask(taskId: number): Promise<void> {
-    const response = await this.client.delete<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/tasks/${taskId}`);
+  async deleteAdminTask(taskId: string): Promise<void> {
+    const response = await this.client.delete<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/tasks/${encodeURIComponent(taskId)}`);
     if (!response.data?.success) {
       throw new ApiError(response.data?.error || response.data?.message || 'Failed to delete task', { details: response.data });
     }
