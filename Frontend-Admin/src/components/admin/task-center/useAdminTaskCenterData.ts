@@ -40,14 +40,19 @@ export const useAdminTaskCenterData = () => {
 
   // Sync purge errors to recent tasks on initial load
   useEffect(() => {
-    taskList.setRecentTasks((prev) =>
-      prev.map((t) => {
+    taskList.setRecentTasks((prev) => {
+      let changed = false
+      const next = prev.map((t) => {
         const pe = purgeErrorsRef.current[t.id]
-        if (pe && t.purgeError !== pe) return { ...t, purgeError: pe }
+        if (pe && t.purgeError !== pe) {
+          changed = true
+          return { ...t, purgeError: pe }
+        }
         return t
-      }),
-    )
-  }, [taskList])
+      })
+      return changed ? next : prev
+    })
+  }, [taskList.recentTasks])
 
   // Compute model performance from recent tasks
   const buildModelPerformance = useCallback((tasks: UIMappedTask[]): ModelPerformanceItem[] => {
