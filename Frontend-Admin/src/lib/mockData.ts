@@ -3,7 +3,7 @@ import type { UIMappedTask, TaskStats, TrendPoint } from '@/components/admin/tas
 import type { AIModel } from '@/components/resource/types';
 import type { PricingSettings } from '@/lib/api-clients/types';
 
-export const ENABLE_MOCKS = process.env.NEXT_PUBLIC_ENABLE_MOCKS !== 'false';
+export const ENABLE_MOCKS = process.env.NEXT_PUBLIC_ENABLE_MOCKS === 'true';
 
 export const mockAdminUser: User = {
   id: 'local-admin',

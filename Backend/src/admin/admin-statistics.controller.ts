@@ -1,13 +1,15 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import { AdminGuard } from "../auth/admin.guard";
 import { AdminStatisticsService } from "./admin-statistics.service";
 
 @Controller("v1/admin")
+@UseGuards(AdminGuard)
 export class AdminStatisticsController {
   constructor(private readonly statistics: AdminStatisticsService) {}
 
   @Get("statistics")
-  getStatistics(@Query("days") days = "30") {
-    return this.statistics.getStatistics(Number(days));
+  async getStatistics(@Query("days") days = "30") {
+    return { success: true, data: await this.statistics.getStatistics(Number(days)) };
   }
 
   @Get("finance/dashboard")

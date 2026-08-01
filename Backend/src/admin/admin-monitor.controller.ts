@@ -1,6 +1,8 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import { AdminGuard } from "../auth/admin.guard";
 
 @Controller("v1/admin/system-monitor")
+@UseGuards(AdminGuard)
 export class AdminMonitorController {
   @Get()
   snapshot() {

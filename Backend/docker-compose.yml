@@ -85,6 +85,38 @@ services:
     ports:
       - "8000:8000"
     command: sh -c "npx prisma db push && npx prisma db seed && node dist/main.js"
+    networks:
+      - default
+      - jiligulu_proxy
+
+  admin-frontend:
+    build:
+      context: ..
+      dockerfile: Frontend-Admin/Dockerfile
+      args:
+        API_INTERNAL_URL: http://jibian-backend:8000
+        NEXT_PUBLIC_ADMIN_PORT: 3000
+        NEXT_PUBLIC_ADMIN_SITE_URL: https://admin.jibian.art
+        NEXT_PUBLIC_ENABLE_MOCKS: "false"
+    container_name: jibian-admin-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      API_INTERNAL_URL: http://jibian-backend:8000
+      NEXT_PUBLIC_ADMIN_PORT: 3000
+      NEXT_PUBLIC_ADMIN_SITE_URL: https://admin.jibian.art
+      NEXT_PUBLIC_ENABLE_MOCKS: "false"
+    expose:
+      - "3000"
+    networks:
+      - default
+      - jiligulu_proxy
+
+networks:
+  jiligulu_proxy:
+    external: true
+    name: jiligulu_ai-aggregator-network
 
 volumes:
   jibian_postgres_data:

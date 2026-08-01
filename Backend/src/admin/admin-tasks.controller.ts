@@ -1,7 +1,9 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { AdminGuard } from "../auth/admin.guard";
 import { AdminTasksService } from "./admin-tasks.service";
 
 @Controller("v1/admin/tasks")
+@UseGuards(AdminGuard)
 export class AdminTasksController {
   constructor(private readonly tasks: AdminTasksService) {}
 

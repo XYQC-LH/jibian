@@ -82,13 +82,14 @@ httpClient.interceptors.response.use(
 
     // 401 handling with token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Do not attempt refresh for login requests
-      if (originalRequest.url?.includes('/login')) {
-        return Promise.reject(mapAxiosError(error));
-      }
-
-      // Do not retry the refresh endpoint itself
-      if (originalRequest.url?.includes('/refresh')) {
+      // Auth endpoints are handled by their callers. Retrying `/me` during the
+      // initial auth probe can emit a stale session-expired event after login.
+      const requestUrl = originalRequest.url || '';
+      if (
+        requestUrl.includes('/login') ||
+        requestUrl.includes('/refresh') ||
+        requestUrl.includes('/api/v1/auth/admin/me')
+      ) {
         return Promise.reject(mapAxiosError(error));
       }
 
