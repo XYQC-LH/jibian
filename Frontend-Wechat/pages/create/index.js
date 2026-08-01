@@ -194,7 +194,8 @@ Page({
       const upload = await api.uploadInputImage(this.data.imagePath);
       const task = await api.createTask({
         template_id: this.data.template.id,
-        input_asset_id: upload.asset_id
+        input_asset_id: upload.asset_id,
+        ratio: this.toApiRatio(this.data.selectedRatio)
       });
       app.globalData.currentTaskId = task.task_id;
       this.pollTask(task.task_id, task.poll_interval_ms || 2000);
@@ -259,6 +260,10 @@ Page({
       clearInterval(this.pollTimer);
       this.pollTimer = null;
     }
+  },
+
+  toApiRatio(ratio) {
+    return ratio === "原图" ? "auto" : ratio;
   },
 
   clearProgress() {

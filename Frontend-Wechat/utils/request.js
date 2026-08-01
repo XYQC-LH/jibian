@@ -15,6 +15,7 @@ function request(options) {
       header: {
         "content-type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(token ? { "x-user-id": token } : {}),
         ...(options.header || {})
       },
       success(res) {

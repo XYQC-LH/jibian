@@ -12,9 +12,12 @@
     "prisma:seed": "ts-node prisma/seed.ts",
     "smoke:env": "ts-node scripts/smoke-env.ts",
     "smoke:env:write": "ts-node scripts/smoke-env.ts --write",
-    "smoke:env:generate": "ts-node scripts/smoke-env.ts --generate"
+    "smoke:env:generate": "ts-node scripts/smoke-env.ts --generate",
+    "smoke:moderation": "ts-node scripts/smoke-moderation.ts"
   },
   "dependencies": {
+    "@alicloud/green20220302": "^3.4.1",
+    "@alicloud/openapi-core": "^1.0.8",
     "@nestjs/bullmq": "^11.0.2",
     "@nestjs/common": "^11.1.6",
     "@nestjs/config": "^4.0.2",

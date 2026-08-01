@@ -36,17 +36,7 @@ export class TasksProcessor extends WorkerHost {
       imageUrl: this.assets.getPublicUrl(task.inputAsset.storageKey),
     };
 
-    const preText = await this.moderation.reviewText("task_prompt", task.id, "pre", input.prompt);
-    if (!preText.passed) {
-      await this.markTaskFailed(task.id, preText.reason ?? "Prompt rejected by moderation");
-      return;
-    }
-    const preImage = await this.moderation.reviewImageUrl(
-      "task_input_image",
-      task.id,
-      "pre",
-      input.imageUrl,
-    );
+    const preImage = await this.moderation.reviewInputImage(task.id, input.imageUrl);
     if (!preImage.passed) {
       await this.markTaskFailed(task.id, preImage.reason ?? "Input image rejected by moderation");
       return;
@@ -72,10 +62,8 @@ export class TasksProcessor extends WorkerHost {
 
         const asset = await this.prisma.asset.findUnique({ where: { id: output.assetId } });
         // asset 缺失时传 assetId（非 http(s) URL），会被图片 URL 校验拦截，按不通过处理
-        const post = await this.moderation.reviewImageUrl(
-          "task_result_image",
+        const post = await this.moderation.reviewOutputImage(
           task.id,
-          "post",
           asset ? this.assets.getPublicUrl(asset.storageKey) : output.assetId,
         );
         if (!post.passed) {

@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import GreenClient, { ImageModerationRequest } from "@alicloud/green20220302";
+import { Config as OpenApiConfig } from "@alicloud/openapi-core/dist/utils";
 import { PrismaService } from "../prisma/prisma.service";
+
+export type ModerationStage = "input" | "output";
 
 export type ModerationResult = {
   passed: boolean;
@@ -8,25 +12,24 @@ export type ModerationResult = {
   reason: string | null;
 };
 
-const LOCAL_BLOCKLIST = [
-  "色情",
-  "淫秽",
-  "裸体",
-  "性交易",
-  "暴力",
-  "凶杀",
-  "血腥",
-  "恐怖袭击",
-  "毒品",
-  "冰毒",
-  "海洛因",
-  "枪支",
-  "军火",
-  "赌博",
-  "邪教",
-  "颠覆国家",
-  "分裂主义",
-];
+type AliyunImageBody = {
+  Code?: number | string;
+  code?: number | string;
+  Msg?: string;
+  Message?: string;
+  msg?: string;
+  message?: string;
+  Data?: AliyunImageData;
+  data?: AliyunImageData;
+};
+
+type AliyunImageData = {
+  RiskLevel?: string;
+  riskLevel?: string;
+  risk_level?: string;
+  Result?: Array<{ Label?: string; label?: string; Score?: number; score?: number }>;
+  result?: Array<{ Label?: string; label?: string; Score?: number; score?: number }>;
+};
 
 @Injectable()
 export class ContentModerationService {
@@ -35,129 +38,136 @@ export class ContentModerationService {
     private readonly config: ConfigService,
   ) {}
 
-  async reviewText(
-    targetType: string,
-    targetId: string,
-    stage: string,
-    text: string,
-  ): Promise<ModerationResult> {
-    return this.review(targetType, targetId, stage, { text });
+  async reviewInputImage(taskId: string, imageUrl: string): Promise<ModerationResult> {
+    return this.reviewTaskImage("input", taskId, imageUrl);
   }
 
-  async reviewImageUrl(
-    targetType: string,
-    targetId: string,
-    stage: string,
-    imageUrl: string,
-  ): Promise<ModerationResult> {
-    return this.review(targetType, targetId, stage, { imageUrl });
+  async reviewOutputImage(taskId: string, imageUrl: string): Promise<ModerationResult> {
+    return this.reviewTaskImage("output", taskId, imageUrl);
   }
 
-  private async review(
-    targetType: string,
-    targetId: string,
-    stage: string,
-    payload: { text?: string; imageUrl?: string },
-  ): Promise<ModerationResult> {
-    // MODERATION_ENABLED=false 时整体跳过审核，直接视为通过（仍留审计记录）
+  private async reviewTaskImage(stage: ModerationStage, taskId: string, imageUrl: string) {
+    const result = await this.evaluateImageUrl(imageUrl);
+    await this.prisma.reviewRecord.create({
+      data: {
+        targetType: stage === "input" ? "input_asset" : "task_result",
+        targetId: taskId,
+        reviewStage: stage,
+        status: result.passed ? "approved" : "rejected",
+        policyHit: result.policyHits.length > 0 ? result.policyHits : undefined,
+        reason: result.reason,
+      },
+    });
+    return result;
+  }
+
+  private async evaluateImageUrl(imageUrl: string): Promise<ModerationResult> {
     if (this.config.get<string>("MODERATION_ENABLED") === "false") {
-      const skipped: ModerationResult = { passed: true, policyHits: [], reason: null };
-      await this.record(targetType, targetId, stage, skipped);
-      return skipped;
+      return { passed: true, policyHits: [], reason: null };
     }
 
-    const local = this.localReview(payload);
-    if (!local.passed) {
-      await this.record(targetType, targetId, stage, local);
-      return local;
+    if (!/^https?:\/\//i.test(imageUrl)) {
+      return { passed: false, policyHits: ["invalid_image_url"], reason: "图片 URL 非法" };
     }
 
-    const remote = await this.remoteReview(payload);
-    if (remote) {
-      await this.record(targetType, targetId, stage, remote);
-      return remote;
+    if (!this.hasAliyunConfig()) {
+      if (this.config.get<string>("NODE_ENV") === "production") {
+        return { passed: false, policyHits: ["missing_access_key"], reason: "阿里云内容安全未配置 AccessKey" };
+      }
+      return { passed: true, policyHits: ["moderation_skipped_dev"], reason: null };
     }
 
-    const passed: ModerationResult = { passed: true, policyHits: [], reason: null };
-    await this.record(targetType, targetId, stage, passed);
-    return passed;
+    return this.reviewByAliyun(imageUrl);
   }
 
-  private localReview(payload: { text?: string; imageUrl?: string }): ModerationResult {
-    const target = payload.text ?? payload.imageUrl ?? "";
-    const hits = LOCAL_BLOCKLIST.filter((word) => target.includes(word));
-    if (hits.length > 0) {
-      return { passed: false, policyHits: hits, reason: `命中敏感词: ${hits.join("、")}` };
+  private hasAliyunConfig() {
+    return Boolean(this.readEnv("ALIBABA_CLOUD_ACCESS_KEY_ID") && this.readEnv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"));
+  }
+
+  private async reviewByAliyun(imageUrl: string): Promise<ModerationResult> {
+    let client: GreenClient;
+    try {
+      client = new GreenClient(
+        new OpenApiConfig({
+          accessKeyId: this.readEnv("ALIBABA_CLOUD_ACCESS_KEY_ID"),
+          accessKeySecret: this.readEnv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"),
+          regionId: this.aliyunRegion(),
+          endpoint: this.aliyunEndpoint(),
+        }),
+      );
+    } catch (error: unknown) {
+      return { passed: false, policyHits: ["sdk_init_error"], reason: `阿里云内容安全初始化失败: ${this.toMessage(error)}` };
     }
 
-    if (payload.imageUrl !== undefined && !/^https?:\/\//i.test(payload.imageUrl)) {
-      return { passed: false, policyHits: ["invalid_image_url"], reason: "图片 URL 非法" };
+    try {
+      const request = new ImageModerationRequest({
+        service: this.aliyunImageService(),
+        serviceParameters: JSON.stringify({ imageUrl, dataId: this.dataId() }),
+      });
+      const response = await client.imageModeration(request);
+      return this.parseAliyunImageResponse((response as { body?: AliyunImageBody }).body);
+    } catch (error: unknown) {
+      return { passed: false, policyHits: ["aliyun_image_error"], reason: `阿里云图片审核调用失败: ${this.toMessage(error)}` };
+    }
+  }
+
+  private parseAliyunImageResponse(body: AliyunImageBody | undefined): ModerationResult {
+    const code = body?.Code ?? body?.code;
+    const message = body?.Msg ?? body?.Message ?? body?.msg ?? body?.message;
+    if (code !== undefined && String(code) !== "200" && String(code) !== "0") {
+      return { passed: false, policyHits: ["aliyun_image_error"], reason: `阿里云图片审核失败: ${message ?? code}` };
+    }
+
+    const data = body?.Data ?? body?.data ?? {};
+    const riskLevel = String(data.RiskLevel ?? data.riskLevel ?? data.risk_level ?? "").trim().toLowerCase();
+    if (!riskLevel) {
+      return { passed: false, policyHits: ["missing_risk_level"], reason: "阿里云图片审核未返回风险等级" };
+    }
+
+    if (this.blockRiskLevels().has(riskLevel)) {
+      const labels = (data.Result ?? data.result ?? [])
+        .map((item) => item.Label ?? item.label)
+        .filter(Boolean)
+        .join("、");
+      return {
+        passed: false,
+        policyHits: [`image_risk_${riskLevel}`],
+        reason: `图片命中风险: ${riskLevel}${labels ? ` (${labels})` : ""}`,
+      };
     }
 
     return { passed: true, policyHits: [], reason: null };
   }
 
-  private async remoteReview(
-    payload: { text?: string; imageUrl?: string },
-  ): Promise<ModerationResult | null> {
-    const apiUrl = this.config.get<string>("MODERATION_API_URL");
-    if (!apiUrl) return null;
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10_000);
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.config.get<string>("MODERATION_API_KEY") ?? ""}`,
-        },
-        body: JSON.stringify({ text: payload.text, image_url: payload.imageUrl }),
-        signal: controller.signal,
-      });
-      if (!response.ok) {
-        // fail-closed：远程服务异常按不通过处理，避免漏审
-        return {
-          passed: false,
-          policyHits: ["remote_review_error"],
-          reason: `远程审核服务异常: HTTP ${response.status}`,
-        };
-      }
-      const data = (await response.json()) as {
-        passed?: boolean;
-        hits?: string[];
-        reason?: string;
-        safe?: boolean;
-      };
-      // fail-closed：响应缺少 passed/safe 字段时按不通过处理
-      return {
-        passed: data.passed ?? data.safe ?? false,
-        policyHits: data.hits ?? [],
-        reason: data.reason ?? null,
-      };
-    } catch {
-      // fail-closed：超时/网络异常按不通过处理，避免漏审
-      return { passed: false, policyHits: ["remote_review_error"], reason: "远程审核服务不可用" };
-    } finally {
-      clearTimeout(timer);
-    }
+  private blockRiskLevels() {
+    const configured = this.config.get<string>("MODERATION_ALIYUN_BLOCK_RISK_LEVELS") ?? "high,medium";
+    const levels = configured.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+    return new Set(levels.length > 0 ? levels : ["high", "medium"]);
   }
 
-  private async record(
-    targetType: string,
-    targetId: string,
-    stage: string,
-    result: ModerationResult,
-  ) {
-    await this.prisma.reviewRecord.create({
-      data: {
-        targetType,
-        targetId,
-        reviewStage: stage,
-        status: result.passed ? "passed" : "blocked",
-        policyHit: result.policyHits.length > 0 ? result.policyHits : undefined,
-        reason: result.reason,
-      },
-    });
+  private aliyunRegion() {
+    return this.readEnv("MODERATION_ALIYUN_REGION") || "cn-shanghai";
+  }
+
+  private aliyunEndpoint() {
+    const configured = this.readEnv("MODERATION_ALIYUN_CIP_ENDPOINT");
+    if (configured) return configured.replace(/^https?:\/\//, "");
+    return `green-cip.${this.aliyunRegion()}.aliyuncs.com`;
+  }
+
+  private aliyunImageService() {
+    return this.readEnv("MODERATION_ALIYUN_IMAGE_SERVICE") || "baselineCheck";
+  }
+
+  private dataId() {
+    return `${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+  }
+
+  private readEnv(key: string) {
+    return this.config.get<string>(key)?.trim() || "";
+  }
+
+  private toMessage(error: unknown) {
+    return error instanceof Error ? error.message : String(error);
   }
 }

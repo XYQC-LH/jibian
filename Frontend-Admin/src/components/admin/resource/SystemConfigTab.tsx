@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Zap, Database, Save, Gift, Loader2, KeyRound, Copy, RefreshCcw } from 'lucide-react';
+import { Zap, Save, Gift, Loader2, KeyRound, Copy, RefreshCcw } from 'lucide-react';
 import { DetailSkeleton } from '@/components/ui/Skeleton';
 import { toast } from 'react-hot-toast';
 
@@ -200,60 +200,6 @@ const SystemConfigTab: React.FC<SystemConfigTabProps> = ({
                   setSystemConfig({
                     ...systemConfig,
                     cleanup_interval: parseInt(e.target.value, 10) || 0,
-                  })
-                }
-                className="input-primary w-full px-4 py-2"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="card-primary p-6">
-          <h4 className="mb-6 flex items-center gap-2 text-xl font-semibold text-text-primary">
-            <Database className="h-5 w-5 text-accent" />
-            资源限制配置
-          </h4>
-
-          <div className="space-y-6">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-text-primary">Redis 内存限制</label>
-              <input
-                type="text"
-                value={systemConfig.redis_memory_limit}
-                onChange={(e) =>
-                  setSystemConfig({
-                    ...systemConfig,
-                    redis_memory_limit: e.target.value,
-                  })
-                }
-                className="input-primary w-full px-4 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-text-primary">数据库连接数</label>
-              <input
-                type="number"
-                value={systemConfig.database_connections}
-                onChange={(e) =>
-                  setSystemConfig({
-                    ...systemConfig,
-                    database_connections: parseInt(e.target.value, 10) || 0,
-                  })
-                }
-                className="input-primary w-full px-4 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-text-primary">文件存储限制</label>
-              <input
-                type="text"
-                value={systemConfig.file_storage_limit}
-                onChange={(e) =>
-                  setSystemConfig({
-                    ...systemConfig,
-                    file_storage_limit: e.target.value,
                   })
                 }
                 className="input-primary w-full px-4 py-2"

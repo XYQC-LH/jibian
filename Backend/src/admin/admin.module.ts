@@ -1,8 +1,11 @@
 import { Module } from "@nestjs/common";
 import { AdminAuthModule } from "../auth/admin-auth.module";
 import { AssetsModule } from "../assets/assets.module";
+import { GenerationModule } from "../generation/generation.module";
 import { TemplatesModule } from "../templates/templates.module";
 import { AdminAssetsController } from "./admin-assets.controller";
+import { AdminDispatchController, AdminModelManagementController } from "./admin-dispatch.controller";
+import { AdminDispatchService } from "./admin-dispatch.service";
 import { AdminFinanceController } from "./admin-finance.controller";
 import { AdminFinanceService } from "./admin-finance.service";
 import { AdminMonitorController } from "./admin-monitor.controller";
@@ -16,7 +19,7 @@ import { AdminUsersController } from "./admin-users.controller";
 import { AdminUsersService } from "./admin-users.service";
 
 @Module({
-  imports: [AdminAuthModule, TemplatesModule, AssetsModule],
+  imports: [AdminAuthModule, TemplatesModule, AssetsModule, GenerationModule],
   controllers: [
     AdminAssetsController,
     AdminTasksController,
@@ -25,7 +28,16 @@ import { AdminUsersService } from "./admin-users.service";
     AdminUsersController,
     AdminMonitorController,
     AdminFinanceController,
+    AdminDispatchController,
+    AdminModelManagementController,
   ],
-  providers: [AdminTasksService, AdminStatisticsService, AdminUsersService, AdminFinanceService, AdminTemplatesService],
+  providers: [
+    AdminTasksService,
+    AdminStatisticsService,
+    AdminUsersService,
+    AdminFinanceService,
+    AdminTemplatesService,
+    AdminDispatchService,
+  ],
 })
 export class AdminModule {}

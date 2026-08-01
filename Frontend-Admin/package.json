@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "npm@11.6.2",
   "scripts": {
-    "dev": "cross-env PORT=3810 API_INTERNAL_URL=http://localhost:8000 NEXT_PUBLIC_ENABLE_MOCKS=true next dev -p 3810",
+    "dev": "cross-env PORT=3810 API_INTERNAL_URL=https://api.jibian.art NEXT_PUBLIC_ENABLE_MOCKS=false next dev -p 3810",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0 && node ../scripts/run-check-encoding.mjs --check --check-mojibake --paths ./src",
