@@ -1,0 +1,25 @@
+<svg width="420" height="160" viewBox="0 0 420 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jibianGradient" x1="0" y1="1" x2="1" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5FD3DC"/>
+      <stop offset="0.55" stop-color="#9E8CFF"/>
+      <stop offset="1" stop-color="#FF77B9"/>
+    </linearGradient>
+    <filter id="jibianShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#8EA3FF" flood-opacity="0.33"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="20" width="120" height="120" rx="32" fill="url(#jibianGradient)" filter="url(#jibianShadow)"/>
+
+  <g fill="#FFFFFF">
+    <ellipse cx="60" cy="60" rx="17" ry="22"/>
+    <ellipse cx="60" cy="60" rx="17" ry="22" transform="rotate(120 60 60)"/>
+    <ellipse cx="60" cy="60" rx="17" ry="22" transform="rotate(240 60 60)"/>
+  </g>
+
+  <circle cx="60" cy="60" r="7" fill="#FF77B9"/>
+
+  <text x="140" y="100" font-family="'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="64" font-weight="800" fill="#20151D">即变</text>
+  <text x="142" y="132" font-family="Manrope,'PingFang SC',sans-serif" font-size="18" letter-spacing="6" fill="#6B5D67">AI 人物创作</text>
+</svg>
