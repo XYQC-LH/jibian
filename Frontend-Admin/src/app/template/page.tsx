@@ -5,7 +5,7 @@ import React from 'react';
 import AdminResourceCenter from '@/components/AdminResourceCenter';
 import AdminModulePageShell from '@/components/admin/AdminModulePageShell';
 
-const ACTIVE_MODULE_HREF = '/resources';
+const ACTIVE_MODULE_HREF = '/template';
 
 export default function ResourcesPage() {
   return (

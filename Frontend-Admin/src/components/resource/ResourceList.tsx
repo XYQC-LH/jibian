@@ -139,7 +139,7 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
             type="button"
             onClick={() => onToggleEnabled(!isEnabled)}
             disabled={toggleLoading}
-            aria-label={isEnabled ? '停用模型' : '启用模型'}
+            aria-label={isEnabled ? '停用模板' : '启用模板'}
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
               isEnabled ? 'bg-green-500/80' : 'bg-gray-500/40'
             } ${toggleLoading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
@@ -265,7 +265,7 @@ const ResourceList: React.FC<ResourceListProps> = ({
   if (models.length === 0) {
     return (
       <div className="card-primary p-12 text-center">
-        <p className="text-text-muted">{'暂无模型数据'}</p>
+        <p className="text-text-muted">{'暂无模板数据'}</p>
       </div>
     );
   }

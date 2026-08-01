@@ -115,7 +115,7 @@ export default function AdminResourceModelsSection({
 
       {(hasActiveQuery || !loading) && groupedModels.every((group) => group.models.length === 0) ? (
         <div className="card-primary p-12 text-center">
-          <p className="text-text-muted">当前筛选条件下暂无模型数据</p>
+          <p className="text-text-muted">当前筛选条件下暂无模板数据</p>
         </div>
       ) : null}
 

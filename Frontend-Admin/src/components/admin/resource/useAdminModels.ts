@@ -219,7 +219,7 @@ export function useAdminModels(reloadKey: number) {
       setModelsHasNext(Boolean(modelsResult.has_next));
     } catch (error: unknown) {
       console.error('Load more models error:', error);
-      toast.error(getErrorMessage(error, '加载更多模型失败'));
+      toast.error(getErrorMessage(error, '加载更多模板失败'));
     } finally {
       setLoadingMore(false);
     }

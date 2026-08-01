@@ -16,6 +16,7 @@ export interface UpdateModelPayload {
   category?: string;
   cover_asset_id?: string;
   description?: string;
+  prompt?: string;
   credits_cost?: number;
   order?: number | null;
   is_enabled?: boolean;
@@ -143,6 +144,9 @@ export class ModelManagementService {
     if (payload.cover_asset_id !== undefined) {
       updateDto.cover_asset_id = payload.cover_asset_id;
     }
+    if (payload.prompt !== undefined) {
+      updateDto.prompt = payload.prompt;
+    }
     if (payload.credits_cost !== undefined) {
       updateDto.price_credits = payload.credits_cost;
     }
@@ -259,6 +263,7 @@ export class ModelManagementService {
       cover_asset_id: template.coverAssetId,
       cover_url: coverUrl,
       description: "",
+      prompt: template.prompt,
       type: "image",
       output_type: "image",
       provider: null,

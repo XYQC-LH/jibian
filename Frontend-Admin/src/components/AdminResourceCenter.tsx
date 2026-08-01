@@ -42,9 +42,9 @@ const AdminResourceCenter: React.FC = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
                 <Settings className="text-white w-6 h-6" />
               </div>
-              模板与模型
+              模板管理
             </h1>
-            <p className="text-text-muted">玩法模板 · 模型配置</p>
+            <p className="text-text-muted">玩法模板管理</p>
           </div>
           <div className="flex flex-wrap gap-3 items-center">
             <button className="btn-primary" onClick={() => setShowAddModal(true)}>

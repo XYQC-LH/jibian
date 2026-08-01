@@ -174,6 +174,7 @@ export const mapModelResponse = (model: unknown, defaultId?: string, defaultCred
     status,
     is_enabled: isEnabled,
     description: (m?.description as string) || '',
+    prompt: (m?.prompt as string) || undefined,
     cost_credits: (m?.credits_cost as number) ?? defaultCredits ?? 1,
     pricing_mode: (m?.pricing_mode as string | null) ?? null,
     pricing_strategy: (m?.pricing_strategy as string | null) ?? null,

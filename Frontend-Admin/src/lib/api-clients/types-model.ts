@@ -13,6 +13,7 @@ export interface Model {
   status?: string;
   is_enabled?: boolean;
   description: string;
+  prompt?: string;
   cost_credits: number;
   pricing_mode?: string | null;
   pricing_strategy?: string | null;
@@ -90,6 +91,7 @@ export interface ModelUpdateRequest {
   category?: string;
   cover_asset_id?: string;
   description?: string;
+  prompt?: string;
   credits_cost?: number;
   order?: number | null;
   model_pricing_multiplier?: number | null;

@@ -29,6 +29,7 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
 }) => {
   const [displayName, setDisplayName] = useState<string>(String(model.name || '').trim());
   const [category, setCategory] = useState<string>(String(model.category || '').trim());
+  const [prompt, setPrompt] = useState<string>(String(model.prompt || ''));
   const [creditsCost, setCreditsCost] = useState<string>(String(model.cost_credits ?? 1));
   const [saving, setSaving] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -101,6 +102,7 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
         display_name: name,
         ...(category.trim() ? { category: category.trim() } : {}),
         ...(resolvedCoverAssetId ? { cover_asset_id: resolvedCoverAssetId } : {}),
+        prompt: prompt.trim(),
         credits_cost: normalizedCredits,
       });
 
@@ -110,6 +112,7 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
         category: updated.category ?? category.trim(),
         cover_asset_id: updated.cover_asset_id ?? resolvedCoverAssetId,
         cover_url: updated.cover_url ?? (coverPreview || null),
+        prompt: updated.prompt ?? prompt.trim(),
         cost_credits: normalizeCreditsCost(updated.cost_credits, normalizedCredits),
         is_active: updated.is_active,
       });
@@ -216,6 +219,16 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
                   <span className="text-sm">{uploadingCover ? '上传中...' : '点击选择封面图片'}</span>
                 </button>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm text-text-muted mb-2">提示词（提交给模板源头的基础提示词）</label>
+              <textarea
+                className="input-primary w-full min-h-[100px]"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="例如：把用户照片转换为清透珠光质感的人像写真"
+              />
             </div>
 
             <div>

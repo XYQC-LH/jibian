@@ -63,7 +63,7 @@ export default function AdminMainDashboard() {
     if (typeof window === 'undefined') return;
     try {
       const pathname = window.location.pathname;
-      if (pathname === '/resources') {
+      if (pathname === '/template' || pathname === '/resources') {
         const resourceModule = availableModules.find((module) => module.requiredPermission === 'admin.resources.read');
         if (resourceModule) {
           setActiveModule(resourceModule.name);

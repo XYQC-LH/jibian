@@ -39,6 +39,14 @@ export const adminSidebarModules: AdminSidebarModule[] = [
     requiredPermission: 'admin.tasks.read',
   },
   {
+    name: '模板与模型',
+    icon: ImagePlus,
+    href: '/template',
+    description: '玩法模板与模型配置',
+    color: 'from-orange-500 to-red-500',
+    requiredPermission: 'admin.resources.read',
+  },
+  {
     name: '源头监控与调度',
     icon: Workflow,
     href: '/dispatch',
@@ -53,14 +61,6 @@ export const adminSidebarModules: AdminSidebarModule[] = [
     description: '输入输出内容审查',
     color: 'from-cyan-500 to-blue-500',
     requiredPermission: 'admin.moderation.read',
-  },
-  {
-    name: '模板与模型',
-    icon: ImagePlus,
-    href: '/resources',
-    description: '玩法模板与模型配置',
-    color: 'from-orange-500 to-red-500',
-    requiredPermission: 'admin.resources.read',
   },
   {
     name: '系统配置',

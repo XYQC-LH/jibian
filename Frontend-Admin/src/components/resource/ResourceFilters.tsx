@@ -19,7 +19,7 @@ const ResourceFilters: React.FC<ResourceFiltersProps> = ({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
           <input
             type="text"
-            placeholder="搜索模型、提供商..."
+            placeholder="搜索模板、提供商..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="input-primary pl-10 pr-4 py-2 w-64"
