@@ -78,6 +78,21 @@ export class AdminTasksService {
     };
   }
 
+  async remove(id: string) {
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) {
+      throw new NotFoundException("Task not found");
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.sourceRun.deleteMany({ where: { taskId: id } }),
+      this.prisma.userCreation.deleteMany({ where: { taskId: id } }),
+      this.prisma.task.delete({ where: { id } }),
+    ]);
+
+    return { success: true, data: { deleted: true } };
+  }
+
   private mapTask(task: Parameters<typeof this.mapTaskInput>[0]) {
     return this.mapTaskInput(task);
   }

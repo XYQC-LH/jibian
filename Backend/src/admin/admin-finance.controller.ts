@@ -77,4 +77,50 @@ export class AdminFinanceController {
   getCreditStatistics(@Query("days") days = "30") {
     return this.finance.getCreditStatistics(Number(days));
   }
+
+  @Get("recharge-records")
+  listRechargeRecords(
+    @Query("page") page = "1",
+    @Query("page_size") pageSize = "20",
+    @Query("user_email") userEmail?: string,
+    @Query("start_date") startDate?: string,
+    @Query("end_date") endDate?: string,
+  ) {
+    return this.finance.listRechargeRecords({
+      page: Number(page),
+      pageSize: Number(pageSize),
+      userEmail,
+      startDate,
+      endDate,
+    });
+  }
+
+  @Get("transactions")
+  listTransactions(
+    @Query("page") page = "1",
+    @Query("page_size") pageSize = "20",
+    @Query("transaction_type") transactionType?: string,
+    @Query("user_email") userEmail?: string,
+    @Query("start_date") startDate?: string,
+    @Query("end_date") endDate?: string,
+  ) {
+    return this.finance.listTransactions({
+      page: Number(page),
+      pageSize: Number(pageSize),
+      transactionType,
+      userEmail,
+      startDate,
+      endDate,
+    });
+  }
+
+  @Get("transactions/statistics")
+  getTransactionStatistics(@Query("days") days = "30") {
+    return this.finance.getTransactionStatistics(Number(days));
+  }
+
+  @Get("xianyu/issue-records/overview")
+  getXianyuIssueRecordsOverview() {
+    return this.finance.getXianyuIssueRecordsOverview();
+  }
 }

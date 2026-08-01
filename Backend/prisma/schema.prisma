@@ -173,6 +173,14 @@ model RedeemCode {
   @@map("redeem_codes")
 }
 
+model Setting {
+  key       String   @id @db.VarChar(128)
+  value     String   @db.Text
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("settings")
+}
+
 model UserCreation {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String   @map("user_id") @db.Uuid

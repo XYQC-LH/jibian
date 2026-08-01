@@ -216,7 +216,7 @@ export class AssetUrlService {
 
   private toCanonicalQueryString(query: URLSearchParams) {
     return [...query.entries()]
-      .sort(([left], [right]) => left.localeCompare(right))
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join("&");
   }

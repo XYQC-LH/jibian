@@ -65,24 +65,24 @@ export function useAdminMonitor(activeTab: ResourceTab) {
         }
 
         const dayPoints: MonitorTrendPoint[] =
-          dayHistoryResult.status === 'fulfilled' && Array.isArray((dayHistoryResult.value as unknown as { history: Record<string, unknown>[] }).history)
-            ? (dayHistoryResult.value as unknown as { history: Record<string, unknown>[] }).history.map((point) => toMonitorTrendPointFromHistory(point))
+          dayHistoryResult.status === 'fulfilled' && Array.isArray(dayHistoryResult.value)
+            ? (dayHistoryResult.value as unknown as Record<string, unknown>[]).map((point) => toMonitorTrendPointFromHistory(point))
             : [];
         if (dayHistoryResult.status === 'rejected') {
           nextStatus = mergeHealthStatus(nextStatus, resolveStatus(dayHistoryResult.reason));
         }
 
         const weekPoints: MonitorTrendPoint[] =
-          weekHistoryResult.status === 'fulfilled' && Array.isArray((weekHistoryResult.value as unknown as { history: Record<string, unknown>[] }).history)
-            ? (weekHistoryResult.value as unknown as { history: Record<string, unknown>[] }).history.map((point) => toMonitorTrendPointFromHistory(point))
+          weekHistoryResult.status === 'fulfilled' && Array.isArray(weekHistoryResult.value)
+            ? (weekHistoryResult.value as unknown as Record<string, unknown>[]).map((point) => toMonitorTrendPointFromHistory(point))
             : [];
         if (weekHistoryResult.status === 'rejected') {
           nextStatus = mergeHealthStatus(nextStatus, resolveStatus(weekHistoryResult.reason));
         }
 
         const recentPoints: MonitorTrendPoint[] =
-          recentResult.status === 'fulfilled' && Array.isArray((recentResult.value as unknown as { points: Record<string, unknown>[] }).points)
-            ? (recentResult.value as unknown as { points: Record<string, unknown>[] }).points.map((point) => toMonitorTrendPointFromHistory(point))
+          recentResult.status === 'fulfilled' && Array.isArray(recentResult.value)
+            ? (recentResult.value as unknown as Record<string, unknown>[]).map((point) => toMonitorTrendPointFromHistory(point))
             : [];
         if (recentResult.status === 'rejected') {
           nextStatus = mergeHealthStatus(nextStatus, resolveStatus(recentResult.reason));

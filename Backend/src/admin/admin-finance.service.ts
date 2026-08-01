@@ -328,7 +328,202 @@ export class AdminFinanceService {
     };
   }
 
+  // ── Recharge records ──
+
+  async listRechargeRecords(params: {
+    page: number;
+    pageSize: number;
+    userEmail?: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const { page, pageSize } = this.resolvePagination(params.page, params.pageSize);
+    const where = this.buildLedgerWhere(params.userEmail, params.startDate, params.endDate, {
+      amount: { gt: 0 },
+    });
+
+    const [total, records] = await this.prisma.$transaction([
+      this.prisma.creditLedger.count({ where }),
+      this.prisma.creditLedger.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { user: true },
+      }),
+    ]);
+
+    return {
+      success: true,
+      data: this.paginated(
+        records.map((record) => ({
+          id: record.id,
+          user_id: record.userId,
+          user_email: this.userLabel(record.user),
+          amount: record.amount,
+          credits: record.amount,
+          status: "success",
+          payment_method: "credits",
+          created_at: record.createdAt.toISOString(),
+        })),
+        total,
+        page,
+        pageSize,
+      ),
+    };
+  }
+
+  // ── Transactions ──
+
+  async listTransactions(params: {
+    page: number;
+    pageSize: number;
+    transactionType?: string;
+    userEmail?: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const { page, pageSize } = this.resolvePagination(params.page, params.pageSize);
+    const where = this.buildLedgerWhere(params.userEmail, params.startDate, params.endDate, {
+      ...(params.transactionType && params.transactionType !== "all"
+        ? { type: params.transactionType }
+        : {}),
+    });
+
+    const [total, records] = await this.prisma.$transaction([
+      this.prisma.creditLedger.count({ where }),
+      this.prisma.creditLedger.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { user: true },
+      }),
+    ]);
+
+    return {
+      success: true,
+      data: this.paginated(
+        records.map((record) => ({
+          id: record.id,
+          user_id: record.userId,
+          user_email: this.userLabel(record.user),
+          amount: record.amount,
+          balance_before: record.balanceAfter - record.amount,
+          balance_after: record.balanceAfter,
+          transaction_type: record.type,
+          status: "success",
+          description: `${record.refType}:${record.refId}`,
+          created_at: record.createdAt.toISOString(),
+        })),
+        total,
+        page,
+        pageSize,
+      ),
+    };
+  }
+
+  async getTransactionStatistics(days: number) {
+    const safeDays = Number.isFinite(days) && days > 0 ? Math.min(days, 90) : 30;
+    const since = new Date(Date.now() - safeDays * 24 * 60 * 60 * 1000);
+    const records = await this.prisma.creditLedger.findMany({
+      where: { createdAt: { gte: since } },
+      select: { type: true, amount: true },
+    });
+
+    const total = records.length;
+    const totalAmount = records.reduce((sum, record) => sum + Math.abs(record.amount), 0);
+    const successCount = records.filter((record) => record.amount > 0).length;
+    const failedCount = records.filter((record) => record.amount < 0).length;
+    const byType: Record<string, number> = {};
+    for (const record of records) {
+      byType[record.type] = (byType[record.type] ?? 0) + record.amount;
+    }
+
+    return {
+      success: true,
+      data: {
+        total,
+        total_transactions: total,
+        total_amount: totalAmount,
+        success_count: successCount,
+        failed_count: failedCount,
+        success_rate: total > 0 ? Number((successCount / total).toFixed(4)) : 0,
+        by_type: byType,
+        period_days: safeDays,
+      },
+    };
+  }
+
+  async getXianyuIssueRecordsOverview() {
+    return {
+      success: true,
+      data: {
+        total: 0,
+        today_count: 0,
+        pending: 0,
+        succeeded: 0,
+        failed: 0,
+        total_issued: 0,
+        recent_records: [],
+      },
+    };
+  }
+
   // ── Helpers ──
+
+  private resolvePagination(page: number, pageSize: number) {
+    const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+    const safePageSize =
+      Number.isFinite(pageSize) && pageSize > 0 ? Math.min(pageSize, 100) : 20;
+    return { page: Math.trunc(safePage), pageSize: Math.trunc(safePageSize) };
+  }
+
+  private paginated(items: unknown[], total: number, page: number, pageSize: number) {
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    return {
+      items,
+      total,
+      page,
+      page_size: pageSize,
+      total_pages: totalPages,
+      has_next: page < totalPages,
+      has_prev: page > 1,
+    };
+  }
+
+  private buildLedgerWhere(
+    userEmail: string | undefined,
+    startDate: string | undefined,
+    endDate: string | undefined,
+    extra: Record<string, unknown> = {},
+  ): Record<string, unknown> {
+    return {
+      ...extra,
+      ...(userEmail
+        ? {
+            user: {
+              OR: [{ nickname: { contains: userEmail } }, { phone: { contains: userEmail } }],
+            },
+          }
+        : {}),
+      ...(startDate || endDate
+        ? {
+            createdAt: {
+              ...(startDate ? { gte: new Date(startDate) } : {}),
+              ...(endDate ? { lte: new Date(endDate) } : {}),
+            },
+          }
+        : {}),
+    };
+  }
+
+  private userLabel(user: { nickname: string | null; phone: string | null } | null) {
+    if (!user) {
+      return undefined;
+    }
+    return user.nickname || user.phone || undefined;
+  }
 
   private mapRedeemCode(code: {
     id: string;

@@ -1,6 +1,12 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
 import { AdminGuard } from "../auth/admin.guard";
 import * as os from "os";
+
+type ResourceBody = {
+  service?: unknown;
+  memory_limit_mb?: unknown;
+  worker_concurrency?: unknown;
+};
 
 @Controller("v1/admin/system-monitor")
 @UseGuards(AdminGuard)
@@ -10,15 +16,13 @@ export class AdminMonitorController {
     return { success: true, data: this.buildSnapshot() };
   }
 
-  // 趋势接口返回扁平趋势点（cpu_usage 等），与前端 toMonitorTrendPointFromHistory 契约一致
+  // 趋势接口返回扁平趋势点（cpu_usage 等）数组，与前端 SystemMonitorSnapshot[]/toMonitorTrendPointFromHistory 契约一致
   @Get("history")
   history() {
     const now = Date.now();
     return {
       success: true,
-      data: {
-        history: [this.buildTrendPoint(now - 3600_000), this.buildTrendPoint(now)],
-      },
+      data: [this.buildTrendPoint(now - 3600_000), this.buildTrendPoint(now)],
     };
   }
 
@@ -27,10 +31,73 @@ export class AdminMonitorController {
     const now = Date.now();
     return {
       success: true,
+      data: [this.buildTrendPoint(now - 60_000), this.buildTrendPoint(now)],
+    };
+  }
+
+  // 后端未集成 docker，返回空容器列表
+  @Get("containers")
+  containers() {
+    return { success: true, data: [] };
+  }
+
+  @Post("containers/memory-limit")
+  updateMemoryLimit(@Body() body: ResourceBody) {
+    const service = this.requireService(body.service);
+    const memoryLimitMb = this.requirePositiveNumber(body.memory_limit_mb, "memory_limit_mb");
+    return {
+      success: true,
       data: {
-        points: [this.buildTrendPoint(now - 60_000), this.buildTrendPoint(now)],
+        ...this.buildContainerBase(service),
+        memory: { limit_mb: memoryLimitMb, unit: "MB" },
+        memory_limit_mb: memoryLimitMb,
+        note: "需在部署层（docker-compose）调整",
+        snapshot: this.buildSnapshot(),
       },
     };
+  }
+
+  @Post("containers/worker-concurrency")
+  updateWorkerConcurrency(@Body() body: ResourceBody) {
+    const service = this.requireService(body.service);
+    const workerConcurrency = this.requirePositiveNumber(body.worker_concurrency, "worker_concurrency");
+    return {
+      success: true,
+      data: {
+        ...this.buildContainerBase(service),
+        memory: { worker_concurrency: workerConcurrency },
+        worker_concurrency: workerConcurrency,
+        note: "需在部署层（docker-compose）调整",
+        snapshot: this.buildSnapshot(),
+      },
+    };
+  }
+
+  private buildContainerBase(service: string) {
+    return {
+      service,
+      name: service,
+      status: "running" as const,
+      cpu_percent: 0,
+      uptime: "-",
+      restart_count: 0,
+    };
+  }
+
+  private requireService(value: unknown) {
+    const service = String(value ?? "").trim();
+    if (!service) {
+      throw new BadRequestException("service 不能为空");
+    }
+    return service;
+  }
+
+  private requirePositiveNumber(value: unknown, field: string) {
+    const parsed = Math.round(Number(value));
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new BadRequestException(`${field} 必须是大于 0 的数值`);
+    }
+    return parsed;
   }
 
   private buildSnapshot() {
