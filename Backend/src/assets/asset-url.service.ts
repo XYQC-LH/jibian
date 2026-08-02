@@ -1,6 +1,7 @@
 import { createHash, createHmac } from "node:crypto";
 import { Injectable, ServiceUnavailableException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { isProductionRuntime } from "../common/runtime-env";
 
 type StorageConfig = {
   bucket: string;
@@ -19,7 +20,7 @@ export class AssetUrlService {
   createUploadUrl(storageKey: string) {
     const storageConfig = this.getStorageConfig();
     if (!storageConfig) {
-      if (this.readEnv("NODE_ENV") === "production") {
+      if (isProductionRuntime(this.config)) {
         throw new ServiceUnavailableException("Storage is not configured");
       }
 
@@ -32,7 +33,7 @@ export class AssetUrlService {
   createPublicUploadUrl(storageKey: string) {
     const storageConfig = this.getStorageConfig();
     if (!storageConfig) {
-      if (this.readEnv("NODE_ENV") === "production") {
+      if (isProductionRuntime(this.config)) {
         throw new ServiceUnavailableException("Storage is not configured");
       }
 
@@ -45,6 +46,10 @@ export class AssetUrlService {
   getPublicUrl(storageKey: string) {
     if (storageKey.startsWith("http://") || storageKey.startsWith("https://")) {
       return storageKey;
+    }
+
+    if (this.isBundledSeedAssetKey(storageKey)) {
+      return `${this.getApiBaseUrl()}/api/assets/mock/${this.encodeStorageKey(storageKey)}`;
     }
 
     const storageConfig = this.getStorageConfig();
@@ -69,7 +74,7 @@ export class AssetUrlService {
     }
 
     if (!publicBaseUrl) {
-      if (this.readEnv("NODE_ENV") === "production") {
+      if (isProductionRuntime(this.config)) {
         throw new ServiceUnavailableException("Storage is not configured");
       }
 
@@ -82,6 +87,10 @@ export class AssetUrlService {
   private isPublicAssetKey(storageKey: string) {
     // Mirrors the asset types uploaded to the public bucket (admin template covers).
     return storageKey.startsWith("template_cover/");
+  }
+
+  private isBundledSeedAssetKey(storageKey: string) {
+    return storageKey.startsWith("assets/design/");
   }
 
   getMockAssetStorageKey(path: string) {
@@ -170,7 +179,7 @@ export class AssetUrlService {
       "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
       "X-Amz-Credential": `${storageConfig.accessKeyId}/${credentialScope}`,
       "X-Amz-Date": amzDate,
-      "X-Amz-Expires": String(this.getUploadUrlExpiresSeconds()),
+      "X-Amz-Expires": String(this.getReadUrlExpiresSeconds()),
       "X-Amz-SignedHeaders": signedHeaders,
     });
     const canonicalQueryString = this.toCanonicalQueryString(query);
@@ -234,6 +243,19 @@ export class AssetUrlService {
     return Math.floor(configured);
   }
 
+  private getReadUrlExpiresSeconds() {
+    const configured = Number(
+      this.readEnv("ASSET_READ_URL_EXPIRES_SECONDS")
+        ?? this.readEnv("STORAGE_READ_EXPIRE_SECONDS")
+        ?? 86400,
+    );
+    if (!Number.isFinite(configured) || configured <= 0) {
+      return 86400;
+    }
+
+    return Math.floor(configured);
+  }
+
   private readEnv(key: string) {
     const value = this.config.get<string>(key);
     return value && value.trim() ? value.trim() : undefined;
@@ -243,8 +265,9 @@ export class AssetUrlService {
     return (
       this.readEnv("API_PUBLIC_BASE_URL")
       ?? this.readEnv("BACKEND_PUBLIC_BASE_URL")
-      ?? `http://localhost:${this.readEnv("PORT") ?? "3000"}`
-    ).replace(/\/$/, "");
+      ?? this.readEnv("API_BASE_URL")
+      ?? `http://localhost:${this.readEnv("API_PORT") ?? this.readEnv("PORT") ?? "3000"}`
+    ).replace(/\/api$/, "").replace(/\/$/, "");
   }
 
   private resolveSecretRef() {

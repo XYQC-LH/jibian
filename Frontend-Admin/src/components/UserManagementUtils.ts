@@ -13,13 +13,6 @@ export const emptyStats = (): UserStats => ({
   usersWithLowCredits: 0,
 });
 
-export const emptyCreateForm = () => ({
-  email: '',
-  password: '',
-  username: '',
-  credits: 0,
-});
-
 export const emptyCreditForm = () => ({
   credits: 0,
   reason: '',
@@ -50,9 +43,8 @@ export const getRegistrationSourceLabel = (user: User): string => {
   if (explicitLabel) return explicitLabel;
 
   const source = String(user.registration_source || '').trim().toLowerCase();
-  if (source === 'email_password') return '邮箱注册';
-  if (source === 'username_password') return '用户名注册';
-  return '未知来源';
+  if (source === 'wechat') return '微信小程序';
+  return '微信小程序';
 };
 
 export const getInitial = (user: User): string => getDisplayName(user).charAt(0).toUpperCase() || 'U';

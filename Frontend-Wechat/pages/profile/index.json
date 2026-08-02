@@ -1,6 +1,2 @@
 {
-  "navigationStyle": "custom",
-  "usingComponents": {
-    "bottom-nav": "../../components/bottom-nav/index"
-  }
-}
+    "navigationStyle":  "custom"}

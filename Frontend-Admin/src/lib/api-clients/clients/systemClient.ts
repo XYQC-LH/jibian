@@ -9,7 +9,7 @@ import {
 } from '../types';
 import { normalizeUser } from '../normalizers';
 import { ApiError } from '../lib/http/errors';
-import { BaseAdminClient, ensureData, ensureSuccess, isApiResponse } from './_base';
+import { BaseAdminClient, ensureData, isApiResponse } from './_base';
 
 const ensureMaybeData = <T>(payload: unknown, defaultMessage: string): T => {
   if (isApiResponse<T>(payload)) {
@@ -23,8 +23,8 @@ const ensureMaybeData = <T>(payload: unknown, defaultMessage: string): T => {
 
 const defaultSystemConfig: SystemConfig = {
   max_concurrent_tasks: 10,
-  task_timeout: 900,
-  cleanup_interval: 600,
+  task_timeout: 300,
+  cleanup_interval: 3600,
   redis_memory_limit: '512mb',
   database_connections: 10,
   file_storage_limit: '5gb',
@@ -42,11 +42,13 @@ export class SystemAdminClient extends BaseAdminClient {
   }
 
   async getSystemConfig(): Promise<SystemConfig> {
-    return defaultSystemConfig;
+    const response = await this.client.get<ApiResponse<SystemConfig>>('/api/v1/settings/system-config');
+    return { ...defaultSystemConfig, ...ensureData(response.data, 'Failed to fetch system config') };
   }
 
   async updateSystemConfig(payload: Partial<SystemConfig>): Promise<SystemConfig> {
-    return { ...defaultSystemConfig, ...payload };
+    const response = await this.client.put<ApiResponse<SystemConfig>>('/api/v1/settings/system-config', payload);
+    return { ...defaultSystemConfig, ...ensureData(response.data, 'Failed to update system config') };
   }
 
   async getHealthStatus(): Promise<Record<string, unknown>> {
@@ -195,32 +197,6 @@ export class SystemAdminClient extends BaseAdminClient {
       { delta: credits }
     );
     return normalizeUser(ensureMaybeData<Record<string, unknown>>(response.data, 'Failed to adjust user credits'));
-  }
-
-  async createUser(payload: {
-    email: string;
-    password: string;
-    username?: string;
-    credits?: number;
-  }): Promise<User> {
-    const response = await this.client.post<ApiResponse<unknown>>(
-      '/api/v1/admin/users',
-      {
-        email: payload.email,
-        password: payload.password,
-        username: payload.username,
-        credits: payload.credits ?? 0,
-      }
-    );
-    return normalizeUser(ensureData(response.data, 'Failed to create user'));
-  }
-
-  async resetUserPassword(userId: string, newPassword: string): Promise<void> {
-    const response = await this.client.post<ApiResponse<unknown>>(
-      `/api/v1/admin/users/${userId}/password/reset`,
-      { new_password: newPassword }
-    );
-    ensureSuccess(response.data, 'Failed to reset user password');
   }
 
   async deleteUser(_userId: string): Promise<void> {

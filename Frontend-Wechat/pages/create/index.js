@@ -29,6 +29,14 @@ function toTemplateNavItems(activeId) {
   }));
 }
 
+function toApiRatio(ratio) {
+  return ratio === "原图" ? "auto" : ratio;
+}
+
+function createIdempotencyKey() {
+  return `generate-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -45,9 +53,11 @@ Page({
 
   progressTimer: null,
   pollTimer: null,
+  pendingIdempotencyKey: "",
 
   onLoad(query) {
-    const template = templateService.findTemplate(query.id);
+    const requestedId = query.id || getApp().globalData.selectedTemplateId;
+    const template = templateService.findTemplate(requestedId) || templateService.getCurrentTemplates()[0];
     const imagePath = getApp().globalData.draftImage;
 
     getApp().globalData.selectedTemplateId = template.id;
@@ -58,7 +68,7 @@ Page({
       imagePath,
       previewImage: template.cover
     });
-    this.loadTemplates(query.id);
+    this.loadTemplates(template.id);
   },
 
   loadTemplates(activeId) {
@@ -94,6 +104,7 @@ Page({
       success: (res) => {
         const imagePath = res.tempFiles[0].tempFilePath;
         getApp().globalData.draftImage = imagePath;
+        this.pendingIdempotencyKey = "";
         this.setData({
           imagePath
         });
@@ -108,6 +119,7 @@ Page({
     }
 
     getApp().globalData.draftImage = "";
+    this.pendingIdempotencyKey = "";
     this.setData({
       imagePath: ""
     });
@@ -119,6 +131,7 @@ Page({
     }
 
     const { id } = event.currentTarget.dataset;
+    this.pendingIdempotencyKey = "";
     this.applyTemplate(templateService.findTemplate(id));
   },
 
@@ -127,6 +140,7 @@ Page({
       return;
     }
 
+    this.pendingIdempotencyKey = "";
     this.setData({
       selectedRatio: event.currentTarget.dataset.ratio
     });
@@ -168,16 +182,13 @@ Page({
     if (app.globalData.credits < this.data.template.price) {
       wx.showModal({
         title: "积分不足",
-        content: "本地测试将赠送 30 积分，确认后继续开变。",
-        confirmText: "领取积分",
+        content: "当前积分不足，请先兑换积分或购买权益后再生成。",
+        confirmText: "去获取",
         success: (res) => {
           if (res.confirm) {
-            app.addCredits(30);
-            wx.showToast({
-              title: "已到账 30 积分",
-              icon: "success"
+            wx.navigateTo({
+              url: "/pages/credits/index"
             });
-            this.startGenerate();
           }
         }
       });
@@ -191,39 +202,24 @@ Page({
     });
 
     try {
+      this.pendingIdempotencyKey = this.pendingIdempotencyKey || createIdempotencyKey();
       const upload = await api.uploadInputImage(this.data.imagePath);
       const task = await api.createTask({
         template_id: this.data.template.id,
         input_asset_id: upload.asset_id,
-        ratio: this.toApiRatio(this.data.selectedRatio)
+        ratio: toApiRatio(this.data.selectedRatio),
+        idempotency_key: this.pendingIdempotencyKey
       });
+      this.pendingIdempotencyKey = "";
       app.globalData.currentTaskId = task.task_id;
+      await this.refreshCreditsSilently(app);
       this.pollTask(task.task_id, task.poll_interval_ms || 2000);
     } catch (err) {
       console.error("[create task failed]", err);
-      this.fallbackGenerate(app);
-    }
-  },
-
-  fallbackGenerate(app) {
-    const price = this.data.template.price || 0;
-
-    if (price > 0 && !app.spendCredits(price)) {
       this.setData({ generating: false, progress: 0 });
-      wx.showToast({ title: "积分不足", icon: "none" });
-      return;
+      this.refreshCreditsSilently(app);
+      wx.showToast({ title: err.message || "创建任务失败", icon: "none" });
     }
-
-    const record = app.addGeneratedRecord(this.data.template, {
-      ratio: this.data.selectedRatio,
-      sourceImage: this.data.imagePath
-    });
-
-    this.setData({ progress: 100 });
-    setTimeout(() => {
-      this.setData({ generating: false });
-      wx.navigateTo({ url: `/pages/result/index?recordId=${record.id}` });
-    }, 500);
   },
 
   pollTask(taskId, interval) {
@@ -242,6 +238,7 @@ Page({
         if (task.status === "failed") {
           this.clearPolling();
           this.setData({ generating: false });
+          await this.refreshCreditsSilently(getApp());
           wx.showToast({ title: task.error_message || task.error || "生成失败", icon: "none" });
         }
       } catch (err) {
@@ -255,15 +252,20 @@ Page({
     this.pollTimer = setInterval(pollOnce, interval);
   },
 
+  async refreshCreditsSilently(app) {
+    try {
+      const balance = await api.getCreditBalance();
+      app.setCredits(balance.balance);
+    } catch (err) {
+      console.warn("[refresh credits failed]", err);
+    }
+  },
+
   clearPolling() {
     if (this.pollTimer) {
       clearInterval(this.pollTimer);
       this.pollTimer = null;
     }
-  },
-
-  toApiRatio(ratio) {
-    return ratio === "原图" ? "auto" : ratio;
   },
 
   clearProgress() {

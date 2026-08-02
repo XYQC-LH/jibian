@@ -1,11 +1,14 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { DEFAULT_REGISTRATION_BONUS, REGISTRATION_BONUS_KEY } from "../common/settings.constants";
+import { PrismaTransactionClient } from "../prisma/prisma-transaction-client";
 import { PrismaService } from "../prisma/prisma.service";
 
 type Code2SessionResponse = {
@@ -46,13 +49,16 @@ export class WechatAuthService {
           ...(session.unionid ? { unionid: session.unionid } : {}),
         },
       });
+      if (user.status !== "active") {
+        throw new ForbiddenException("User account is not active");
+      }
 
       const existingAccount = await tx.creditAccount.findUnique({ where: { userId: user.id } });
       if (existingAccount) {
         return { user, account: existingAccount };
       }
 
-      const initialCredits = session.isMock ? this.getMockInitialCredits() : 0;
+      const initialCredits = await this.getInitialCredits(tx, session);
       const account = await tx.creditAccount.create({
         data: { userId: user.id, balance: initialCredits, updatedAt: now },
       });
@@ -62,7 +68,7 @@ export class WechatAuthService {
             userId: user.id,
             type: "adjustment",
             amount: initialCredits,
-            refType: "mock_login_bonus",
+            refType: session.isMock ? "mock_login_bonus" : "registration_bonus",
             refId: user.id,
             balanceAfter: initialCredits,
           },
@@ -72,13 +78,23 @@ export class WechatAuthService {
       return { user, account };
     });
 
+    const expiresIn = this.accessTokenExpiresInSeconds();
+
     return {
-      access_token: this.jwt.sign({ sub: result.user.id }, { expiresIn: "30d" }),
+      access_token: this.jwt.sign({ sub: result.user.id }, { expiresIn }),
       token_type: "Bearer",
-      expires_in: 30 * 24 * 3600,
+      expires_in: expiresIn,
       user: result.user,
       credit_balance: result.account.balance,
     };
+  }
+
+  private accessTokenExpiresInSeconds() {
+    const minutes = Number(this.config.get<string>("JWT_ACCESS_TOKEN_EXPIRE_MINUTES") ?? 30 * 24 * 60);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      return 30 * 24 * 3600;
+    }
+    return Math.floor(minutes * 60);
   }
 
   private async resolveWechatSession(code: string): Promise<WechatSession> {
@@ -140,6 +156,21 @@ export class WechatAuthService {
       openid: data.openid.slice(0, 128),
       ...(data.unionid ? { unionid: data.unionid.slice(0, 128) } : {}),
     };
+  }
+
+  private async getInitialCredits(tx: PrismaTransactionClient, session: WechatSession) {
+    const mockInitialCredits = session.isMock ? this.getMockInitialCredits() : 0;
+    if (mockInitialCredits > 0) {
+      return mockInitialCredits;
+    }
+
+    const setting = await tx.setting.findUnique({ where: { key: REGISTRATION_BONUS_KEY } });
+    const configured = Number(setting?.value);
+    if (Number.isFinite(configured) && configured > 0) {
+      return Math.floor(configured);
+    }
+
+    return DEFAULT_REGISTRATION_BONUS;
   }
 
   private getMockInitialCredits() {

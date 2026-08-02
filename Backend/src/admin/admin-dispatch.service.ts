@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
+import {
+  DEFAULT_TASK_TIMEOUT_SECONDS,
+  TASK_TIMEOUT_SETTING_KEY,
+} from "../common/settings.constants";
 import { SourceAdapterRegistry } from "../generation/sources/source-adapter.registry";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -75,6 +79,8 @@ export type TaskRequestSource = {
   createdAt: Date;
   finishedAt: Date | null;
   durationMs: number | null;
+  ratio: string;
+  idempotencyKey: string | null;
   user: { nickname: string | null; phone: string | null };
   template: { id: string; name: string; category: string };
   sourceRuns: Array<{
@@ -82,6 +88,8 @@ export type TaskRequestSource = {
     sourceId: string;
     status: string;
     upstreamJobId: string | null;
+    latencyMs: number | null;
+    costAmount: unknown | null;
     sourceErrorMessage: string | null;
     createdAt: Date;
   }>;
@@ -143,6 +151,17 @@ export function aggregateSourceStats(
   }));
 }
 
+export function taskErrorCode(task: {
+  errorMessage: string | null;
+  sourceRuns: Array<{ status: string; sourceErrorMessage: string | null }>;
+}) {
+  const message =
+    task.errorMessage ??
+    task.sourceRuns.find((run) => run.status === "failed" && run.sourceErrorMessage)?.sourceErrorMessage ??
+    null;
+  return message ? classifySourceError(message) : null;
+}
+
 export function mapTaskRequestItem(task: TaskRequestSource, moderation?: TaskModerationSummary) {
   const firstRun = task.sourceRuns[0];
   return {
@@ -154,14 +173,14 @@ export function mapTaskRequestItem(task: TaskRequestSource, moderation?: TaskMod
     model_id: task.template.id,
     model_name: task.template.name,
     source: firstRun?.sourceId ?? null,
-    idempotency_key: null,
-    trace_id: null,
+    idempotency_key: task.idempotencyKey,
+    trace_id: task.id,
     status: task.status,
     task_id: task.id,
     credits_cost: task.creditStatus === "charged" ? task.creditCost : 0,
     cost: task.creditCost,
     duration: task.durationMs,
-    error_code: null,
+    error_code: taskErrorCode(task),
     error_message: task.errorMessage,
     moderation,
     meta: {
@@ -169,6 +188,7 @@ export function mapTaskRequestItem(task: TaskRequestSource, moderation?: TaskMod
       input_asset_id: task.inputAssetId,
       expected_result_count: task.expectedResultCount,
       credit_status: task.creditStatus,
+      ratio: task.ratio,
     },
     created_at: task.createdAt.toISOString(),
     updated_at: (task.finishedAt ?? task.createdAt).toISOString(),
@@ -213,7 +233,11 @@ export class AdminDispatchService {
     source_id?: string;
     enabled?: boolean;
   } = {}) {
-    const [adapters, model] = await Promise.all([Promise.resolve(this.sources.getAll()), this.resolveDisplayModel()]);
+    const [adapters, model, timeoutMs] = await Promise.all([
+      Promise.resolve(this.sources.getAll()),
+      this.resolveDisplayModel(),
+      this.readTaskTimeoutMs(),
+    ]);
     const items = [];
     for (const [index, adapter] of adapters.entries()) {
       const meta = this.sourceMeta(adapter.sourceId);
@@ -230,7 +254,7 @@ export class AdminDispatchService {
         priority: runtime.priority,
         weight: runtime.weight,
         expected_cost: 0,
-        timeout_ms: 120000,
+        timeout_ms: timeoutMs,
         first_commit_timeout_ms: null,
         is_enabled: runtime.is_enabled,
         circuit_breaker_policy: null,
@@ -338,7 +362,11 @@ export class AdminDispatchService {
     source_id?: string;
     enabled?: boolean;
   } = {}) {
-    const [adapters, model] = await Promise.all([Promise.resolve(this.sources.getAll()), this.resolveDisplayModel()]);
+    const [adapters, model, timeoutMs] = await Promise.all([
+      Promise.resolve(this.sources.getAll()),
+      this.resolveDisplayModel(),
+      this.readTaskTimeoutMs(),
+    ]);
     const items = [];
     for (const [index, adapter] of adapters.entries()) {
       const meta = this.sourceMeta(adapter.sourceId);
@@ -355,7 +383,7 @@ export class AdminDispatchService {
         priority: runtime.priority,
         weight: runtime.weight,
         expected_cost: 0,
-        timeout_ms: 120000,
+        timeout_ms: timeoutMs,
         first_commit_timeout_ms: null,
         is_enabled: runtime.is_enabled,
         circuit_breaker_policy: null,
@@ -600,13 +628,42 @@ export class AdminDispatchService {
     if (!task) {
       throw new NotFoundException("Task request not found");
     }
-    const reviewMap = await this.latestReviewRecords([task.id]);
+    const [reviewMap, creditLedger, reviewRecords] = await Promise.all([
+      this.latestReviewRecords([task.id]),
+      this.prisma.creditLedger.findMany({
+        where: { refType: "task", refId: task.id },
+        orderBy: { createdAt: "asc" },
+      }),
+      this.prisma.reviewRecord.findMany({
+        where: { targetId: task.id },
+        orderBy: { createdAt: "asc" },
+      }),
+    ]);
     const moderation = this.buildModerationSummary(reviewMap.get(task.id) ?? []);
     return {
       success: true,
       data: {
         ...mapTaskRequestItem(task, moderation),
         task: this.mapTaskDetail(task, moderation),
+        credit_ledger: creditLedger.map((item) => ({
+          id: item.id,
+          type: item.type,
+          amount: item.amount,
+          ref_type: item.refType,
+          ref_id: item.refId,
+          balance_after: item.balanceAfter,
+          created_at: item.createdAt.toISOString(),
+        })),
+        review_records: reviewRecords.map((record) => ({
+          id: record.id,
+          target_type: record.targetType,
+          target_id: record.targetId,
+          review_stage: record.reviewStage,
+          status: record.status,
+          policy_hit: record.policyHit,
+          reason: record.reason,
+          created_at: record.createdAt.toISOString(),
+        })),
       },
     };
   }
@@ -630,6 +687,8 @@ export class AdminDispatchService {
         payload: {
           source_id: run.sourceId,
           upstream_job_id: run.upstreamJobId,
+          latency_ms: run.latencyMs,
+          cost_amount: this.toNumberOrNull(run.costAmount),
           error_message: run.sourceErrorMessage,
         },
       })),
@@ -651,7 +710,7 @@ export class AdminDispatchService {
         task: {
           id: task.id,
           status: task.status,
-          error_code: null,
+          error_code: taskErrorCode(task),
           error_message: task.errorMessage,
           created_at: task.createdAt.toISOString(),
           started_at: task.sourceRuns[0]?.createdAt.toISOString() ?? task.createdAt.toISOString(),
@@ -661,6 +720,8 @@ export class AdminDispatchService {
         source_run: {
           source_run_id: task.sourceRuns[0]?.id ?? null,
           upstream_job_id: task.sourceRuns[0]?.upstreamJobId ?? null,
+          latency_ms: task.sourceRuns[0]?.latencyMs ?? null,
+          cost_amount: this.toNumberOrNull(task.sourceRuns[0]?.costAmount ?? null),
           source_callback: null,
         },
         attempts,
@@ -743,9 +804,9 @@ export class AdminDispatchService {
           user_email: task.user.phone,
           model_id: task.template.id,
           source: task.sourceRuns[0]?.sourceId ?? null,
-          error_code: null,
+          error_code: taskErrorCode(task),
           error_message: task.errorMessage,
-          trace_id: null,
+          trace_id: task.id,
           created_at: task.createdAt.toISOString(),
         })),
       },
@@ -873,6 +934,15 @@ export class AdminDispatchService {
     return merged;
   }
 
+  private async readTaskTimeoutMs() {
+    const row = await this.prisma.setting.findUnique({ where: { key: TASK_TIMEOUT_SETTING_KEY } });
+    const seconds = Number(row?.value);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return DEFAULT_TASK_TIMEOUT_SECONDS * 1000;
+    }
+    return Math.trunc(seconds) * 1000;
+  }
+
   private buildProfile(
     adapter: { sourceId: string; isConfigured(): boolean },
     modelId: string,
@@ -899,12 +969,15 @@ export class AdminDispatchService {
       sourceId: string;
       status: string;
       upstreamJobId: string | null;
+      latencyMs: number | null;
+      costAmount: unknown | null;
       sourceErrorMessage: string | null;
       createdAt: Date;
     },
     template: { id: string; category: string },
   ) {
     const meta = this.sourceMeta(run.sourceId);
+    const errorType = run.sourceErrorMessage ? classifySourceError(run.sourceErrorMessage) : null;
     return {
       id: run.id,
       task_id: run.taskId,
@@ -914,10 +987,11 @@ export class AdminDispatchService {
       upstream_model_name: meta.upstream_model_name,
       attempt_no: 1,
       status: run.status,
-      error_type: run.sourceErrorMessage ? classifySourceError(run.sourceErrorMessage) : null,
-      error_code: null,
+      error_type: errorType,
+      error_code: errorType,
       error_message: run.sourceErrorMessage,
-      latency_ms: null,
+      latency_ms: run.latencyMs,
+      cost_amount: this.toNumberOrNull(run.costAmount),
       commit_at: null,
       extra: run.upstreamJobId ? { upstream_job_id: run.upstreamJobId } : undefined,
       created_at: run.createdAt.toISOString(),
@@ -935,6 +1009,7 @@ export class AdminDispatchService {
       if (!Number.isNaN(to.getTime())) createdAt.lte = to;
     }
     return {
+      adminDeletedAt: null,
       ...(params.status ? { status: params.status } : {}),
       ...(params.model_id ? { templateId: params.model_id } : {}),
       ...(params.user
@@ -1013,16 +1088,21 @@ export class AdminDispatchService {
       vendor: meta?.vendor ?? null,
       upstream_model_name: meta?.upstream_model_name ?? null,
       attempts: task.sourceRuns.map((run) => ({
+        error_code: run.sourceErrorMessage ? classifySourceError(run.sourceErrorMessage) : null,
         attempt_no: 1,
         status: run.status,
         source_id: run.sourceId,
         vendor: this.sourceMeta(run.sourceId).vendor,
+        upstream_job_id: run.upstreamJobId,
+        latency_ms: run.latencyMs,
+        cost_amount: this.toNumberOrNull(run.costAmount),
+        error_message: run.sourceErrorMessage,
       })),
       created_at: task.createdAt.toISOString(),
       started_at: firstRun?.createdAt.toISOString() ?? task.createdAt.toISOString(),
       updated_at: (task.finishedAt ?? task.createdAt).toISOString(),
       finished_at: task.finishedAt?.toISOString() ?? null,
-      error_code: null,
+      error_code: taskErrorCode(task),
       error_message: task.errorMessage,
       credits_reserved: task.creditCost,
       credits_consumed: task.creditStatus === "charged" ? task.creditCost : 0,
@@ -1030,5 +1110,11 @@ export class AdminDispatchService {
       progress: task.status === "succeeded" || task.status === "failed" ? 100 : 50,
       moderation,
     };
+  }
+
+  private toNumberOrNull(value: unknown) {
+    if (value === null || value === undefined) return null;
+    const numberValue = Number(value);
+    return Number.isFinite(numberValue) ? numberValue : null;
   }
 }

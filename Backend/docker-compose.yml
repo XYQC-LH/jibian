@@ -42,12 +42,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
+    environment: &backend-environment
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      WORKER_ENABLED: "false"
       PORT: ${PORT:-8000}
       APP_ENV: ${APP_ENV:-production}
       API_BASE_URL: ${API_BASE_URL:-https://api.jibian.art}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-https://jibian.art,https://www.jibian.art,https://admin.jibian.art}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:?ADMIN_SESSION_SECRET is required}
       ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME is required}
@@ -60,6 +62,7 @@ services:
       ASSET_STORAGE_SECRET_ACCESS_KEY: ${ASSET_STORAGE_SECRET_ACCESS_KEY:-}
       STORAGE_BACKEND: ${STORAGE_BACKEND:-cos}
       STORAGE_UPLOAD_EXPIRE_SECONDS: ${STORAGE_UPLOAD_EXPIRE_SECONDS:-600}
+      ASSET_READ_URL_EXPIRES_SECONDS: ${ASSET_READ_URL_EXPIRES_SECONDS:-86400}
       COS_REGION: ${COS_REGION:-}
       COS_ENDPOINT: ${COS_ENDPOINT:-}
       COS_BUCKET_PRIVATE: ${COS_BUCKET_PRIVATE:-}
@@ -72,6 +75,20 @@ services:
       CONTENT_SAFETY_PROVIDER: ${CONTENT_SAFETY_PROVIDER:-}
       WECHAT_APP_ID: ${WECHAT_APP_ID:-}
       WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
+      WECHAT_PAY_ENABLED: ${WECHAT_PAY_ENABLED:-false}
+      WECHAT_PAY_APP_ID: ${WECHAT_PAY_APP_ID:-}
+      WECHAT_PAY_MCH_ID: ${WECHAT_PAY_MCH_ID:-}
+      WECHAT_PAY_MCH_SERIAL_NO: ${WECHAT_PAY_MCH_SERIAL_NO:-}
+      WECHAT_PAY_PRIVATE_KEY: ${WECHAT_PAY_PRIVATE_KEY:-}
+      WECHAT_PAY_PRIVATE_KEY_PATH: ${WECHAT_PAY_PRIVATE_KEY_PATH:-}
+      WECHAT_PAY_PLATFORM_CERT: ${WECHAT_PAY_PLATFORM_CERT:-}
+      WECHAT_PAY_PLATFORM_CERT_PATH: ${WECHAT_PAY_PLATFORM_CERT_PATH:-}
+      WECHAT_PAY_PLATFORM_SERIAL_NO: ${WECHAT_PAY_PLATFORM_SERIAL_NO:-}
+      WECHAT_PAY_API_V3_KEY: ${WECHAT_PAY_API_V3_KEY:-}
+      WECHAT_PAY_NOTIFY_URL: ${WECHAT_PAY_NOTIFY_URL:-}
+      WECHAT_PAY_REFUND_NOTIFY_URL: ${WECHAT_PAY_REFUND_NOTIFY_URL:-}
+      WECHAT_PAY_API_BASE_URL: ${WECHAT_PAY_API_BASE_URL:-https://api.mch.weixin.qq.com}
+      WECHAT_PAY_NOTIFY_MAX_SKEW_SECONDS: ${WECHAT_PAY_NOTIFY_MAX_SKEW_SECONDS:-300}
       T8_BASE_URL: ${T8_BASE_URL:-}
       T8_API_KEY: ${T8_API_KEY:-}
       GRSAI_API_HOST: ${GRSAI_API_HOST:-}
@@ -85,9 +102,39 @@ services:
       MODERATION_ENABLED: ${MODERATION_ENABLED:-true}
       MODERATION_API_URL: ${MODERATION_API_URL:-}
       MODERATION_API_KEY: ${MODERATION_API_KEY:-}
+      ALIBABA_CLOUD_ACCESS_KEY_ID: ${ALIBABA_CLOUD_ACCESS_KEY_ID:-}
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${ALIBABA_CLOUD_ACCESS_KEY_SECRET:-}
+      MODERATION_ALIYUN_REGION: ${MODERATION_ALIYUN_REGION:-cn-shenzhen}
+      MODERATION_ALIYUN_IMAGE_SERVICE: ${MODERATION_ALIYUN_IMAGE_SERVICE:-baselineCheck}
+      MODERATION_ALIYUN_BLOCK_RISK_LEVELS: ${MODERATION_ALIYUN_BLOCK_RISK_LEVELS:-high,medium}
+      MODERATION_ALIYUN_READ_TIMEOUT_MS: ${MODERATION_ALIYUN_READ_TIMEOUT_MS:-10000}
+      MODERATION_ALIYUN_CONNECT_TIMEOUT_MS: ${MODERATION_ALIYUN_CONNECT_TIMEOUT_MS:-5000}
     ports:
       - "8000:8000"
-    command: sh -c "npx prisma db push && npx prisma db seed && node dist/main.js"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node dist/main.js"
+    networks:
+      - default
+      - jiligulu_proxy
+
+  worker:
+    build: .
+    container_name: jibian-worker
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *backend-environment
+      PORT: 8001
+      WORKER_ENABLED: "true"
+    command: sh -c "node dist/worker.js"
     networks:
       - default
       - jiligulu_proxy

@@ -5,18 +5,18 @@
   </view>
 
   <view class="summary-card">
-    <text class="summary-label">累计充值</text>
-    <text class="summary-value">+{{totalCredits}}</text>
-    <text class="summary-copy">本地测试数据，真实支付订单会在接口联调后同步</text>
+    <text class="summary-label">当前积分</text>
+    <text class="summary-value">{{totalCredits}}</text>
+    <text class="summary-copy">明细来自后端积分流水，生成失败会自动返还</text>
   </view>
 
   <view class="detail-tabs">
-    <view class="detail-tab detail-tab-active">充值明细</view>
-    <view class="detail-tab">消费明细</view>
+    <view class="detail-tab detail-tab-active">积分明细</view>
   </view>
 
   <view class="record-list">
-    <block wx:for="{{records}}" wx:key="title">
+    <view class="empty-row" wx:if="{{!records.length}}">暂无积分流水</view>
+    <block wx:for="{{records}}" wx:key="time">
       <view class="record-row">
         <view>
           <text class="record-title">{{item.title}}</text>

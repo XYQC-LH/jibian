@@ -42,6 +42,10 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/health',
+        destination: `${INTERNAL_API_BASE}/health`,
+      },
+      {
         source: '/api/assets/:path*',
         destination: `${INTERNAL_API_BASE}/api/assets/:path*`,
       },

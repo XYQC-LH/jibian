@@ -9,6 +9,7 @@ import { useTaskList } from './useTaskList'
 import { useTaskStats } from './useTaskStats'
 import { useTaskDetail } from './useTaskDetail'
 import { useTaskDeletion } from './useTaskDeletion'
+import { useTaskRerun } from './useTaskRerun'
 import type { ModelPerformanceItem, UIMappedTask } from './types'
 
 
@@ -23,6 +24,10 @@ export const useAdminTaskCenterData = () => {
   const taskStats = useTaskStats(isAuthorized)
   const taskDetail = useTaskDetail(isAuthorized)
   const taskDeletion = useTaskDeletion(taskList.setRecentTasks)
+  const taskRerun = useTaskRerun(taskList.setRecentTasks, () => {
+    void taskList.fetchTasks()
+    void taskStats.fetchStats()
+  })
 
   const [purgeErrors, setPurgeErrors] = useState<Record<string, string>>({})
   const purgeErrorsRef = useRef<Record<string, string>>({})
@@ -161,6 +166,13 @@ export const useAdminTaskCenterData = () => {
     requestDeleteTask: taskDeletion.requestDeleteTask,
     closeDeleteDialog: taskDeletion.closeDeleteDialog,
     confirmDeleteTask: taskDeletion.confirmDeleteTask,
+
+    // Rerun
+    rerunDialogOpen: taskRerun.rerunDialogOpen,
+    rerunTarget: taskRerun.rerunTarget,
+    requestRerunTask: taskRerun.requestRerunTask,
+    closeRerunDialog: taskRerun.closeRerunDialog,
+    confirmRerunTask: taskRerun.confirmRerunTask,
 
     // Actions
     refreshStats: taskStats.fetchStats,

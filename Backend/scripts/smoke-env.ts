@@ -1,5 +1,5 @@
 import { createHash, createHmac } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 type EnvMap = Record<string, string>;
@@ -7,6 +7,8 @@ type EnvMap = Record<string, string>;
 const args = new Set(process.argv.slice(2));
 const shouldWrite = args.has("--write");
 const shouldGenerate = args.has("--generate");
+const shouldStrict = args.has("--strict");
+const summary = { warnings: 0, failures: 0 };
 
 const repoRoot = resolve(__dirname, "..", "..");
 const backendRoot = resolve(__dirname, "..");
@@ -55,11 +57,100 @@ function ok(label: string, details = "") {
 }
 
 function warn(label: string, details = "") {
+  summary.warnings += 1;
   console.log(`WARN ${label}${details ? ` - ${details}` : ""}`);
 }
 
 function fail(label: string, details = "") {
+  summary.failures += 1;
   console.log(`FAIL ${label}${details ? ` - ${details}` : ""}`);
+}
+
+function info(label: string, details = "") {
+  console.log(`INFO ${label}${details ? ` - ${details}` : ""}`);
+}
+
+function checkPrismaMigrations() {
+  const migrationsRoot = join(backendRoot, "prisma", "migrations");
+  if (!existsSync(migrationsRoot)) {
+    fail("Prisma migrations", "prisma/migrations directory missing");
+    return;
+  }
+
+  const lockPath = join(migrationsRoot, "migration_lock.toml");
+  if (!existsSync(lockPath)) {
+    fail("Prisma migration lock", "migration_lock.toml missing");
+  } else {
+    const lock = readFileSync(lockPath, "utf8");
+    if (lock.includes('provider = "postgresql"')) {
+      ok("Prisma migration lock", "provider=postgresql");
+    } else {
+      fail("Prisma migration lock", "provider must be postgresql");
+    }
+  }
+
+  const sqlFiles = readdirSync(migrationsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => join(migrationsRoot, entry.name, "migration.sql"))
+    .filter((path) => existsSync(path));
+
+  const sqlText = sqlFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+  const hasInitialSchema =
+    sqlText.includes('CREATE TABLE IF NOT EXISTS "users"') &&
+    sqlText.includes('CREATE TABLE IF NOT EXISTS "tasks"') &&
+    sqlText.includes('CREATE TABLE IF NOT EXISTS "assets"');
+  const hasPaymentOrders = /CREATE TABLE(?: IF NOT EXISTS)? "payment_orders"/.test(sqlText);
+  const hasPaymentRefunds = /CREATE TABLE(?: IF NOT EXISTS)? "payment_refunds"/.test(sqlText);
+
+  if (!hasInitialSchema) {
+    fail("Prisma initial schema", "base tables missing; fresh database deploy will fail");
+  } else {
+    ok("Prisma initial schema", "base tables present");
+  }
+
+  if (!hasPaymentOrders || !hasPaymentRefunds) {
+    fail("Prisma payment migrations", "payment order/refund tables missing");
+  } else {
+    ok("Prisma payment migrations", `${sqlFiles.length} migration(s) detected`);
+  }
+}
+
+function checkRuntimeEnv() {
+  const required = [
+    "DATABASE_URL",
+    "REDIS_URL",
+    "JWT_SECRET",
+    "ADMIN_SESSION_SECRET",
+    "ADMIN_USERNAME",
+    "ADMIN_PASSWORD",
+  ];
+  const missing = required.filter((key) => !getEnv(key));
+  if (missing.length > 0) {
+    fail("Runtime env", `missing ${missing.join(", ")}`);
+  } else {
+    ok("Runtime env", "database, redis, jwt, and admin credentials present");
+  }
+
+  const appEnv = getEnv("APP_ENV") || getEnv("NODE_ENV") || "development";
+  ok("Runtime mode", appEnv);
+  if (appEnv === "production") {
+    const weakSecrets = ["JWT_SECRET", "ADMIN_SESSION_SECRET", "ADMIN_PASSWORD"].filter((key) => {
+      const value = getEnv(key);
+      return !value || value === "change-me" || value.length < 16;
+    });
+    if (weakSecrets.length > 0) {
+      warn("Runtime secret strength", `${weakSecrets.join(", ")} should be set to strong production values`);
+    } else {
+      ok("Runtime secret strength", "production secrets are non-default");
+    }
+  }
+
+  const apiPort = getEnv("PORT") || getEnv("API_PORT");
+  if (!apiPort) {
+    warn("Runtime port", "PORT/API_PORT missing; app defaults to 3000");
+  } else {
+    ok("Runtime port", apiPort);
+  }
 }
 
 function readStorageConfig() {
@@ -70,9 +161,19 @@ function readStorageConfig() {
   const secretAccessKey = getEnv("ASSET_STORAGE_SECRET_ACCESS_KEY") || getEnv(getEnv("COS_SECRET_REF")) || getEnv("COS_SECRET_KEY");
   const publicBaseUrl = getEnv("ASSET_PUBLIC_BASE_URL") || getEnv("COS_PUBLIC_BASE_URL");
   const expires = Number(getEnv("ASSET_UPLOAD_URL_EXPIRES_SECONDS") || getEnv("STORAGE_UPLOAD_EXPIRE_SECONDS") || 900);
+  const readExpires = Number(getEnv("ASSET_READ_URL_EXPIRES_SECONDS") || getEnv("STORAGE_READ_EXPIRE_SECONDS") || 86400);
 
   if (!bucket || !region || !endpoint || !accessKeyId || !secretAccessKey) return null;
-  return { bucket, region, endpoint, accessKeyId, secretAccessKey, publicBaseUrl, expires: Number.isFinite(expires) ? expires : 900 };
+  return {
+    bucket,
+    region,
+    endpoint,
+    accessKeyId,
+    secretAccessKey,
+    publicBaseUrl,
+    expires: Number.isFinite(expires) ? expires : 900,
+    readExpires: Number.isFinite(readExpires) ? readExpires : 86400,
+  };
 }
 
 function encodeStorageKey(storageKey: string) {
@@ -168,6 +269,47 @@ async function checkWechat() {
   ok("Wechat code2Session reachable");
 }
 
+function checkWechatPay() {
+  if (getEnv("WECHAT_PAY_ENABLED") !== "true") {
+    warn("Wechat Pay", "disabled; set WECHAT_PAY_ENABLED=true after merchant credentials are ready");
+    return;
+  }
+
+  const privateKeyReady = Boolean(getEnv("WECHAT_PAY_PRIVATE_KEY") || getEnv("WECHAT_PAY_PRIVATE_KEY_PATH"));
+  const platformCertReady = Boolean(getEnv("WECHAT_PAY_PLATFORM_CERT") || getEnv("WECHAT_PAY_PLATFORM_CERT_PATH"));
+  const required = [
+    "WECHAT_PAY_MCH_ID",
+    "WECHAT_PAY_MCH_SERIAL_NO",
+    "WECHAT_PAY_API_V3_KEY",
+    "WECHAT_PAY_NOTIFY_URL",
+  ];
+  const missing = required.filter((key) => !getEnv(key));
+  if (!getEnv("WECHAT_PAY_APP_ID") && !getEnv("WECHAT_APP_ID")) {
+    missing.push("WECHAT_PAY_APP_ID or WECHAT_APP_ID");
+  }
+  if (!privateKeyReady) {
+    missing.push("WECHAT_PAY_PRIVATE_KEY or WECHAT_PAY_PRIVATE_KEY_PATH");
+  }
+  if (!platformCertReady) {
+    missing.push("WECHAT_PAY_PLATFORM_CERT or WECHAT_PAY_PLATFORM_CERT_PATH");
+  }
+
+  if (missing.length > 0) {
+    fail("Wechat Pay env", `missing ${missing.join(", ")}`);
+    return;
+  }
+
+  ok("Wechat Pay env", [
+    `appId=${mask(getEnv("WECHAT_PAY_APP_ID") || getEnv("WECHAT_APP_ID"))}`,
+    `mchId=${mask(getEnv("WECHAT_PAY_MCH_ID"))}`,
+    `merchantSerial=${mask(getEnv("WECHAT_PAY_MCH_SERIAL_NO"))}`,
+    `notify=${getEnv("WECHAT_PAY_NOTIFY_URL")}`,
+  ].join(", "));
+  if (!getEnv("WECHAT_PAY_PLATFORM_SERIAL_NO")) {
+    warn("Wechat Pay platform serial", "missing; signature still verifies by cert but serial pinning is disabled");
+  }
+}
+
 async function checkStorage() {
   const storage = readStorageConfig();
   if (!storage) {
@@ -181,11 +323,11 @@ async function checkStorage() {
   if (storage.publicBaseUrl) {
     ok("Storage public base", storage.publicBaseUrl);
   } else {
-    warn("Storage public base", "ASSET_PUBLIC_BASE_URL/COS_PUBLIC_BASE_URL missing");
+    ok("Storage read access", `private signed GET fallback enabled, expires=${storage.readExpires}s`);
   }
 
   if (!shouldWrite) {
-    warn("Storage live upload", "skipped; run with --write to PUT a small smoke object");
+    info("Storage live upload", "skipped; run with --write to PUT a small smoke object");
     return;
   }
 
@@ -204,8 +346,15 @@ async function checkProvider(name: string, required: string[], live?: () => Prom
     return;
   }
   ok(`${name} env`, required.map((key) => `${key}=${mask(getEnv(key))}`).join(", "));
-  if (!shouldGenerate || !live) {
-    warn(`${name} live generation`, "skipped; run with --generate to call provider and may consume credits");
+  if (shouldGenerate && !live) {
+    info(`${name} live generation`, "delegated to smoke-live-generation.ts");
+    return;
+  }
+  if (!shouldGenerate) {
+    info(`${name} live generation`, "skipped; run with --generate to call provider and may consume credits");
+    return;
+  }
+  if (!live) {
     return;
   }
   await live();
@@ -218,11 +367,18 @@ async function checkProviders() {
 }
 
 async function main() {
-  console.log(`Smoke mode: write=${shouldWrite ? "on" : "off"}, generate=${shouldGenerate ? "on" : "off"}`);
+  console.log(`Smoke mode: write=${shouldWrite ? "on" : "off"}, generate=${shouldGenerate ? "on" : "off"}, strict=${shouldStrict ? "on" : "off"}`);
   console.log(`Loaded env files: ${join(repoRoot, ".env")} ${existsSync(join(repoRoot, ".env")) ? "OK" : "missing"}; ${join(backendRoot, ".env")} ${existsSync(join(backendRoot, ".env")) ? "OK" : "missing"}`);
+  checkPrismaMigrations();
+  checkRuntimeEnv();
   await checkWechat();
+  checkWechatPay();
   await checkStorage();
   await checkProviders();
+  if (shouldStrict && (summary.failures > 0 || summary.warnings > 0)) {
+    console.error(`Strict env smoke failed: ${summary.failures} failure(s), ${summary.warnings} warning(s)`);
+    process.exitCode = 1;
+  }
 }
 
 main().catch((error) => {

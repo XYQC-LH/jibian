@@ -9,10 +9,8 @@ import {
   Eye,
   RefreshCcw,
   Search,
-  Shield,
   Trash2,
   TrendingUp,
-  UserPlus,
   Users,
   XCircle,
 } from 'lucide-react';
@@ -25,7 +23,7 @@ import { getErrorMessage, getErrorStatus, getErrorCode } from '@/lib/http/errors
 import { formatChinaDate as formatDate, formatChinaDateTime as formatDateTime } from '@/utils/format';
 
 import { FilterStatus, EditableStatus, UserStats } from './UserManagementTypes';
-import { emptyStats, emptyCreateForm, emptyCreditForm, getDisplayName, getLoginAccount, getRegistrationSourceLabel, getInitial, getStatus, getAdminNote } from './UserManagementUtils';
+import { emptyStats, emptyCreditForm, getDisplayName, getLoginAccount, getRegistrationSourceLabel, getInitial, getStatus, getAdminNote } from './UserManagementUtils';
 import { StatCard, Modal, OverlayCard, Field, DetailItem } from './UserManagementComponents';
 
 const UserManagement: React.FC = () => {
@@ -46,19 +44,14 @@ const UserManagement: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreditModal, setShowCreditModal] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAdjustingCredits, setIsAdjustingCredits] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   const [editStatus, setEditStatus] = useState<EditableStatus>('active');
   const [editAdminNote, setEditAdminNote] = useState('');
   const [creditForm, setCreditForm] = useState(emptyCreditForm);
-  const [createForm, setCreateForm] = useState(emptyCreateForm);
-  const [resetPassword, setResetPassword] = useState('');
 
   const fetchUsers = useCallback(async (page: number) => {
     const response: PaginatedResponse<User> = await apiClient.system.getAllUsers(page, 20);
@@ -166,12 +159,6 @@ const UserManagement: React.FC = () => {
     setShowCreditModal(true);
   };
 
-  const openResetPasswordModal = (user: User) => {
-    setSelectedUser(user);
-    setResetPassword('');
-    setShowResetPasswordModal(true);
-  };
-
   const handleEditUser = async () => {
     if (!selectedUser) return;
     try {
@@ -204,32 +191,6 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleCreateUser = async () => {
-    if (!createForm.email.trim() || !createForm.password.trim()) {
-      toast.error('邮箱和密码不能为空');
-      return;
-    }
-
-    try {
-      await apiClient.system.createUser({
-        email: createForm.email.trim(),
-        password: createForm.password.trim(),
-        username: createForm.username.trim() || undefined,
-        credits: createForm.credits || 0,
-      });
-      toast.success('用户创建成功');
-      setShowCreateModal(false);
-      setCreateForm(emptyCreateForm());
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        await refreshAll(1);
-      }
-    } catch (error: unknown) {
-      toast.error(getErrorMessage(error, '创建用户失败'));
-    }
-  };
-
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
     try {
@@ -246,30 +207,6 @@ const UserManagement: React.FC = () => {
       toast.error(getErrorMessage(error, '删除用户失败'));
     } finally {
       setIsDeleting(false);
-    }
-  };
-
-  const handleResetPassword = async () => {
-    if (!selectedUser) return;
-    if (!resetPassword.trim()) {
-      toast.error('请输入新密码');
-      return;
-    }
-    if (resetPassword.trim().length < 6) {
-      toast.error('密码长度至少 6 位');
-      return;
-    }
-
-    try {
-      setIsResettingPassword(true);
-      await apiClient.system.resetUserPassword(String(selectedUser.id), resetPassword.trim());
-      toast.success('用户密码已重置');
-      setShowResetPasswordModal(false);
-      setResetPassword('');
-    } catch (error: unknown) {
-      toast.error(getErrorMessage(error, '重置密码失败'));
-    } finally {
-      setIsResettingPassword(false);
     }
   };
 
@@ -294,16 +231,6 @@ const UserManagement: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => {
-                setCreateForm(emptyCreateForm());
-                setShowCreateModal(true);
-              }}
-              className="btn-primary-sm flex items-center"
-            >
-              <UserPlus size={16} className="mr-2" />
-              新增用户
-            </button>
             <button onClick={() => void refreshAll()} disabled={refreshing} className="btn-secondary-sm flex items-center">
               <RefreshCcw size={16} className={`mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               刷新
@@ -410,9 +337,6 @@ const UserManagement: React.FC = () => {
                           </button>
                           <button onClick={() => openCreditModal(user)} className="rounded-lg p-1 transition-colors hover:bg-white/10" title="调整积分">
                             <DollarSign className="h-4 w-4 text-text-muted" />
-                          </button>
-                          <button onClick={() => openResetPasswordModal(user)} className="rounded-lg p-1 transition-colors hover:bg-white/10" title="重置密码">
-                            <Shield className="h-4 w-4 text-text-muted" />
                           </button>
                           <button
                             onClick={() => {
@@ -525,70 +449,6 @@ const UserManagement: React.FC = () => {
                 rows={3}
                 value={creditForm.reason}
                 onChange={(event) => setCreditForm((current) => ({ ...current, reason: event.target.value }))}
-                className="w-full rounded-lg border border-white/10 bg-surface/50 px-3 py-2"
-              />
-            </Field>
-          </div>
-        </Modal>
-      )}
-
-      {showCreateModal && (
-        <Modal title="新增用户" onClose={() => setShowCreateModal(false)} onConfirm={handleCreateUser}>
-          <div className="space-y-4">
-            <Field label="邮箱">
-              <input
-                type="email"
-                value={createForm.email}
-                onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
-                className="w-full rounded-lg border border-white/10 bg-surface/50 px-3 py-2"
-              />
-            </Field>
-            <Field label="用户名（可选）">
-              <input
-                type="text"
-                value={createForm.username}
-                onChange={(event) => setCreateForm((current) => ({ ...current, username: event.target.value }))}
-                className="w-full rounded-lg border border-white/10 bg-surface/50 px-3 py-2"
-              />
-            </Field>
-            <Field label="初始密码">
-              <input
-                type="password"
-                value={createForm.password}
-                onChange={(event) => setCreateForm((current) => ({ ...current, password: event.target.value }))}
-                className="w-full rounded-lg border border-white/10 bg-surface/50 px-3 py-2"
-              />
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="初始积分">
-                <input
-                  type="number"
-                  value={createForm.credits || ''}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, credits: Number.parseInt(event.target.value, 10) || 0 }))}
-                  className="w-full rounded-lg border border-white/10 bg-surface/50 px-3 py-2"
-                />
-              </Field>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {showResetPasswordModal && selectedUser && (
-        <Modal
-          title="重置用户密码"
-          onClose={() => !isResettingPassword && setShowResetPasswordModal(false)}
-          onConfirm={handleResetPassword}
-          isLoading={isResettingPassword}
-          confirmText="确认重置"
-          loadingText="重置中..."
-        >
-          <div className="space-y-4">
-            <p className="text-sm text-text-muted">当前用户：{getDisplayName(selectedUser)} / {getLoginAccount(selectedUser)}</p>
-            <Field label="新密码">
-              <input
-                type="password"
-                value={resetPassword}
-                onChange={(event) => setResetPassword(event.target.value)}
                 className="w-full rounded-lg border border-white/10 bg-surface/50 px-3 py-2"
               />
             </Field>

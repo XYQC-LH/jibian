@@ -84,6 +84,7 @@ class ReorderModelsDto {
 
 class UpdatePricingSettingsDto {
   @IsNumber()
+  @Min(0.01)
   global_pricing_multiplier!: number;
 }
 

@@ -128,24 +128,30 @@ const prisma = new PrismaClient();
 
 async function main() {
   const now = new Date();
-  const adminUsername = process.env.ADMIN_USERNAME;
+  const adminUsername = process.env.ADMIN_USERNAME?.trim();
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminUsername || !adminPassword) {
     throw new Error("ADMIN_USERNAME and ADMIN_PASSWORD are required");
   }
 
-  await prisma.adminUser.upsert({
-    where: { username: adminUsername },
-    update: {
-      passwordHash: await hash(adminPassword, 12),
-      envSyncedAt: now,
-    },
-    create: {
-      username: adminUsername,
-      passwordHash: await hash(adminPassword, 12),
-      envSyncedAt: now,
-    },
-  });
+  const adminPasswordHash = await hash(adminPassword, 12);
+  await prisma.$transaction([
+    prisma.adminUser.upsert({
+      where: { username: adminUsername },
+      update: {
+        passwordHash: adminPasswordHash,
+        envSyncedAt: now,
+      },
+      create: {
+        username: adminUsername,
+        passwordHash: adminPasswordHash,
+        envSyncedAt: now,
+      },
+    }),
+    prisma.adminUser.deleteMany({
+      where: { username: { not: adminUsername } },
+    }),
+  ]);
 
   const cover = await prisma.asset.upsert({
     where: { storageKey: "seed/templates/portrait-cover.webp" },

@@ -21,7 +21,7 @@
     <view class="detail-item" bindtap="goDetail">积分明细</view>
   </view>
 
-  <text class="section-title">选择充值</text>
+  <text class="section-title">积分包</text>
 
   <view class="package-grid">
     <block wx:for="{{packages}}" wx:key="id">
@@ -39,10 +39,16 @@
   </view>
 
   <view class="pay-footer">
-    <view class="pay-note">
+    <view class="pay-note" wx:if="{{wechatPayEnabled}}">
       <text>已选：{{activePrice}}</text>
-      <text>预计到账积分</text>
+      <text>预计到账 {{activeCredits}} 积分</text>
     </view>
-    <view class="pay-button" bindtap="confirmRecharge" hover-class="button-pressed">立即充值 {{activePrice}}</view>
+    <view class="pay-note" wx:else>
+      <text>微信支付暂未开放</text>
+      <text>可先使用兑换码</text>
+    </view>
+    <view class="pay-button {{paying ? 'pay-button-disabled' : ''}}" bindtap="confirmRecharge" hover-class="button-pressed">
+      {{paying ? '正在拉起支付...' : (wechatPayEnabled ? '微信支付获取积分' : '兑换码获取积分')}}
+    </view>
   </view>
 </view>

@@ -92,7 +92,7 @@ export class AdminModerationService {
       ...(query.decision ? { status: query.decision } : {}),
       ...(query.ok === undefined ? {} : { status: { in: query.ok ? [...PASS_STATUSES] : [...BLOCK_STATUSES] } }),
       ...(query.reason ? { reason: { contains: query.reason } } : {}),
-      ...(query.taskId ? { targetId: { contains: query.taskId } } : {}),
+      ...(query.taskId ? { targetId: query.taskId } : {}),
       ...(query.userEmail ? { targetId: { in: await this.taskIdsByUserEmail(query.userEmail) } } : {}),
     };
 

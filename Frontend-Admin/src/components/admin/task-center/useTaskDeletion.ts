@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import apiClient from '@/lib/api'
+import { getErrorMessage } from '@/lib/http/errors'
 import type { UIMappedTask } from './types'
 
 export type UseTaskDeletionReturn = {
@@ -41,10 +42,9 @@ export function useTaskDeletion(
 
     try {
       await apiClient.task.deleteAdminTask(rawId)
-      setRecentTasks((prev) =>
-        prev.map((t) => (t.id === rawId ? { ...t, purgeError: null } : t)),
-      )
-      toast.success('已提交彻底删除，后台将继续清理任务与 OSS 产物')
+      setRecentTasks((prev) => prev.filter((t) => t.id !== rawId))
+      closeDeleteDialog()
+      toast.success('已从任务中心移除，并同步隐藏用户作品')
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, '删除任务失败'))
     }
@@ -58,5 +58,3 @@ export function useTaskDeletion(
     confirmDeleteTask,
   }
 }
-
-import { getErrorMessage, getErrorStatus, getErrorCode } from '@/lib/http/errors';

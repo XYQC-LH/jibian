@@ -25,7 +25,7 @@
     <button class="preview-share" open-type="share" hover-class="button-pressed">↗</button>
     <view class="preview-generating" wx:if="{{generating}}">
       <text class="generating-title">正在变化中...</text>
-      <text class="generating-copy">正在清洗毛刺风格</text>
+      <text class="generating-copy">正在生成可保存的人物图</text>
       <view class="generating-track">
         <view class="generating-bar" style="width: {{progress}}%;"></view>
       </view>

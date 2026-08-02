@@ -70,8 +70,8 @@ Page({
       const creations = await api.listUserCreations();
       records = creations.map((item) => ({
         id: item.id,
-        result: item.cover_storage_key,
-        cover: item.cover_storage_key,
+        result: item.cover_url || item.cover_storage_key,
+        cover: item.cover_url || item.cover_storage_key,
         savedAt: new Date(item.created_at).getTime()
       }));
     } catch (err) {

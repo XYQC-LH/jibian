@@ -66,7 +66,7 @@ export function useTaskList(isAuthorized: boolean): UseTaskListReturn {
     }
 
     try {
-      const statusParam: Exclude<BackendTaskStatusFilter, 'all'> | undefined = filter === 'all' ? undefined : filter
+      const statusParam = filter === 'all' ? undefined : filter === 'generating' ? 'running' : filter
       const searchValue = searchTerm.trim() || undefined
       const tasksPage = await apiClient.task.getAdminTasks(
         recentTasksPage,

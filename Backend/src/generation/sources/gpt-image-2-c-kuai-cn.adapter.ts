@@ -28,7 +28,7 @@ export class GptImage2CKuaiCnAdapter implements SourceAdapter {
     const payload = {
       model: this.upstreamModelName,
       prompt: input.prompt,
-      size: this.defaultSize,
+      size: this.resolveSize(input.ratio),
       n: 1,
       image: [input.imageUrl],
       watermark: false,
@@ -43,6 +43,7 @@ export class GptImage2CKuaiCnAdapter implements SourceAdapter {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(payload),
+      signal: input.signal,
     });
 
     const body = await this.readJson(response);
@@ -62,6 +63,18 @@ export class GptImage2CKuaiCnAdapter implements SourceAdapter {
       },
     });
     return { ok: true, assetId: asset.id };
+  }
+
+  private resolveSize(ratio: StandardGenerateInput["ratio"]) {
+    const sizes: Record<StandardGenerateInput["ratio"], string> = {
+      auto: this.defaultSize,
+      "1:1": this.defaultSize,
+      "3:4": "768x1024",
+      "4:3": "1024x768",
+      "9:16": "576x1024",
+      "16:9": "1024x576",
+    };
+    return sizes[ratio] ?? this.defaultSize;
   }
 
   private resolveEndpoint(baseUrl: string) {

@@ -3,8 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
 
 type UserWithAccount = {
@@ -12,26 +10,15 @@ type UserWithAccount = {
   nickname: string | null;
   openid: string;
   phone: string | null;
+  adminNote: string | null;
   status: string;
   createdAt: Date;
   creditAccount: { balance: number } | null;
 };
 
-type CreateUserInput = {
-  email?: string;
-  password?: string;
-  username?: string;
-  credits?: number;
-};
-
 @Injectable()
 export class AdminUsersService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
-  ) {}
-
-  private redis: Redis | null = null;
+  constructor(private readonly prisma: PrismaService) {}
 
   async list(page: number, pageSize: number) {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
@@ -61,51 +48,6 @@ export class AdminUsersService {
     };
   }
 
-  async create(input: CreateUserInput) {
-    const email = String(input.email ?? "").trim().toLowerCase();
-    if (!email) {
-      throw new BadRequestException("Missing email");
-    }
-    const credits = this.toCredits(input.credits);
-
-    try {
-      const user = await this.prisma.$transaction(async (tx) => {
-        const created = await tx.user.create({
-          data: {
-            openid: `admin_email_${email}`,
-            nickname: String(input.username ?? "").trim() || email,
-          },
-        });
-        await tx.creditAccount.create({
-          data: { userId: created.id, balance: credits, updatedAt: new Date() },
-        });
-        if (credits !== 0) {
-          await tx.creditLedger.create({
-            data: {
-              userId: created.id,
-              type: "admin_adjust",
-              amount: credits,
-              refType: "admin",
-              refId: created.id,
-              balanceAfter: credits,
-            },
-          });
-        }
-        return created;
-      });
-
-      return {
-        success: true,
-        data: this.mapUser({ ...user, creditAccount: { balance: credits } }),
-      };
-    } catch (error) {
-      if (this.isUniqueViolation(error)) {
-        throw new BadRequestException("User with this email already exists");
-      }
-      throw error;
-    }
-  }
-
   async ban(userId: string, isActive: boolean | undefined) {
     await this.findUser(userId);
     const updated = await this.prisma.user.update({
@@ -117,10 +59,14 @@ export class AdminUsersService {
   }
 
   async updateAdminNote(userId: string, adminNote: string | undefined) {
-    const user = await this.findUser(userId);
-    const note = String(adminNote ?? "");
-    await this.setAdminNote(userId, note);
-    return { success: true, data: this.mapUser(user, note) };
+    await this.findUser(userId);
+    const note = String(adminNote ?? "").trim().slice(0, 500);
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { adminNote: note || null },
+      include: { creditAccount: true },
+    });
+    return { success: true, data: this.mapUser(updated) };
   }
 
   async adjustCredits(userId: string, delta: number | undefined) {
@@ -157,11 +103,6 @@ export class AdminUsersService {
     return { success: true, data: this.mapUser(adjusted) };
   }
 
-  async resetPassword(userId: string, _newPassword: string | undefined) {
-    await this.findUser(userId);
-    return { success: true, data: { reset: true } };
-  }
-
   async remove(userId: string) {
     await this.findUser(userId);
     await this.prisma.user.update({
@@ -182,69 +123,19 @@ export class AdminUsersService {
     return user;
   }
 
-  private mapUser(user: UserWithAccount, adminNote?: string) {
-    const email = user.openid.startsWith("admin_email_")
-      ? user.openid.slice("admin_email_".length)
-      : undefined;
+  private mapUser(user: UserWithAccount) {
     return {
       id: user.id,
       username: user.nickname,
       login_account: user.openid,
-      email,
       phone: user.phone,
       credits: user.creditAccount?.balance ?? 0,
       status: user.status,
       is_active: user.status === "active",
+      registration_source: "wechat",
+      registration_source_label: "微信小程序",
       created_at: user.createdAt.toISOString(),
-      ...(adminNote !== undefined ? { admin_note: adminNote } : {}),
+      admin_note: user.adminNote ?? "",
     };
-  }
-
-  private toCredits(value: number | undefined) {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed) || parsed < 0) {
-      return 0;
-    }
-    return Math.floor(parsed);
-  }
-
-  private async setAdminNote(userId: string, note: string) {
-    const client = await this.getRedis();
-    if (!client) {
-      return;
-    }
-    try {
-      await client.set(`jibian:user:admin_note:${userId}`, note);
-    } catch {
-      // Redis 不可用时静默降级，不影响主流程
-    }
-  }
-
-  private async getRedis(): Promise<Redis | null> {
-    if (this.redis) {
-      return this.redis.status === "ready" ? this.redis : null;
-    }
-    try {
-      const client = new Redis(
-        this.config.get<string>("REDIS_URL") ?? "redis://localhost:6379",
-        { lazyConnect: true, maxRetriesPerRequest: 1, retryStrategy: () => null },
-      );
-      client.on("error", () => {
-        this.redis = null;
-      });
-      await client.connect();
-      this.redis = client;
-      return client;
-    } catch {
-      return null;
-    }
-  }
-
-  private isUniqueViolation(error: unknown) {
-    return (
-      typeof error === "object" &&
-      error !== null &&
-      (error as { code?: string }).code === "P2002"
-    );
   }
 }

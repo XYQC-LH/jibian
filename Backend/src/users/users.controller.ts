@@ -14,7 +14,7 @@ export class UsersController {
   }
 
   @Post("phone-bind")
-  phoneBind(@CurrentUser() userId: string, @Body() body: { phone: string }) {
-    return this.users.bindPhone(userId, body.phone);
+  phoneBind(@CurrentUser() userId: string, @Body() body: { phone?: string; code?: string }) {
+    return this.users.bindPhone(userId, body);
   }
 }

@@ -10,6 +10,7 @@ import TemplateCategoryBar from '@/components/admin/resource/TemplateCategoryBar
 import { useAdminModels } from '@/components/admin/resource/useAdminModels';
 import { useAdminTemplateStats } from '@/components/admin/resource/useAdminTemplateStats';
 import { useAdminTemplateCategories } from '@/components/admin/resource/useAdminTemplateCategories';
+import { useServiceHealth } from '@/components/admin/resource/useServiceHealth';
 
 const AdminResourceCenter: React.FC = () => {
   const [reloadKey, setReloadKey] = useState(0);
@@ -18,20 +19,14 @@ const AdminResourceCenter: React.FC = () => {
   const models = useAdminModels(reloadKey);
   const templateStats = useAdminTemplateStats(reloadKey);
   const categories = useAdminTemplateCategories();
+  const health = useServiceHealth();
 
-  const serviceStatus = useMemo(() => {
-    if (models.baseStatus === 'unavailable') {
-      return 'unavailable';
-    }
-    if (models.baseStatus === 'degraded') {
-      return 'degraded';
-    }
-    return 'healthy';
-  }, [models.baseStatus]);
+  const serviceStatus = health.status;
 
   const handleRefreshAll = () => {
     setReloadKey((prev) => prev + 1);
     void categories.refetch();
+    void health.refresh();
   };
 
   const categoryOptions = useMemo(
@@ -67,7 +62,7 @@ const AdminResourceCenter: React.FC = () => {
           onCreate={categories.create}
           onUpdate={categories.update}
           onRemove={categories.remove}
-          onMove={categories.move}
+          onReorder={categories.reorder}
         />
 
         <AdminResourceModelsSection

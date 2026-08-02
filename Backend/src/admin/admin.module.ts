@@ -1,7 +1,10 @@
+import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
 import { AdminAuthModule } from "../auth/admin-auth.module";
 import { AssetsModule } from "../assets/assets.module";
 import { GenerationModule } from "../generation/generation.module";
+import { PaymentsModule } from "../payments/payments.module";
+import { PricingModule } from "../pricing/pricing.module";
 import { TemplatesModule } from "../templates/templates.module";
 import { HealthController } from "../health.controller";
 import { AdminAssetsController } from "./admin-assets.controller";
@@ -31,7 +34,7 @@ import { ModelManagementController } from "./model-management.controller";
 import { ModelManagementService } from "./model-management.service";
 
 @Module({
-  imports: [AdminAuthModule, TemplatesModule, AssetsModule, GenerationModule],
+  imports: [AdminAuthModule, BullModule.registerQueue({ name: "generation" }), TemplatesModule, AssetsModule, GenerationModule, PaymentsModule, PricingModule],
   controllers: [
     HealthController,
     AdminAssetsController,

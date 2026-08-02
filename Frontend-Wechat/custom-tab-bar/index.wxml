@@ -1,0 +1,18 @@
+<view class="tab-bar-shell">
+  <view class="tab-bar-glow"></view>
+  <view class="tab-bar-card">
+    <block wx:for="{{tabs}}" wx:key="key">
+      <view
+        class="tab-bar-item {{selected === index ? 'tab-bar-item-active' : ''}}"
+        data-index="{{index}}"
+        bindtap="handleTap"
+        hover-class="tab-bar-pressed"
+      >
+        <view class="tab-bar-active-bg" wx:if="{{selected === index}}">
+          <view class="tab-bar-active-shine"></view>
+        </view>
+        <text class="tab-bar-label">{{item.label}}</text>
+      </view>
+    </block>
+  </view>
+</view>

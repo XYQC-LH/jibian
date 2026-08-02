@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { hash } from "bcryptjs";
+import { isProductionRuntime } from "../common/runtime-env";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
@@ -15,28 +16,34 @@ export class AdminAuthService implements OnModuleInit {
   }
 
   private async syncAdminFromEnv() {
-    const username = this.config.get<string>("ADMIN_USERNAME");
+    const username = this.config.get<string>("ADMIN_USERNAME")?.trim();
     const password = this.config.get<string>("ADMIN_PASSWORD");
 
     if (!username || !password) {
-      if (process.env.NODE_ENV === "production") {
+      if (isProductionRuntime(this.config)) {
         throw new Error("ADMIN_USERNAME and ADMIN_PASSWORD are required in production");
       }
       return;
     }
 
     const passwordHash = await hash(password, 12);
-    await this.prisma.adminUser.upsert({
-      where: { username },
-      update: {
-        passwordHash,
-        envSyncedAt: new Date(),
-      },
-      create: {
-        username,
-        passwordHash,
-        envSyncedAt: new Date(),
-      },
-    });
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.adminUser.upsert({
+        where: { username },
+        update: {
+          passwordHash,
+          envSyncedAt: now,
+        },
+        create: {
+          username,
+          passwordHash,
+          envSyncedAt: now,
+        },
+      }),
+      this.prisma.adminUser.deleteMany({
+        where: { username: { not: username } },
+      }),
+    ]);
   }
 }

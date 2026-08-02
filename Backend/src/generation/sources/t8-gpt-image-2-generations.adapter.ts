@@ -32,7 +32,7 @@ export class T8GptImage2GenerationsAdapter implements SourceAdapter {
       n: 1,
       response_format: "url",
       resolution: this.defaultResolution,
-      aspect_ratio: this.defaultAspectRatio,
+      aspect_ratio: input.ratio === "auto" ? this.defaultAspectRatio : input.ratio,
     };
 
     const response = await fetch(endpoint, {
@@ -43,6 +43,7 @@ export class T8GptImage2GenerationsAdapter implements SourceAdapter {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(payload),
+      signal: input.signal,
     });
 
     const body = await this.readJson(response);

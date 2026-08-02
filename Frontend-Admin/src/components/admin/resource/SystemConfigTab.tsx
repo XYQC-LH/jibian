@@ -1,17 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Zap, Save, Gift, Loader2, KeyRound, Copy, RefreshCcw } from 'lucide-react';
+import { Zap, Save, Gift, Loader2 } from 'lucide-react';
 import { DetailSkeleton } from '@/components/ui/Skeleton';
 import { toast } from 'react-hot-toast';
 
 import type { SystemConfig } from '@/types';
 import {
-  generateXianyuInternalApiKey,
   getRegistrationBonus,
-  getXianyuInternalApiKey,
   updateRegistrationBonus,
-  updateXianyuInternalApiKey,
 } from '@/lib/settingsApi';
 
 type SystemConfigTabProps = {
@@ -28,11 +25,6 @@ const SystemConfigTab: React.FC<SystemConfigTabProps> = ({
   const [registrationBonus, setRegistrationBonus] = useState<number>(100);
   const [bonusLoading, setBonusLoading] = useState(false);
   const [bonusSaving, setBonusSaving] = useState(false);
-  const [internalApiKey, setInternalApiKey] = useState('');
-  const [internalApiKeySource, setInternalApiKeySource] = useState<'system_setting' | 'environment' | 'unset'>('unset');
-  const [internalApiKeyLoading, setInternalApiKeyLoading] = useState(false);
-  const [internalApiKeySaving, setInternalApiKeySaving] = useState(false);
-  const [internalApiKeyGenerating, setInternalApiKeyGenerating] = useState(false);
 
   useEffect(() => {
     const loadRegistrationBonus = async () => {
@@ -50,26 +42,6 @@ const SystemConfigTab: React.FC<SystemConfigTabProps> = ({
     void loadRegistrationBonus();
   }, []);
 
-  useEffect(() => {
-    const loadInternalApiKey = async () => {
-      setInternalApiKeyLoading(true);
-      try {
-        const payload = await getXianyuInternalApiKey();
-        setInternalApiKey(payload.value);
-        setInternalApiKeySource(
-          payload.source === 'system_setting' || payload.source === 'environment' ? payload.source : 'unset'
-        );
-      } catch (error: unknown) {
-        console.error('Failed to load xianyu internal api key:', error);
-        setInternalApiKey('');
-        setInternalApiKeySource('unset');
-      } finally {
-        setInternalApiKeyLoading(false);
-      }
-    };
-    void loadInternalApiKey();
-  }, []);
-
   const saveRegistrationBonus = async () => {
     setBonusSaving(true);
     try {
@@ -82,64 +54,6 @@ const SystemConfigTab: React.FC<SystemConfigTabProps> = ({
       setBonusSaving(false);
     }
   };
-
-  const saveInternalApiKey = async () => {
-    const normalized = String(internalApiKey || '').trim();
-    if (normalized.length < 16) {
-      toast.error('内部 API Key 长度至少需要 16 个字符');
-      return;
-    }
-
-    setInternalApiKeySaving(true);
-    try {
-      const payload = await updateXianyuInternalApiKey(normalized);
-      setInternalApiKey(payload.value);
-      setInternalApiKeySource(payload.source === 'environment' ? 'environment' : 'system_setting');
-      toast.success('内部 API Key 已保存');
-    } catch (error: unknown) {
-      console.error('Failed to save xianyu internal api key:', error);
-      toast.error('保存内部 API Key 失败');
-    } finally {
-      setInternalApiKeySaving(false);
-    }
-  };
-
-  const generateInternalApiKey = async () => {
-    setInternalApiKeyGenerating(true);
-    try {
-      const payload = await generateXianyuInternalApiKey();
-      setInternalApiKey(payload.value);
-      setInternalApiKeySource('system_setting');
-      toast.success('已生成新的内部 API Key');
-    } catch (error: unknown) {
-      console.error('Failed to generate xianyu internal api key:', error);
-      toast.error('生成内部 API Key 失败');
-    } finally {
-      setInternalApiKeyGenerating(false);
-    }
-  };
-
-  const copyInternalApiKey = async () => {
-    const normalized = String(internalApiKey || '').trim();
-    if (!normalized) {
-      toast.error('当前没有可复制的内部 API Key');
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(normalized);
-      toast.success('内部 API Key 已复制');
-    } catch (error: unknown) {
-      console.error('Failed to copy xianyu internal api key:', error);
-      toast.error('复制内部 API Key 失败');
-    }
-  };
-
-  const internalApiKeySourceLabel =
-    internalApiKeySource === 'system_setting'
-      ? '系统设置'
-      : internalApiKeySource === 'environment'
-        ? '环境变量回退'
-        : '未配置';
 
   if (!systemConfig) {
     return (
@@ -250,96 +164,6 @@ const SystemConfigTab: React.FC<SystemConfigTabProps> = ({
           </div>
         </div>
 
-        <div className="card-primary p-6 lg:col-span-2">
-          <h4 className="mb-6 flex items-center gap-2 text-xl font-semibold text-text-primary">
-            <KeyRound className="h-5 w-5 text-accent" />
-            即变内部 API Key
-          </h4>
-
-          <div className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-text-muted">
-              这组 Key 用于内部服务调用即变管理接口。你在这里保存或生成后，把同一个值配置到调用方的
-              <span className="mx-1 font-mono text-text-primary">JIBIAN_INTERNAL_API_KEY</span>
-              即可。
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-text-primary">内部 API Key</label>
-                {internalApiKeyLoading ? (
-                  <div className="flex items-center gap-2 text-text-muted">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    加载中...
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={internalApiKey}
-                    onChange={(e) => setInternalApiKey(e.target.value)}
-                    placeholder="请输入至少 16 位的内部 API Key"
-                    className="input-primary w-full px-4 py-2 font-mono"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="mb-2 block text-sm font-medium text-text-primary">当前来源</label>
-                <div className="rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-sm text-text-primary">
-                  {internalApiKeySourceLabel}
-                </div>
-                <div className="text-xs text-text-muted">
-                  {internalApiKeySource === 'environment'
-                    ? '当前读取的是后端环境变量，点击保存后会切换为系统设置托管。'
-                    : internalApiKeySource === 'system_setting'
-                      ? '当前读取的是系统设置里保存的平台级 Key。'
-                      : '当前还没有可用的内部 API Key。'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={saveInternalApiKey}
-                disabled={internalApiKeyLoading || internalApiKeySaving || internalApiKeyGenerating}
-                className="btn-primary flex items-center gap-2"
-              >
-                {internalApiKeySaving ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    保存中...
-                  </>
-                ) : (
-                  <>
-                    <Save size={16} />
-                    保存 Key
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={generateInternalApiKey}
-                disabled={internalApiKeyLoading || internalApiKeySaving || internalApiKeyGenerating}
-                className="btn-secondary-sm border border-white/10"
-              >
-                {internalApiKeyGenerating ? (
-                  <Loader2 size={16} className="mr-2 animate-spin" />
-                ) : (
-                  <RefreshCcw size={16} className="mr-2" />
-                )}
-                生成新 Key
-              </button>
-
-              <button
-                onClick={copyInternalApiKey}
-                disabled={internalApiKeyLoading || !String(internalApiKey || '').trim()}
-                className="btn-secondary-sm border border-white/10"
-              >
-                <Copy size={16} className="mr-2" />
-                复制 Key
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="flex justify-end">

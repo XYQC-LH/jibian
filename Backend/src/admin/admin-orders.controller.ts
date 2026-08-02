@@ -19,13 +19,26 @@ export class AdminOrdersController {
   listOrders(
     @Query("page") page = "1",
     @Query("page_size") pageSize = "20",
+    @Query("status") status?: string,
+    @Query("user_email") userEmail?: string,
+    @Query("payment_method") paymentMethod?: string,
+    @Query("start_date") startDate?: string,
+    @Query("end_date") endDate?: string,
   ) {
-    return this.orders.listOrders({ page: Number(page), pageSize: Number(pageSize) });
+    return this.orders.listOrders({
+      page: Number(page),
+      pageSize: Number(pageSize),
+      status,
+      userEmail,
+      paymentMethod,
+      startDate,
+      endDate,
+    });
   }
 
   @Get("statistics/summary")
-  getOrderStatistics() {
-    return this.orders.getOrderStatistics();
+  getOrderStatistics(@Query("days") days = "30") {
+    return this.orders.getOrderStatistics(Number(days));
   }
 
   @Get(":orderId")
@@ -34,8 +47,8 @@ export class AdminOrdersController {
   }
 
   @Post(":orderId/refund")
-  processOrderRefund(@Param("orderId") orderId: string, @Body() _body: { reason?: string }) {
-    return this.orders.processOrderRefund(orderId);
+  processOrderRefund(@Param("orderId") orderId: string, @Body() body: { reason?: string }) {
+    return this.orders.processOrderRefund(orderId, body?.reason);
   }
 }
 

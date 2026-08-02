@@ -1,18 +1,58 @@
 // ========== Orders ==========
 export interface OrderInfo {
-  id: number;
-  user_id: number;
+  id: string;
+  order_no?: string;
+  user_id: string;
   user_email?: string;
-  amount: number;
+  amount?: number;
+  total_amount?: number;
   credits: number;
   status: string;
   payment_method: string;
   trade_no?: string;
   out_trade_no?: string;
+  ref_type?: string;
+  ref_id?: string;
+  package_id?: string;
+  balance_after?: number;
   created_at: string;
   paid_at?: string;
   refunded_at?: string;
+  refund?: CreditRefundInfo | null;
+  payment_refund?: PaymentRefundInfo | null;
   [key: string]: unknown;
+}
+
+export interface CreditRefundInfo {
+  id: string;
+  amount: number;
+  balance_after: number;
+  created_at: string;
+}
+
+export interface PaymentRefundInfo {
+  id: string;
+  payment_order_id: string;
+  out_refund_no: string;
+  wx_refund_id?: string | null;
+  status: string;
+  amount_fen: number;
+  amount_yuan: number;
+  credits: number;
+  reason?: string | null;
+  failure_reason?: string | null;
+  succeeded_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OrderRefundResult {
+  refunded: boolean;
+  refund_id?: string | null;
+  already_refunded?: boolean;
+  amount?: number;
+  balance_after?: number;
+  payment_refund?: PaymentRefundInfo | null;
 }
 
 export interface OrderStatistics {
@@ -27,7 +67,7 @@ export interface OrderStatistics {
 }
 
 export interface RedemptionCode {
-  id: number;
+  id: string;
   code: string;
   credits: number;
   type: string;
@@ -42,9 +82,9 @@ export interface RedemptionCode {
 }
 
 export interface RedemptionCodeUsage {
-  id: number;
-  redemption_code_id: number;
-  user_id: number;
+  id: string;
+  redemption_code_id?: string;
+  user_id: string;
   user_email?: string;
   used_at: string;
 }
@@ -79,8 +119,8 @@ export interface FinanceStatistics {
 }
 
 export interface RechargeRecord {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   user_email?: string;
   amount: number;
   credits: number;
@@ -91,8 +131,8 @@ export interface RechargeRecord {
 }
 
 export interface TransactionRecord {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   user_email?: string;
   amount: number;
   balance_before?: number;
@@ -109,12 +149,6 @@ export interface TransactionStatistics {
   total_amount: number;
   by_type: Record<string, unknown>;
   period_days: number;
-  [key: string]: unknown;
-}
-
-export interface XianyuIssueRecordOverview {
-  total_issued: number;
-  recent_records: Array<Record<string, unknown>>;
   [key: string]: unknown;
 }
 

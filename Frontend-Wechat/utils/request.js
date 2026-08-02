@@ -15,13 +15,16 @@ function request(options) {
       header: {
         "content-type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(token ? { "x-user-id": token } : {}),
         ...(options.header || {})
       },
       success(res) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);
           return;
+        }
+        if (res.statusCode === 401 || res.statusCode === 403) {
+          app.globalData.accessToken = "";
+          wx.removeStorageSync("jibian_access_token");
         }
         reject(new Error((res.data && (res.data.message || res.data.error)) || "请求失败"));
       },

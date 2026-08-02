@@ -1,4 +1,4 @@
-export type BackendTaskStatus = 'generating' | 'succeeded' | 'failed'
+export type BackendTaskStatus = 'running' | 'generating' | 'succeeded' | 'failed'
 
 export type NormalizedTaskStatus =
   | 'pending'

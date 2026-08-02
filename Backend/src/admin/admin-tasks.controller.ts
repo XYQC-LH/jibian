@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { AdminGuard } from "../auth/admin.guard";
 import { AdminTasksService } from "./admin-tasks.service";
 
@@ -25,6 +25,11 @@ export class AdminTasksController {
   @Get(":id")
   get(@Param("id") id: string) {
     return this.tasks.get(id);
+  }
+
+  @Post(":id/rerun")
+  rerun(@Param("id") id: string) {
+    return this.tasks.rerun(id);
   }
 
   @Delete(":id")

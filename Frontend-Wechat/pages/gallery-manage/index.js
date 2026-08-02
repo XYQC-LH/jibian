@@ -1,5 +1,6 @@
 const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
 const api = require("../../services/api");
+const { saveImageToAlbum } = require("../../utils/saveImage");
 
 function buildItems(records) {
   return records.map((record) => ({
@@ -89,9 +90,22 @@ Page({
   },
 
   downloadSelected() {
-    wx.showToast({
-      title: this.data.selectedIds.length ? "下载功能待联调" : "先选择作品",
-      icon: "none"
+    if (!this.data.selectedIds.length) {
+      wx.showToast({ title: "先选择作品", icon: "none" });
+      return;
+    }
+
+    const selected = this.data.items.filter((item) => this.data.selectedIds.includes(item.id));
+    wx.showLoading({ title: "保存中" });
+    selected.reduce(
+      (chain, item) => chain.then(() => saveImageToAlbum(item.image)),
+      Promise.resolve()
+    ).then(() => {
+      wx.hideLoading();
+      wx.showToast({ title: "已保存", icon: "success" });
+    }).catch((err) => {
+      wx.hideLoading();
+      wx.showToast({ title: (err && err.message) || "保存失败", icon: "none" });
     });
   },
 

@@ -12,6 +12,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { compare } from "bcryptjs";
 import type { Request, Response } from "express";
+import { isProductionRuntime } from "../common/runtime-env";
 import { PrismaService } from "../prisma/prisma.service";
 import { ADMIN_SESSION_COOKIE, AdminGuard } from "./admin.guard";
 
@@ -84,10 +85,19 @@ export class AdminAuthController {
   }
 
   private signSession(id: string, username: string): string {
-    const secret =
-      this.config.get<string>("ADMIN_SESSION_SECRET") ??
-      "jibian-dev-session-secret-change-me";
+    const secret = this.sessionSecret();
     return this.jwt.sign({ sub: id, username }, { secret, expiresIn: SESSION_DURATION_MS / 1000 });
+  }
+
+  private sessionSecret() {
+    const secret = this.config.get<string>("ADMIN_SESSION_SECRET")?.trim();
+    if (secret) {
+      return secret;
+    }
+    if (isProductionRuntime(this.config)) {
+      throw new UnauthorizedException("Admin session secret is not configured");
+    }
+    return "jibian-dev-session-secret-change-me";
   }
 
   private setSessionCookie(res: Response, token: string) {
@@ -102,7 +112,7 @@ export class AdminAuthController {
       httpOnly: true,
       sameSite: "lax" as const,
       path: "/",
-      secure: process.env.NODE_ENV === "production",
+      secure: isProductionRuntime(this.config),
     };
   }
 }

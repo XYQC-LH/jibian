@@ -1,22 +1,42 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { randomBytes } from "crypto";
+import { InjectQueue } from "@nestjs/bullmq";
+import { BadRequestException, Injectable, OnModuleInit, Optional, ServiceUnavailableException } from "@nestjs/common";
+import type { Queue } from "bullmq";
+import {
+  DEFAULT_REGISTRATION_BONUS,
+  DEFAULT_TASK_TIMEOUT_SECONDS,
+  REGISTRATION_BONUS_KEY,
+} from "../common/settings.constants";
 import { PrismaService } from "../prisma/prisma.service";
 
-const REGISTRATION_BONUS_KEY = "registration_bonus_credits";
-const XIANYU_INTERNAL_API_KEY = "xianyu_internal_api_key";
-const DEFAULT_REGISTRATION_BONUS = 100;
-
-export type XianyuInternalApiKeyPayload = {
-  configured: boolean;
-  value: string;
-  masked_value: string;
-  source: string;
-  length: number;
+const systemConfigDefaults = {
+  max_concurrent_tasks: 10,
+  task_timeout: DEFAULT_TASK_TIMEOUT_SECONDS,
+  cleanup_interval: 3600,
+  redis_memory_limit: "256mb",
+  database_connections: 20,
+  file_storage_limit: "1gb",
 };
 
+type SystemConfigKey = keyof typeof systemConfigDefaults;
+
+const numericSystemConfigKeys = new Set<SystemConfigKey>([
+  "max_concurrent_tasks",
+  "task_timeout",
+  "cleanup_interval",
+  "database_connections",
+]);
+
 @Injectable()
-export class AdminSettingsService {
-  constructor(private readonly prisma: PrismaService) {}
+export class AdminSettingsService implements OnModuleInit {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() @InjectQueue("generation") private readonly generationQueue?: Queue,
+  ) {}
+
+  async onModuleInit() {
+    const config = await this.readSystemConfig();
+    await this.applyGenerationConcurrency(config.max_concurrent_tasks, false);
+  }
 
   async getRegistrationBonus() {
     const credits = this.parseCredits(await this.readSetting(REGISTRATION_BONUS_KEY));
@@ -34,50 +54,38 @@ export class AdminSettingsService {
     return { success: true, data: { registration_bonus_credits: value } };
   }
 
-  async getXianyuInternalApiKey() {
-    const value = await this.readSetting(XIANYU_INTERNAL_API_KEY);
-    return { success: true, data: this.buildXianyuPayload(value) };
+  async getSystemConfig() {
+    return { success: true, data: await this.readSystemConfig() };
   }
 
-  async updateXianyuInternalApiKey(input: { value?: string }) {
-    const value = String(input.value ?? "").trim();
-    if (value.length < 16) {
-      throw new BadRequestException("xianyu internal api key must be at least 16 characters");
+  async updateSystemConfig(input: Record<string, unknown>) {
+    const updates: Partial<Record<SystemConfigKey, string>> = {};
+
+    for (const key of Object.keys(systemConfigDefaults) as SystemConfigKey[]) {
+      if (input[key] === undefined) continue;
+      updates[key] = this.normalizeSystemConfigValue(key, input[key]);
     }
-    await this.writeSetting(XIANYU_INTERNAL_API_KEY, value);
-    return { success: true, data: this.buildXianyuPayload(value) };
-  }
 
-  async generateXianyuInternalApiKey() {
-    const value = randomBytes(16).toString("hex");
-    await this.writeSetting(XIANYU_INTERNAL_API_KEY, value);
-    return { success: true, data: this.buildXianyuPayload(value) };
-  }
-
-  private buildXianyuPayload(value: string): XianyuInternalApiKeyPayload {
-    if (!value) {
-      return {
-        configured: false,
-        value: "",
-        masked_value: "",
-        source: "unset",
-        length: 0,
-      };
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestException("No supported system config fields provided");
     }
-    return {
-      configured: true,
-      value,
-      masked_value: this.maskSecret(value),
-      source: "system_setting",
-      length: value.length,
-    };
-  }
 
-  private maskSecret(value: string): string {
-    if (value.length <= 8) {
-      return "*".repeat(value.length);
+    await this.prisma.$transaction(
+      Object.entries(updates).map(([key, value]) =>
+        this.prisma.setting.upsert({
+          where: { key: this.systemConfigSettingKey(key as SystemConfigKey) },
+          update: { value },
+          create: { key: this.systemConfigSettingKey(key as SystemConfigKey), value },
+        }),
+      ),
+    );
+
+    const config = await this.readSystemConfig();
+    if (updates.max_concurrent_tasks !== undefined) {
+      await this.applyGenerationConcurrency(config.max_concurrent_tasks, true);
     }
-    return `${value.slice(0, 4)}${"*".repeat(8)}${value.slice(-4)}`;
+
+    return { success: true, data: config };
   }
 
   private parseCredits(raw: string): number {
@@ -99,5 +107,68 @@ export class AdminSettingsService {
       update: { value },
       create: { key, value },
     });
+  }
+
+  private async readSystemConfig() {
+    const keys = Object.keys(systemConfigDefaults) as SystemConfigKey[];
+    const rows = await this.prisma.setting.findMany({
+      where: { key: { in: keys.map((key) => this.systemConfigSettingKey(key)) } },
+    });
+    const byKey = new Map(rows.map((row) => [row.key, row.value]));
+
+    return keys.reduce((config, key) => {
+      const raw = byKey.get(this.systemConfigSettingKey(key));
+      const fallback = systemConfigDefaults[key];
+      return {
+        ...config,
+        [key]: numericSystemConfigKeys.has(key)
+          ? this.parsePositiveInt(raw, fallback as number)
+          : (raw && raw.trim() ? raw.trim() : fallback),
+      };
+    }, {} as typeof systemConfigDefaults);
+  }
+
+  private normalizeSystemConfigValue(key: SystemConfigKey, value: unknown) {
+    if (numericSystemConfigKeys.has(key)) {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        throw new BadRequestException(`${key} must be a positive integer`);
+      }
+      return String(Math.trunc(parsed));
+    }
+
+    const text = String(value ?? "").trim();
+    if (!text) {
+      throw new BadRequestException(`${key} cannot be empty`);
+    }
+    return text;
+  }
+
+  private parsePositiveInt(raw: string | undefined, fallback: number) {
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return fallback;
+    }
+    return Math.trunc(parsed);
+  }
+
+  private systemConfigSettingKey(key: SystemConfigKey) {
+    return `system.${key}`;
+  }
+
+  private async applyGenerationConcurrency(concurrency: number, failOnError: boolean) {
+    if (!this.generationQueue) {
+      return;
+    }
+
+    try {
+      await this.generationQueue.setGlobalConcurrency(concurrency);
+    } catch (error: unknown) {
+      if (failOnError) {
+        throw new ServiceUnavailableException(
+          error instanceof Error ? error.message : "Failed to update generation queue concurrency",
+        );
+      }
+    }
   }
 }

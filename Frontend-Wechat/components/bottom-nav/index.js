@@ -24,8 +24,9 @@ Component({
     handleTap(event) {
       const { key } = event.currentTarget.dataset;
       const routeMap = {
+        home: "/pages/home/index",
         inspiration: "/pages/inspiration/index",
-        create: `/pages/create/index?id=${templates[0].id}`,
+        create: "/pages/create/index",
         gallery: "/pages/gallery/index",
         profile: "/pages/profile/index"
       };
@@ -34,12 +35,7 @@ Component({
         return;
       }
 
-      if (key === "home") {
-        wx.reLaunch({ url: "/pages/home/index" });
-        return;
-      }
-
-      wx.reLaunch({ url: routeMap[key] || routeMap.gallery });
+      wx.switchTab({ url: routeMap[key] || routeMap.gallery });
     }
   }
 });

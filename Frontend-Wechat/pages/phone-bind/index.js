@@ -4,8 +4,6 @@ const api = require("../../services/api");
 Page({
   data: {
     statusBarHeight: 0,
-    phone: "",
-    code: "",
     bound: false,
     maskedPhone: ""
   },
@@ -21,8 +19,7 @@ Page({
 
     this.setData({
       bound: account.phoneBound,
-      maskedPhone: account.maskedPhone,
-      phone: account.phoneBound ? account.phone : this.data.phone
+      maskedPhone: account.maskedPhone
     });
   },
 
@@ -30,37 +27,11 @@ Page({
     wx.navigateBack();
   },
 
-  inputPhone(event) {
-    this.setData({
-      phone: event.detail.value
-    });
-  },
-
-  inputCode(event) {
-    this.setData({
-      code: event.detail.value
-    });
-  },
-
-  sendCode() {
-    if (!/^1\d{10}$/.test(this.data.phone)) {
+  bindWechatPhone(event) {
+    const code = event.detail && event.detail.code;
+    if (!code) {
       wx.showToast({
-        title: "请输入正确手机号",
-        icon: "none"
-      });
-      return;
-    }
-
-    wx.showToast({
-      title: "验证码已发送",
-      icon: "success"
-    });
-  },
-
-  bindPhone() {
-    if (!/^1\d{10}$/.test(this.data.phone) || this.data.code.length < 4) {
-      wx.showToast({
-        title: "请填写手机号和验证码",
+        title: "未授权手机号",
         icon: "none"
       });
       return;
@@ -68,9 +39,9 @@ Page({
 
     const app = getApp();
 
-    api.bindPhone(this.data.phone).then((res) => {
+    api.bindPhone({ code }).then((res) => {
       const account = app.setAccount({
-        phone: res.phone || this.data.phone,
+        phone: res.phone || "",
         phoneBound: true
       });
 

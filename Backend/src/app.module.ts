@@ -10,6 +10,7 @@ import { ClientConfigModule } from "./client-config/client-config.module";
 import { CreditsModule } from "./credits/credits.module";
 import { FavoritesModule } from "./favorites/favorites.module";
 import { ModerationModule } from "./moderation/content-moderation.module";
+import { PaymentsModule } from "./payments/payments.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { TemplatesModule } from "./templates/templates.module";
 import { TasksModule } from "./tasks/tasks.module";
@@ -44,6 +45,7 @@ import { UsersModule } from "./users/users.module";
     TemplatesModule,
     TasksModule,
     CreditsModule,
+    PaymentsModule,
     UserCreationsModule,
     FavoritesModule,
     ModerationModule,

@@ -15,13 +15,6 @@ import { AdminUsersService } from "./admin-users.service";
 type BanBody = { is_active?: boolean };
 type AdminNoteBody = { admin_note?: string };
 type CreditsBody = { delta?: number };
-type CreateUserBody = {
-  email?: string;
-  password?: string;
-  username?: string;
-  credits?: number;
-};
-type ResetPasswordBody = { new_password?: string };
 
 @Controller("v1/admin/users")
 @UseGuards(AdminGuard)
@@ -31,11 +24,6 @@ export class AdminUsersController {
   @Get()
   list(@Query("page") page = "1", @Query("page_size") pageSize = "50") {
     return this.users.list(Number(page), Number(pageSize));
-  }
-
-  @Post()
-  create(@Body() body: CreateUserBody) {
-    return this.users.create(body);
   }
 
   @Post(":userId/ban")
@@ -51,11 +39,6 @@ export class AdminUsersController {
   @Post(":userId/credits")
   adjustCredits(@Param("userId") userId: string, @Body() body: CreditsBody) {
     return this.users.adjustCredits(userId, body.delta);
-  }
-
-  @Post(":userId/password/reset")
-  resetPassword(@Param("userId") userId: string, @Body() body: ResetPasswordBody) {
-    return this.users.resetPassword(userId, body.new_password);
   }
 
   @Delete(":userId")

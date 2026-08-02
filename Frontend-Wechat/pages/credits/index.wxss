@@ -220,3 +220,7 @@
   font-size: 26rpx;
   font-weight: 900;
 }
+
+.pay-button-disabled {
+  opacity: 0.62;
+}

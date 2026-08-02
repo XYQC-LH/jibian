@@ -43,6 +43,7 @@ export function useAdminSystemConfig(activeTab: ResourceTab, reloadKey: number) 
       if (!systemConfig) return;
       const merged = { ...systemConfig, ...config };
       const payload: Partial<SystemConfig> = {
+        max_concurrent_tasks: merged.max_concurrent_tasks,
         task_timeout: merged.task_timeout,
         cleanup_interval: merged.cleanup_interval,
       };

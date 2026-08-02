@@ -5,7 +5,6 @@ Page({
   data: {
     statusBarHeight: 0,
     step: "confirm",
-    code: "",
     isPhoneBound: false,
     maskedPhone: ""
   },
@@ -43,36 +42,16 @@ Page({
     wx.navigateBack();
   },
 
-  inputCode(event) {
-    this.setData({
-      code: event.detail.value
-    });
-  },
-
-  sendCode() {
-    wx.showToast({
-      title: "验证码已发送",
-      icon: "success"
-    });
-  },
-
   confirmDelete() {
-    if (this.data.isPhoneBound && this.data.code.length < 4) {
-      wx.showToast({
-        title: "请输入验证码",
-        icon: "none"
-      });
-      return;
-    }
-
     wx.showLoading({
-      title: "提交中"
+      title: "注销中"
     });
 
     api.requestAccountDeletion().then(() => {
+      getApp().submitAccountDeletion();
       wx.hideLoading();
       wx.showToast({
-        title: "注销申请已提交",
+        title: "账号已注销",
         icon: "success"
       });
       this.setData({

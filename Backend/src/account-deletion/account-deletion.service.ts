@@ -15,6 +15,28 @@ export class AccountDeletionService {
       throw new NotFoundException("User not found");
     }
 
-    return { ok: true, status: "pending" };
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.favorite.deleteMany({ where: { userId: user.id } });
+      await tx.userCreation.updateMany({
+        where: { userId: user.id, status: "active" },
+        data: { status: "deleted", deletedAt: new Date() },
+      });
+
+      return tx.user.update({
+        where: { id: user.id },
+        data: {
+          openid: `deleted_${user.id}`,
+          unionid: null,
+          nickname: null,
+          avatarUrl: null,
+          phone: null,
+          phoneBound: false,
+          status: "deleted",
+        },
+        select: { status: true },
+      });
+    });
+
+    return { ok: true, status: updated.status };
   }
 }

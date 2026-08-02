@@ -1,0 +1,2 @@
+ALTER TABLE "tasks"
+  ADD COLUMN IF NOT EXISTS "admin_deleted_at" TIMESTAMPTZ;

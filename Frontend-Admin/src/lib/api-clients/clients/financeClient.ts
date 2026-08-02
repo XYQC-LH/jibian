@@ -9,7 +9,6 @@ import {
   RechargeRecord,
   TransactionRecord,
   TransactionStatistics,
-  XianyuIssueRecordOverview,
 } from '../types';
 import { BaseAdminClient, ensureData, buildQueryUrl } from './_base';
 
@@ -114,10 +113,4 @@ export class FinanceAdminClient extends BaseAdminClient {
     };
   }
 
-  async getXianyuIssueRecordsOverview(limit = 50): Promise<XianyuIssueRecordOverview> {
-    const response = await this.client.get<ApiResponse<XianyuIssueRecordOverview>>(
-      `/api/v1/admin/xianyu/issue-records/overview?limit=${limit}`
-    );
-    return ensureData(response.data, 'Failed to fetch xianyu issue records overview');
-  }
 }

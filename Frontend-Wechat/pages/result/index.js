@@ -1,6 +1,7 @@
 const { findTemplate } = require("../../data/templates");
 const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
 const api = require("../../services/api");
+const { saveImageToAlbum } = require("../../utils/saveImage");
 
 Page({
   data: {
@@ -9,6 +10,7 @@ Page({
     template: {},
     record: null,
     recordId: "",
+    taskId: "",
     resultImage: "",
     sourceImage: "",
     ratio: "",
@@ -29,6 +31,7 @@ Page({
           template,
           record: null,
           recordId: task.task_id,
+          taskId: task.task_id,
           resultImage: task.result ? task.result.url : template.result,
           sourceImage: app.globalData.draftImage,
           ratio: ""
@@ -45,6 +48,7 @@ Page({
         template,
         record: null,
         recordId: query.taskId,
+        taskId: query.taskId,
         resultImage: template.result,
         sourceImage: app.globalData.draftImage,
         ratio: ""
@@ -63,6 +67,7 @@ Page({
       template,
       record,
       recordId: record ? record.id : "",
+      taskId: "",
       resultImage: record ? record.result : template.result,
       sourceImage: record ? record.sourceImage : app.globalData.draftImage,
       ratio: record ? record.ratio : ""
@@ -75,11 +80,21 @@ Page({
     }
 
     wx.navigateTo({
-      url: `/pages/preview/index?recordId=${this.data.recordId || ""}&templateId=${this.data.template.id || ""}`
+      url: this.data.taskId
+        ? `/pages/preview/index?taskId=${this.data.taskId}&templateId=${this.data.template.id || ""}`
+        : `/pages/preview/index?recordId=${this.data.recordId || ""}&templateId=${this.data.template.id || ""}`
     });
   },
 
   saveResult() {
+    if (this.data.taskId) {
+      wx.showToast({
+        title: "已进图库",
+        icon: "success"
+      });
+      return;
+    }
+
     if (!this.data.record) {
       // 该结果来自模板预览,无真实生成记录,不入图库
       wx.showToast({
@@ -96,9 +111,13 @@ Page({
   },
 
   downloadHd() {
-    wx.showToast({
-      title: "下载能力待接入",
-      icon: "none"
+    wx.showLoading({ title: "保存中" });
+    saveImageToAlbum(this.data.resultImage).then(() => {
+      wx.hideLoading();
+      wx.showToast({ title: "已保存", icon: "success" });
+    }).catch((err) => {
+      wx.hideLoading();
+      wx.showToast({ title: (err && err.message) || "保存失败", icon: "none" });
     });
   },
 
@@ -118,7 +137,9 @@ Page({
   onShareAppMessage() {
     return {
       title: `我用即变做了「${this.data.template.name || "新玩法"}」`,
-      path: this.data.recordId
+      path: this.data.taskId
+        ? `/pages/result/index?taskId=${this.data.taskId}`
+        : this.data.recordId
         ? `/pages/result/index?recordId=${this.data.recordId}`
         : "/pages/home/index"
     };

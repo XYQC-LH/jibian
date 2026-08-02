@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { AdminGuard } from "../auth/admin.guard";
 import { CreateTemplateDto } from "../templates/dto/create-template.dto";
+import { UpdateTemplateDto } from "../templates/dto/update-template.dto";
 import { TemplatesService } from "../templates/templates.service";
 import { AdminTemplatesService } from "./admin-templates.service";
 
@@ -17,8 +18,18 @@ export class AdminTemplatesController {
     return this.templates.getStatistics();
   }
 
+  @Get()
+  list() {
+    return this.templateService.listAdmin();
+  }
+
   @Post()
   create(@Body() dto: CreateTemplateDto) {
     return this.templateService.createAdmin(dto);
+  }
+
+  @Patch(":id")
+  update(@Param("id") id: string, @Body() dto: UpdateTemplateDto) {
+    return this.templateService.updateAdmin(id, dto);
   }
 }

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { AssetsService } from "../assets/assets.service";
+import { PricingService } from "../pricing/pricing.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { toPublicTemplateId, toTemplateUuid } from "../templates/local-template-ids";
 
@@ -8,6 +9,7 @@ export class FavoritesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly assets: AssetsService,
+    private readonly pricing: PricingService,
   ) {}
 
   async list(userId: string | undefined) {
@@ -20,6 +22,7 @@ export class FavoritesService {
       orderBy: { createdAt: "desc" },
       include: { template: { include: { coverAsset: true } } },
     });
+    const multiplier = await this.pricing.getGlobalPricingMultiplier();
 
     return favorites.map((favorite) => ({
       id: favorite.id,
@@ -32,7 +35,8 @@ export class FavoritesService {
         cover_asset_id: favorite.template.coverAssetId,
         cover_storage_key: favorite.template.coverAsset?.storageKey ?? null,
         cover_url: favorite.template.coverAsset ? this.assets.getPublicUrl(favorite.template.coverAsset.storageKey) : null,
-        price_credits: favorite.template.priceCredits,
+        price_credits: this.pricing.applyMultiplier(favorite.template.priceCredits, multiplier),
+        base_price_credits: favorite.template.priceCredits,
         result_count: favorite.template.resultCount,
         sort_order: favorite.template.sortOrder,
         status: favorite.template.status,

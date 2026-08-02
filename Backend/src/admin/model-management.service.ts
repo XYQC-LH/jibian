@@ -1,16 +1,14 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import type { Template } from "@prisma/client";
-import { Redis } from "ioredis";
 import { AssetsService } from "../assets/assets.service";
+import {
+  FINANCE_CREDIT_PER_CNY,
+  PricingService,
+} from "../pricing/pricing.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateTemplateDto } from "../templates/dto/update-template.dto";
 import { TemplatesService } from "../templates/templates.service";
 import { toTemplateUuid } from "../templates/local-template-ids";
-
-const GLOBAL_PRICING_MULTIPLIER = 1;
-const FINANCE_CREDIT_PER_CNY = 10;
-const PRICING_MULTIPLIER_REDIS_KEY = "jibian:pricing:global_multiplier";
 
 export interface UpdateModelPayload {
   display_name?: string;
@@ -31,17 +29,12 @@ export interface ReorderModelItem {
 
 @Injectable()
 export class ModelManagementService {
-  private readonly redisUrl: string;
-  private redis: Redis | null = null;
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly templates: TemplatesService,
     private readonly assets: AssetsService,
-    private readonly config: ConfigService,
-  ) {
-    this.redisUrl = this.config.get<string>("REDIS_URL") ?? "redis://localhost:6379";
-  }
+    private readonly pricing: PricingService,
+  ) {}
 
   async list(params: {
     page: number;
@@ -81,16 +74,20 @@ export class ModelManagementService {
 
     const where = q ? { name: { contains: q } } : {};
 
-    const [total, templates, taskRows] = await this.prisma.$transaction([
-      this.prisma.template.count({ where }),
-      this.prisma.template.findMany({
-        where,
-        orderBy: { sortOrder: "asc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      this.prisma.task.findMany({ select: { templateId: true } }),
+    const [modelPage, globalPricingMultiplier] = await Promise.all([
+      this.prisma.$transaction([
+        this.prisma.template.count({ where }),
+        this.prisma.template.findMany({
+          where,
+          orderBy: { sortOrder: "asc" },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+        this.prisma.task.findMany({ select: { templateId: true } }),
+      ]),
+      this.pricing.getGlobalPricingMultiplier(),
     ]);
+    const [total, templates, taskRows] = modelPage;
 
     const usageByTemplate = new Map<string, number>();
     for (const row of taskRows) {
@@ -111,6 +108,7 @@ export class ModelManagementService {
         template,
         usageByTemplate.get(template.id) ?? 0,
         template.coverAssetId ? coverUrlByAsset.get(template.coverAssetId) ?? null : null,
+        globalPricingMultiplier,
       ),
     );
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -176,7 +174,7 @@ export class ModelManagementService {
 
     return {
       success: true,
-      data: this.toModel(updated, await this.countUsage(uuid), coverUrl),
+      data: this.toModel(updated, await this.countUsage(uuid), coverUrl, await this.pricing.getGlobalPricingMultiplier()),
     };
   }
 
@@ -201,29 +199,23 @@ export class ModelManagementService {
   }
 
   async getPricingSettings() {
+    const globalPricingMultiplier = await this.pricing.getGlobalPricingMultiplier();
     return {
       success: true,
       data: {
-        global_pricing_multiplier: GLOBAL_PRICING_MULTIPLIER,
+        global_pricing_multiplier: globalPricingMultiplier,
         finance_credit_per_cny: FINANCE_CREDIT_PER_CNY,
       },
     };
   }
 
   async updatePricingSettings(globalPricingMultiplier: number) {
-    try {
-      const redis = this.getRedis();
-      if (redis) {
-        await redis.set(PRICING_MULTIPLIER_REDIS_KEY, String(globalPricingMultiplier));
-      }
-    } catch {
-      // Redis 不可用时降级：不阻断请求
-    }
+    const saved = await this.pricing.setGlobalPricingMultiplier(globalPricingMultiplier);
 
     return {
       success: true,
       data: {
-        global_pricing_multiplier: globalPricingMultiplier,
+        global_pricing_multiplier: saved,
         finance_credit_per_cny: FINANCE_CREDIT_PER_CNY,
       },
     };
@@ -241,13 +233,14 @@ export class ModelManagementService {
       data: {
         model_id: modelId,
         pricing_mode: "fixed",
-        pricing_observation: null,
+        pricing_observation: (await this.buildPricingObservations([existing]))[0] ?? null,
       },
     };
   }
 
   async getPricingObservations() {
-    return { success: true, data: { items: [] } };
+    const templates = await this.prisma.template.findMany({ orderBy: { sortOrder: "asc" } });
+    return { success: true, data: { items: await this.buildPricingObservations(templates) } };
   }
 
   // ── Helpers ──
@@ -256,8 +249,84 @@ export class ModelManagementService {
     return this.prisma.task.count({ where: { templateId } });
   }
 
-  private toModel(template: Template, usageCount: number, coverUrl: string | null = null) {
+  private async buildPricingObservations(templates: Template[]) {
+    const templateIds = templates.map((template) => template.id);
+    const [runs, globalPricingMultiplier] = await Promise.all([
+      templateIds.length > 0
+        ? this.prisma.sourceRun.findMany({
+            where: {
+              costAmount: { not: null },
+              task: { templateId: { in: templateIds } },
+            },
+            select: {
+              sourceId: true,
+              costAmount: true,
+              task: { select: { templateId: true } },
+            },
+          })
+        : Promise.resolve([]),
+      this.pricing.getGlobalPricingMultiplier(),
+    ]);
+    const costsByTemplate = new Map<string, Map<string, number[]>>();
+    for (const run of runs) {
+      const cost = Number(run.costAmount);
+      if (!Number.isFinite(cost)) continue;
+      const bySource = costsByTemplate.get(run.task.templateId) ?? new Map<string, number[]>();
+      const costs = bySource.get(run.sourceId) ?? [];
+      costs.push(cost);
+      bySource.set(run.sourceId, costs);
+      costsByTemplate.set(run.task.templateId, bySource);
+    }
+
+    return templates.map((template) => {
+      const bySource = costsByTemplate.get(template.id) ?? new Map<string, number[]>();
+      const sourceCosts = Object.fromEntries(
+        Array.from(bySource.entries()).map(([sourceId, costs]) => [sourceId, this.round4(this.average(costs))]),
+      );
+      const observedCosts = Object.values(sourceCosts);
+      const minCost = observedCosts.length > 0 ? Math.min(...observedCosts) : null;
+      const maxCost = observedCosts.length > 0 ? Math.max(...observedCosts) : null;
+      return {
+        model_id: template.id,
+        display_name: template.name,
+        type: "image",
+        pricing_mode: "fixed",
+        pricing_strategy: null,
+        currency_basis: "CNY",
+        default_spec_key: "default",
+        base_credits_cost: template.priceCredits,
+        finance_credit_per_cny: FINANCE_CREDIT_PER_CNY,
+        finance_cny_per_credit: this.round4(1 / FINANCE_CREDIT_PER_CNY),
+        global_pricing_multiplier: globalPricingMultiplier,
+        model_pricing_multiplier: 1,
+        accept_global_pricing_multiplier: true,
+        effective_multiplier: globalPricingMultiplier,
+        specs: [{
+          pricing_spec_key: "default",
+          pricing_spec_params_snapshot: {},
+          matched_source_ids: Array.from(bySource.keys()),
+          matched_source_costs_cny: sourceCosts,
+          min_upstream_cost_cny: minCost,
+          max_upstream_cost_cny: maxCost,
+          pricing_anchor_cost_cny: maxCost,
+          base_credits_cost: template.priceCredits,
+          error: null,
+        }],
+      };
+    });
+  }
+
+  private average(values: number[]) {
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+
+  private round4(value: number) {
+    return Math.round(value * 10000) / 10000;
+  }
+
+  private toModel(template: Template, usageCount: number, coverUrl: string | null = null, globalPricingMultiplier = 1) {
     const isEnabled = template.status === "published";
+    const effectiveCredits = this.pricing.applyMultiplier(template.priceCredits, globalPricingMultiplier);
     return {
       id: template.id,
       model_id: template.id,
@@ -273,8 +342,9 @@ export class ModelManagementService {
       provider: null,
       order: template.sortOrder,
       usage_count: usageCount,
-      cost_credits: template.priceCredits,
-      credits_cost: template.priceCredits,
+      base_credits_cost: template.priceCredits,
+      cost_credits: effectiveCredits,
+      credits_cost: effectiveCredits,
       pricing_mode: "fixed",
       pricing_strategy: null,
       is_enabled: isEnabled,
@@ -285,25 +355,8 @@ export class ModelManagementService {
       supported_ratios: ["16:9", "9:16", "1:1"],
       accept_global_pricing_multiplier: true,
       model_pricing_multiplier: 1,
+      effective_multiplier: globalPricingMultiplier,
       pricing_editable: true,
     };
-  }
-
-  private getRedis(): Redis | null {
-    if (!this.redisUrl) {
-      return null;
-    }
-    if (!this.redis) {
-      this.redis = new Redis(this.redisUrl, {
-        lazyConnect: true,
-        enableOfflineQueue: false,
-        maxRetriesPerRequest: 1,
-        retryStrategy: () => null,
-      });
-      this.redis.on("error", () => {
-        // 忽略 Redis 错误
-      });
-    }
-    return this.redis;
   }
 }

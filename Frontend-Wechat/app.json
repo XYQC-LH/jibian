@@ -1,33 +1,61 @@
 {
-  "pages": [
-    "pages/home/index",
-    "pages/search/index",
-    "pages/inspiration/index",
-    "pages/templates/index",
-    "pages/create/index",
-    "pages/gallery/index",
-    "pages/gallery-manage/index",
-    "pages/result/index",
-    "pages/preview/index",
-    "pages/profile/index",
-    "pages/settings/index",
-    "pages/settings-detail/index",
-    "pages/phone-bind/index",
-    "pages/account-delete/index",
-    "pages/membership/index",
-    "pages/credits/index",
-    "pages/redeem-code/index",
-    "pages/credit-detail/index",
-    "pages/favorites/index",
-    "pages/invite/index"
-  ],
-  "window": {
-    "navigationBarTitleText": "即变",
-    "navigationBarBackgroundColor": "#FFFFFF",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#FFFFFF",
-    "backgroundTextStyle": "dark"
-  },
-  "style": "v2",
-  "sitemapLocation": "sitemap.json"
+    "pages":  [
+                  "pages/home/index",
+                  "pages/search/index",
+                  "pages/inspiration/index",
+                  "pages/templates/index",
+                  "pages/create/index",
+                  "pages/gallery/index",
+                  "pages/gallery-manage/index",
+                  "pages/result/index",
+                  "pages/preview/index",
+                  "pages/profile/index",
+                  "pages/settings/index",
+                  "pages/settings-detail/index",
+                  "pages/phone-bind/index",
+                  "pages/account-delete/index",
+                  "pages/membership/index",
+                  "pages/credits/index",
+                  "pages/redeem-code/index",
+                  "pages/credit-detail/index",
+                  "pages/favorites/index",
+                  "pages/invite/index"
+              ],
+    "window":  {
+                   "navigationBarTitleText":  "即变",
+                   "navigationBarBackgroundColor":  "#FFFFFF",
+                   "navigationBarTextStyle":  "black",
+                   "backgroundColor":  "#FFFFFF",
+                   "backgroundTextStyle":  "dark"
+               },
+    "style":  "v2",
+    "sitemapLocation":  "sitemap.json",
+    "tabBar":  {
+                   "custom":  true,
+                   "color":  "#85828E",
+                   "selectedColor":  "#20151D",
+                   "backgroundColor":  "#FFFFFF",
+                   "list":  [
+                                {
+                                    "text":  "首页",
+                                    "pagePath":  "pages/home/index"
+                                },
+                                {
+                                    "text":  "灵感",
+                                    "pagePath":  "pages/inspiration/index"
+                                },
+                                {
+                                    "text":  "即变",
+                                    "pagePath":  "pages/create/index"
+                                },
+                                {
+                                    "text":  "图库",
+                                    "pagePath":  "pages/gallery/index"
+                                },
+                                {
+                                    "text":  "我的",
+                                    "pagePath":  "pages/profile/index"
+                                }
+                            ]
+               }
 }

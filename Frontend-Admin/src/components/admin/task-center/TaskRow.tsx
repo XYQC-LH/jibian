@@ -6,6 +6,7 @@ import {
   Cpu,
   Eye,
   Image,
+  RefreshCcw,
   Trash2,
   Video,
   XCircle,
@@ -65,10 +66,12 @@ export default function TaskRow({
   task,
   onView,
   onDelete,
+  onRerun,
 }: {
   task: UIMappedTask
   onView: (taskId: string) => void
   onDelete: (task: UIMappedTask) => void
+  onRerun: (task: UIMappedTask) => void
 }) {
   const isModerationBlockedFailure =
     task.status === 'failed' &&
@@ -200,6 +203,16 @@ export default function TaskRow({
         </div>
 
         <div className="flex items-center gap-2">
+          {task.status === 'failed' ? (
+            <button
+              onClick={() => onRerun(task)}
+              className="p-1 text-yellow-300 transition-colors hover:text-yellow-200"
+              title="重跑失败任务"
+            >
+              <RefreshCcw className="h-4 w-4" />
+            </button>
+          ) : null}
+
           <button
             onClick={() => onView(task.id)}
             className="p-1 text-text-muted transition-colors hover:text-white"
@@ -211,7 +224,7 @@ export default function TaskRow({
           <button
             onClick={() => onDelete(task)}
             className="p-1 text-red-400 transition-colors hover:text-red-300"
-            title={isPurgeFailed ? '重试彻底删除（包含 OSS 产物）' : '彻底删除任务（包含 OSS 产物）'}
+            title={isPurgeFailed ? '重试移除任务' : '从任务中心移除'}
           >
             <Trash2 className="h-4 w-4" />
           </button>

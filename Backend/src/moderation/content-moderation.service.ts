@@ -2,7 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import GreenClient, { ImageModerationRequest } from "@alicloud/green20220302";
 import { Config as OpenApiConfig } from "@alicloud/openapi-core/dist/utils";
+import Redis from "ioredis";
+import { isProductionRuntime } from "../common/runtime-env";
 import { PrismaService } from "../prisma/prisma.service";
+
+const MODERATION_ENABLED_KEY = "jibian:moderation:enabled";
 
 export type ModerationStage = "input" | "output";
 
@@ -33,10 +37,26 @@ type AliyunImageData = {
 
 @Injectable()
 export class ContentModerationService {
+  private readonly redis: Redis | null = null;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-  ) {}
+  ) {
+    const url = this.config.get<string>("REDIS_URL") ?? "redis://localhost:6379";
+    try {
+      const client = new Redis(url, {
+        lazyConnect: true,
+        enableOfflineQueue: false,
+        maxRetriesPerRequest: 1,
+        retryStrategy: () => null,
+      });
+      client.on("error", () => undefined);
+      this.redis = client;
+    } catch {
+      this.redis = null;
+    }
+  }
 
   async reviewInputImage(taskId: string, imageUrl: string): Promise<ModerationResult> {
     return this.reviewTaskImage("input", taskId, imageUrl);
@@ -62,7 +82,7 @@ export class ContentModerationService {
   }
 
   private async evaluateImageUrl(imageUrl: string): Promise<ModerationResult> {
-    if (this.config.get<string>("MODERATION_ENABLED") === "false") {
+    if (!(await this.isModerationEnabled())) {
       return { passed: true, policyHits: [], reason: null };
     }
 
@@ -71,13 +91,26 @@ export class ContentModerationService {
     }
 
     if (!this.hasAliyunConfig()) {
-      if (this.config.get<string>("NODE_ENV") === "production") {
+      if (isProductionRuntime(this.config)) {
         return { passed: false, policyHits: ["missing_access_key"], reason: "阿里云内容安全未配置 AccessKey" };
       }
       return { passed: true, policyHits: ["moderation_skipped_dev"], reason: null };
     }
 
     return this.reviewByAliyun(imageUrl);
+  }
+
+  private async isModerationEnabled() {
+    if (this.redis) {
+      try {
+        const runtime = await this.redis.get(MODERATION_ENABLED_KEY);
+        if (runtime === "true") return true;
+        if (runtime === "false") return false;
+      } catch {
+        // Redis 配置不可用时回退到 ENV
+      }
+    }
+    return this.config.get<string>("MODERATION_ENABLED") !== "false";
   }
 
   private hasAliyunConfig() {
@@ -93,6 +126,8 @@ export class ContentModerationService {
           accessKeySecret: this.readEnv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"),
           regionId: this.aliyunRegion(),
           endpoint: this.aliyunEndpoint(),
+          readTimeout: this.readPositiveIntEnv("MODERATION_ALIYUN_READ_TIMEOUT_MS", 10000),
+          connectTimeout: this.readPositiveIntEnv("MODERATION_ALIYUN_CONNECT_TIMEOUT_MS", 5000),
         }),
       );
     } catch (error: unknown) {
@@ -165,6 +200,14 @@ export class ContentModerationService {
 
   private readEnv(key: string) {
     return this.config.get<string>(key)?.trim() || "";
+  }
+
+  private readPositiveIntEnv(key: string, fallback: number) {
+    const value = Number(this.readEnv(key));
+    if (!Number.isFinite(value) || value <= 0) {
+      return fallback;
+    }
+    return Math.floor(value);
   }
 
   private toMessage(error: unknown) {

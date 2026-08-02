@@ -29,8 +29,8 @@ const detailMap = {
   },
   "帮助与反馈": {
     rows: [
-      { title: "效果不满意", desc: "提交问题，客服工单待联调", value: "" },
-      { title: "支付与积分问题", desc: "充值不到账、扣费异常等", value: "" }
+      { title: "联系邮箱", desc: "用于效果问题、扣费异常、投诉举报和退款申请", value: "825175944@qq.com", target: "copy", copyText: "825175944@qq.com" },
+      { title: "客服 QQ", desc: "请附上任务 ID、截图和问题说明", value: "825175944", target: "copy", copyText: "825175944" }
     ]
   },
   "关于即变": {
@@ -50,7 +50,7 @@ function resolveDetail(title) {
 
   return detailMap[title] || {
     rows: [
-      { title, desc: "该分支页面已打开，业务能力待联调", value: "" }
+      { title, desc: "当前无需额外配置，如需处理请联系客服邮箱", value: "825175944@qq.com", target: "copy", copyText: "825175944@qq.com" }
     ]
   };
 }
@@ -105,8 +105,22 @@ Page({
       return;
     }
 
+    if (target === "copy") {
+      const row = this.data.rows.find((item) => item.title === title);
+      wx.setClipboardData({
+        data: row && row.copyText ? row.copyText : row && row.value ? row.value : "",
+        success: () => {
+          wx.showToast({
+            title: "已复制",
+            icon: "success"
+          });
+        }
+      });
+      return;
+    }
+
     wx.showToast({
-      title: `${title}待联调`,
+      title: "请联系客服处理",
       icon: "none"
     });
   }

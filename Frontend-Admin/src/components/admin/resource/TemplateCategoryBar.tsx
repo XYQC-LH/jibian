@@ -1,8 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowDown, ArrowUp, Plus, Tags, Trash2 } from 'lucide-react';
+import { GripVertical, Pencil, Plus, Tags, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { getErrorMessage } from '@/lib/http/errors';
 import type { TemplateCategory } from '@/lib/api-clients/clients/templateClient';
 
@@ -12,8 +29,87 @@ interface TemplateCategoryBarProps {
   onCreate: (name: string, displayName?: string) => Promise<unknown>;
   onUpdate: (id: string, input: { name?: string; display_name?: string }) => Promise<unknown>;
   onRemove: (id: string) => Promise<unknown>;
-  onMove: (index: number, direction: -1 | 1) => void;
+  onReorder: (fromIndex: number, toIndex: number) => void;
 }
+
+type SortableChipProps = {
+  category: TemplateCategory;
+  index: number;
+  total: number;
+  busy: boolean;
+  onStartEdit: (category: TemplateCategory) => void;
+  onRemove: (category: TemplateCategory) => void;
+  dragOverlay?: boolean;
+};
+
+const SortableChip: React.FC<SortableChipProps> = ({
+  category,
+  busy,
+  onStartEdit,
+  onRemove,
+  dragOverlay = false,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: category.id,
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={dragOverlay ? undefined : setNodeRef}
+      style={style}
+      className={`group relative flex items-center gap-2 rounded-full border bg-white/5 px-4 py-2 transition-colors ${
+        dragOverlay
+          ? 'rotate-[0.6deg] scale-[1.05] border-white/25 shadow-lg cursor-grabbing'
+          : 'border-white/10 hover:border-white/25 cursor-grab touch-none'
+      }`}
+      {...(dragOverlay ? {} : attributes)}
+      {...(dragOverlay ? {} : listeners)}
+    >
+      <GripVertical size={14} className="text-text-muted/60 shrink-0" />
+      <span className="text-sm font-medium text-text-primary">{category.name}</span>
+      {category.display_name && category.display_name !== category.name ? (
+        <span className="text-xs text-text-muted">{category.display_name}</span>
+      ) : null}
+      <span
+        className="hidden group-hover:flex items-center gap-0.5 ml-0.5"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={() => onStartEdit(category)}
+          className="p-1 text-text-muted hover:text-accent transition-colors"
+          aria-label={`编辑分类 ${category.name}`}
+        >
+          <Pencil size={13} />
+        </button>
+        <button
+          type="button"
+          onClick={() => onRemove(category)}
+          disabled={busy}
+          className="p-1 text-text-muted hover:text-red-400 transition-colors disabled:opacity-40"
+          aria-label={`删除分类 ${category.name}`}
+        >
+          <Trash2 size={13} />
+        </button>
+      </span>
+    </div>
+  );
+};
 
 const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
   categories,
@@ -21,15 +117,22 @@ const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
   onCreate,
   onUpdate,
   onRemove,
-  onMove,
+  onReorder,
 }) => {
+  const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDisplayName, setNewDisplayName] = useState('');
-  const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editDisplayName, setEditDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<TemplateCategory | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 },
+    })
+  );
 
   const handleAdd = async () => {
     const name = newName.trim();
@@ -42,6 +145,7 @@ const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
       await onCreate(name, newDisplayName.trim() || undefined);
       setNewName('');
       setNewDisplayName('');
+      setAdding(false);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, '创建分类失败'));
     } finally {
@@ -86,139 +190,158 @@ const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
     }
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const found = categories.find((item) => item.id === String(event.active.id));
+    setActiveCategory(found ?? null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveCategory(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = categories.findIndex((item) => item.id === String(active.id));
+    const newIndex = categories.findIndex((item) => item.id === String(over.id));
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(categories, oldIndex, newIndex);
+    void onReorder(oldIndex, newIndex);
+    void reordered;
+  };
+
   return (
-    <section className="card-primary p-4 mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Tags size={16} className="text-accent" />
-          <h3 className="text-sm font-semibold text-text-primary">模板分类</h3>
-          <span className="text-xs text-text-muted">短名称用于模板标识，长名称用于展示；支持排序</span>
-        </div>
-      </div>
+    <section className="flex items-center gap-2.5 flex-wrap p-4 mb-6 rounded-xl border border-white/10 bg-white/[0.03]">
+      <span className="flex items-center gap-1.5 text-sm text-text-muted shrink-0 mr-1">
+        <Tags size={15} className="text-accent" />
+        模板分类
+      </span>
 
-      <div className="space-y-2">
-        {categories.map((category, index) => (
-          <div
-            key={category.id}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03]"
-          >
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => onMove(index, -1)}
-                disabled={index === 0 || busy}
-                className="p-0.5 text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
-                aria-label="上移"
-              >
-                <ArrowUp size={13} />
-              </button>
-              <button
-                type="button"
-                onClick={() => onMove(index, 1)}
-                disabled={index === categories.length - 1 || busy}
-                className="p-0.5 text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
-                aria-label="下移"
-              >
-                <ArrowDown size={13} />
-              </button>
-            </div>
-
-            {editingId === category.id ? (
-              <div className="flex flex-1 flex-col sm:flex-row gap-2">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveCategory(null)}
+      >
+        <SortableContext items={categories.map((item) => item.id)} strategy={rectSortingStrategy}>
+          {categories.map((category, index) =>
+            editingId === category.id ? (
+              <div key={category.id} className="flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2 py-1">
                 <input
-                  className="input-primary px-2 py-1 text-sm flex-1"
+                  className="input-primary px-2 py-0.5 text-xs w-24"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   placeholder="短名称"
                   maxLength={32}
                 />
                 <input
-                  className="input-primary px-2 py-1 text-sm flex-1"
+                  className="input-primary px-2 py-0.5 text-xs w-32"
                   value={editDisplayName}
                   onChange={(e) => setEditDisplayName(e.target.value)}
-                  placeholder="长名称（展示用）"
+                  placeholder="长名称"
                   maxLength={80}
                 />
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleSaveEdit(category)}
-                    disabled={busy}
-                    className="px-3 py-1 text-xs rounded-lg bg-accent/20 text-accent border border-accent/40 hover:bg-accent/30 transition-colors disabled:opacity-50"
-                  >
-                    保存
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditingId(null)}
-                    className="px-3 py-1 text-xs rounded-lg bg-white/5 text-text-muted border border-white/10 hover:text-text-primary transition-colors"
-                  >
-                    取消
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSaveEdit(category)}
+                  disabled={busy}
+                  className="p-1 text-accent hover:text-accent/80 transition-colors disabled:opacity-50"
+                  aria-label="保存"
+                >
+                  <Plus size={13} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingId(null)}
+                  className="p-1 text-text-muted hover:text-text-primary transition-colors"
+                  aria-label="取消"
+                >
+                  <X size={13} />
+                </button>
               </div>
             ) : (
-              <>
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium text-text-primary">{category.name}</span>
-                  <span className="text-xs text-text-muted ml-2 truncate">
-                    {category.display_name !== category.name ? category.display_name : ''}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(category)}
-                    className="p-1.5 text-text-muted hover:text-text-primary transition-colors"
-                    aria-label={`编辑分类 ${category.name}`}
-                  >
-                    <Plus size={14} className="rotate-45" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(category)}
-                    disabled={busy}
-                    className="p-1.5 text-text-muted hover:text-red-400 transition-colors disabled:opacity-40"
-                    aria-label={`删除分类 ${category.name}`}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
+              <SortableChip
+                key={category.id}
+                category={category}
+                index={index}
+                total={categories.length}
+                busy={busy}
+                onStartEdit={startEdit}
+                onRemove={handleRemove}
+              />
+            )
+          )}
+        </SortableContext>
+        <DragOverlay>
+          {activeCategory ? (
+            <SortableChip
+              category={activeCategory}
+              index={0}
+              total={1}
+              busy={false}
+              onStartEdit={startEdit}
+              onRemove={handleRemove}
+              dragOverlay
+            />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
-        {categories.length === 0 && !loading && (
-          <div className="text-center text-sm text-text-muted py-4">暂无分类，先添加一个</div>
-        )}
+      {categories.length === 0 && !loading && (
+        <span className="text-xs text-text-muted">暂无分类</span>
+      )}
 
-        <div className="flex flex-col sm:flex-row gap-2 pt-1">
+      {adding ? (
+        <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2 py-1">
           <input
-            className="input-primary px-3 py-1.5 text-sm flex-1"
+            className="input-primary px-2 py-0.5 text-xs w-24"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="新分类短名称"
+            placeholder="短名称"
             maxLength={32}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void handleAdd();
+            }}
           />
           <input
-            className="input-primary px-3 py-1.5 text-sm flex-1"
+            className="input-primary px-2 py-0.5 text-xs w-32"
             value={newDisplayName}
             onChange={(e) => setNewDisplayName(e.target.value)}
-            placeholder="长名称（展示用，可留空）"
+            placeholder="长名称（可选）"
             maxLength={80}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void handleAdd();
+            }}
           />
           <button
             type="button"
-            onClick={handleAdd}
-            disabled={busy || adding}
-            className="btn-secondary border border-white/10 shrink-0"
+            onClick={() => void handleAdd()}
+            disabled={busy}
+            className="p-1 text-accent hover:text-accent/80 transition-colors disabled:opacity-50"
+            aria-label="确认添加"
           >
-            <Plus size={14} className="mr-1" />
-            添加分类
+            <Plus size={13} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdding(false)}
+            className="p-1 text-text-muted hover:text-text-primary transition-colors"
+            aria-label="取消添加"
+          >
+            <X size={13} />
           </button>
         </div>
-      </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="flex items-center gap-1.5 rounded-full border border-dashed border-white/20 px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:border-white/40 transition-colors"
+        >
+          <Plus size={14} />
+          添加分类
+        </button>
+      )}
     </section>
   );
 };

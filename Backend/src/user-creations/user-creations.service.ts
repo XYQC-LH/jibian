@@ -15,7 +15,7 @@ export class UserCreationsService {
     }
 
     const creations = await this.prisma.userCreation.findMany({
-      where: { userId },
+      where: { userId, status: "active" },
       orderBy: { createdAt: "desc" },
       include: { coverAsset: true },
     });
@@ -29,7 +29,7 @@ export class UserCreationsService {
     }
 
     const creation = await this.prisma.userCreation.findFirst({
-      where: { id, userId },
+      where: { id, userId, status: "active" },
       include: { coverAsset: true },
     });
 
@@ -46,14 +46,17 @@ export class UserCreationsService {
     }
 
     const creation = await this.prisma.userCreation.findFirst({
-      where: { id, userId },
+      where: { id, userId, status: "active" },
     });
 
     if (!creation) {
       throw new NotFoundException("User creation not found");
     }
 
-    await this.prisma.userCreation.delete({ where: { id } });
+    await this.prisma.userCreation.update({
+      where: { id },
+      data: { status: "deleted", deletedAt: new Date() },
+    });
 
     return { ok: true };
   }
@@ -63,6 +66,7 @@ export class UserCreationsService {
     taskId: string;
     title: string | null;
     coverAssetId: string;
+    status: string;
     coverAsset: { storageKey: string };
     createdAt: Date;
   }) {
@@ -73,6 +77,7 @@ export class UserCreationsService {
       cover_asset_id: creation.coverAssetId,
       cover_storage_key: creation.coverAsset.storageKey,
       cover_url: this.assets.getPublicUrl(creation.coverAsset.storageKey),
+      status: creation.status,
       created_at: creation.createdAt,
     };
   }

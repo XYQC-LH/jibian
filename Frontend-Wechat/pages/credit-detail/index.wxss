@@ -89,6 +89,13 @@
   background: #FFFFFF;
 }
 
+.empty-row {
+  padding: 42rpx 24rpx;
+  color: var(--text-tertiary);
+  font-size: 24rpx;
+  text-align: center;
+}
+
 .record-row {
   display: flex;
   align-items: center;

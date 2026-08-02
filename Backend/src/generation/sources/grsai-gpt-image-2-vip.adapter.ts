@@ -28,7 +28,7 @@ export class GrsaiGptImage2VipAdapter implements SourceAdapter {
     const payload = {
       model: this.upstreamModelName,
       prompt: input.prompt,
-      aspectRatio: this.defaultAspectRatio,
+      aspectRatio: this.resolveAspectRatio(input.ratio),
       images: [input.imageUrl],
       replyType: "async",
       webHook: "-1",
@@ -41,8 +41,10 @@ export class GrsaiGptImage2VipAdapter implements SourceAdapter {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(payload),
+      signal: input.signal,
     });
     const submitBody = await this.readJson(submit);
+    this.throwIfAborted(input.signal);
     if (!submit.ok) {
       return { ok: false, errorMessage: this.errorMessage(submitBody, `GRSAI VIP request failed: ${submit.status}`) };
     }
@@ -58,25 +60,40 @@ export class GrsaiGptImage2VipAdapter implements SourceAdapter {
     }
 
     for (let index = 0; index < 120; index += 1) {
-      await this.sleep(Math.min(1000 * 2 ** Math.min(index, 3), 8000));
+      this.throwIfAborted(input.signal);
+      await this.sleep(Math.min(1000 * 2 ** Math.min(index, 3), 8000), input.signal);
       const poll = await fetch(`${baseUrl}/v1/api/result?id=${encodeURIComponent(upstreamJobId)}`, {
         headers: { Authorization: `Bearer ${apiKey}` },
+        signal: input.signal,
       });
       const pollBody = await this.readJson(poll);
+      this.throwIfAborted(input.signal);
       if (!poll.ok) {
         return { ok: false, errorMessage: this.errorMessage(pollBody, `GRSAI VIP poll failed: ${poll.status}`) };
       }
       const status = this.extractStatus(pollBody);
       if (status === "failed" || status === "violation") {
-        return { ok: false, errorMessage: this.errorMessage(pollBody, "GRSAI VIP generation failed") };
+        return { ok: false, errorMessage: this.errorMessage(pollBody, "GRSAI VIP generation failed"), upstreamJobId };
       }
       const imageUrl = this.extractResultUrl(pollBody);
       if (status === "succeeded" && imageUrl) {
-        return this.createAsset(imageUrl);
+        return this.createAsset(imageUrl, upstreamJobId);
       }
     }
 
-    return { ok: false, errorMessage: "GRSAI VIP polling timeout" };
+    return { ok: false, errorMessage: "GRSAI VIP polling timeout", upstreamJobId };
+  }
+
+  private resolveAspectRatio(ratio: StandardGenerateInput["ratio"]) {
+    const sizes: Record<StandardGenerateInput["ratio"], string> = {
+      auto: this.defaultAspectRatio,
+      "1:1": this.defaultAspectRatio,
+      "3:4": "768x1024",
+      "4:3": "1024x768",
+      "9:16": "576x1024",
+      "16:9": "1024x576",
+    };
+    return sizes[ratio] ?? this.defaultAspectRatio;
   }
 
   private normalizeBaseUrl(value: string) {
@@ -85,9 +102,9 @@ export class GrsaiGptImage2VipAdapter implements SourceAdapter {
     return trimmed.startsWith("http://") || trimmed.startsWith("https://") ? trimmed : `https://${trimmed}`;
   }
 
-  private async createAsset(storageKey: string): Promise<StandardGenerateOutput> {
+  private async createAsset(storageKey: string, upstreamJobId?: string): Promise<StandardGenerateOutput> {
     const asset = await this.prisma.asset.create({ data: { assetType: "generated_image", storageKey } });
-    return { ok: true, assetId: asset.id };
+    return { ok: true, assetId: asset.id, upstreamJobId };
   }
 
   private async readJson(response: Response): Promise<unknown> {
@@ -115,7 +132,30 @@ export class GrsaiGptImage2VipAdapter implements SourceAdapter {
     return String(record.error || record.message || fallback);
   }
 
-  private sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  private sleep(ms: number, signal?: AbortSignal) {
+    return new Promise<void>((resolve, reject) => {
+      if (signal?.aborted) {
+        reject(new Error("Generation request aborted"));
+        return;
+      }
+
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        resolve();
+      }, ms);
+      const onAbort = () => {
+        clearTimeout(timeoutId);
+        cleanup();
+        reject(new Error("Generation request aborted"));
+      };
+      const cleanup = () => signal?.removeEventListener("abort", onAbort);
+      signal?.addEventListener("abort", onAbort, { once: true });
+    });
+  }
+
+  private throwIfAborted(signal?: AbortSignal) {
+    if (signal?.aborted) {
+      throw new Error("Generation request aborted");
+    }
   }
 }

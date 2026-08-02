@@ -52,6 +52,18 @@ function normalizeUser(value) {
   return value && typeof value === "object" ? value : null;
 }
 
+function accountFromUser(user, fallback) {
+  const phone = typeof user?.phone === "string" ? user.phone : fallback.phone;
+  const status = String(user?.status || "");
+
+  return {
+    phone,
+    maskedPhone: maskPhone(phone),
+    phoneBound: Boolean(user?.phoneBound || user?.phone_bound) && Boolean(phone),
+    deleteRequested: status === "deleted" || Boolean(fallback.deleteRequested)
+  };
+}
+
 App({
   globalData: {
     draftImage: "",
@@ -82,7 +94,7 @@ App({
   },
 
   ensureLogin(force = false) {
-    if (!force && this.globalData.accessToken) {
+    if (!force && this.globalData.accessToken && !this.globalData.account.deleteRequested) {
       return Promise.resolve(this.globalData.accessToken);
     }
 
@@ -92,6 +104,7 @@ App({
       this.globalData.user = normalizeUser(res.user);
       wx.setStorageSync(ACCESS_TOKEN_KEY, this.globalData.accessToken);
       wx.setStorageSync(USER_KEY, this.globalData.user);
+      this.syncAccountFromUser(this.globalData.user);
       this.setCredits(res.credit_balance || 0);
       return res.access_token;
     }).catch((err) => {
@@ -125,19 +138,6 @@ App({
     this.globalData.credits = normalizeCredits(value);
     wx.setStorageSync(CREDIT_KEY, this.globalData.credits);
     return this.globalData.credits;
-  },
-
-  addCredits(amount) {
-    return this.setCredits(this.globalData.credits + amount);
-  },
-
-  spendCredits(amount) {
-    if (this.globalData.credits < amount) {
-      return false;
-    }
-
-    this.setCredits(this.globalData.credits - amount);
-    return true;
   },
 
   addGeneratedRecord(template, options = {}) {
@@ -226,20 +226,36 @@ App({
     return this.globalData.account;
   },
 
-  bindPhone(phone) {
-    const digits = String(phone || "").replace(/\D/g, "");
+  syncAccountFromUser(user) {
+    if (!user) {
+      return this.globalData.account;
+    }
 
-    return this.setAccount({
-      phone: digits,
-      maskedPhone: maskPhone(digits),
-      phoneBound: digits.length === 11,
-      deleteRequested: false
-    });
+    return this.setAccount(accountFromUser(user, this.globalData.account));
   },
 
   submitAccountDeletion() {
+    this.globalData.accessToken = "";
+    this.globalData.user = null;
+    this.globalData.credits = 0;
+    this.globalData.generatedRecords = [];
+    this.globalData.redeemRecords = [];
+    this.globalData.favoriteTemplateIds = [];
+    this.globalData.currentRecordId = "";
+    this.globalData.currentTaskId = "";
+    this.globalData.draftImage = "";
+
+    wx.removeStorageSync(ACCESS_TOKEN_KEY);
+    wx.removeStorageSync(USER_KEY);
+    wx.removeStorageSync(CREDIT_KEY);
+    wx.removeStorageSync(RECORDS_KEY);
+    wx.removeStorageSync(REDEEM_RECORDS_KEY);
+    wx.removeStorageSync(FAVORITES_KEY);
+
     return this.setAccount({
-      ...this.globalData.account,
+      phone: "",
+      maskedPhone: "",
+      phoneBound: false,
       deleteRequested: true
     });
   },

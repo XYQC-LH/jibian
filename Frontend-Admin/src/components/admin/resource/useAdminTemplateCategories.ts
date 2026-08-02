@@ -50,15 +50,13 @@ export function useAdminTemplateCategories() {
     toast.success('分类已删除');
   }, []);
 
-  const move = useCallback(async (index: number, direction: -1 | 1) => {
+  const reorder = useCallback(async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
     setCategories((prev) => {
-      const target = index + direction;
-      if (target < 0 || target >= prev.length) return prev;
       const next = [...prev];
-      const [item] = next.splice(index, 1);
-      next.splice(target, 0, item);
+      const [item] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, item);
       const reordered = next.map((item, idx) => ({ ...item, sort_order: idx }));
-      setCategories(reordered);
       void apiClient.template
         .reorderCategories(reordered.map((item, idx) => ({ id: item.id, order: idx })))
         .catch((error: unknown) => {
@@ -69,5 +67,5 @@ export function useAdminTemplateCategories() {
     });
   }, [refetch]);
 
-  return { categories, loading, refetch, create, update, remove, move };
+  return { categories, loading, refetch, create, update, remove, reorder };
 }

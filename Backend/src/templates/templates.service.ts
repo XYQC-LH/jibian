@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { AssetsService } from "../assets/assets.service";
+import { PricingService } from "../pricing/pricing.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateTemplateDto } from "./dto/create-template.dto";
 import { toPublicTemplateId } from "./local-template-ids";
@@ -10,6 +11,7 @@ export class TemplatesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly assets: AssetsService,
+    private readonly pricing: PricingService,
   ) {}
 
   async listPublished() {
@@ -28,6 +30,7 @@ export class TemplatesService {
         status: true,
       },
     });
+    const multiplier = await this.pricing.getGlobalPricingMultiplier();
 
     return templates.map((template) => ({
       id: toPublicTemplateId(template.id),
@@ -35,7 +38,8 @@ export class TemplatesService {
       category: template.category,
       cover_asset_id: template.coverAssetId,
       cover_url: template.coverAsset ? this.assets.getPublicUrl(template.coverAsset.storageKey) : null,
-      price_credits: template.priceCredits,
+      price_credits: this.pricing.applyMultiplier(template.priceCredits, multiplier),
+      base_price_credits: template.priceCredits,
       result_count: template.resultCount,
       sort_order: template.sortOrder,
       status: template.status,

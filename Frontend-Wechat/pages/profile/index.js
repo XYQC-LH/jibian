@@ -65,6 +65,7 @@ Page({
 
       app.globalData.user = me;
       wx.setStorageSync("jibian_user", me);
+      app.syncAccountFromUser(me);
       this.setData(normalizeUser(me, app));
     } catch (err) {
       console.warn("[me failed]", err);
@@ -117,9 +118,8 @@ Page({
     const { id } = event.currentTarget.dataset;
 
     if (this.data.hasGeneratedRecords) {
-      getApp().globalData.selectedTemplateId = id;
       wx.navigateTo({
-        url: `/pages/result/index?recordId=${id}`
+        url: `/pages/preview/index?creationId=${id}`
       });
       return;
     }

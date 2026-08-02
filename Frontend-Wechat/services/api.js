@@ -94,11 +94,23 @@ function deleteUserCreation(id) {
   });
 }
 
-function createUploadUrl(assetType) {
+function inferImageContentType(filePath) {
+  const cleanPath = String(filePath || "").split("?")[0].toLowerCase();
+  if (cleanPath.endsWith(".jpg") || cleanPath.endsWith(".jpeg")) return "image/jpeg";
+  if (cleanPath.endsWith(".png")) return "image/png";
+  if (cleanPath.endsWith(".webp")) return "image/webp";
+  if (cleanPath.endsWith(".gif")) return "image/gif";
+  return "image/jpeg";
+}
+
+function createUploadUrl(assetType, contentType) {
   return request({
     url: "/assets/upload-url",
     method: "POST",
-    data: { asset_type: assetType }
+    data: {
+      asset_type: assetType,
+      content_type: contentType
+    }
   });
 }
 
@@ -114,14 +126,14 @@ function readFileAsArrayBuffer(filePath) {
   });
 }
 
-function uploadToPresignedUrl(uploadUrl, filePath) {
+function uploadToPresignedUrl(uploadUrl, filePath, contentType) {
   return readFileAsArrayBuffer(filePath).then((buffer) => new Promise((resolve, reject) => {
     wx.request({
       url: uploadUrl,
       method: "PUT",
       data: buffer,
       header: {
-        "content-type": "application/octet-stream"
+        "content-type": contentType
       },
       success(res) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -137,7 +149,8 @@ function uploadToPresignedUrl(uploadUrl, filePath) {
 }
 
 function uploadInputImage(filePath) {
-  return createUploadUrl("input_image").then((upload) => {
+  const contentType = inferImageContentType(filePath);
+  return createUploadUrl("input_image", contentType).then((upload) => {
     if (!upload || !upload.asset_id) {
       throw new Error("上传凭证无效");
     }
@@ -150,7 +163,7 @@ function uploadInputImage(filePath) {
       };
     }
 
-    return uploadToPresignedUrl(upload.upload_url, filePath)
+    return uploadToPresignedUrl(upload.upload_url, filePath, contentType)
       .then(() => ({ ...upload, file_path: filePath, uploaded: true }));
   });
 }
@@ -175,11 +188,32 @@ function getCreditBalance() {
   return request({ url: "/credits/balance" }).then(normalizeBalance);
 }
 
-function bindPhone(phone) {
+function listPaymentPackages() {
+  return request({ url: "/payments/packages" }).then(unwrapList);
+}
+
+function getWechatPaymentStatus() {
+  return request({ url: "/payments/wechat/status" }).then(unwrapData);
+}
+
+function createWechatPaymentOrder(packageId) {
+  return request({
+    url: "/payments/wechat/orders",
+    method: "POST",
+    data: { package_id: packageId }
+  }).then(unwrapData);
+}
+
+function getWechatPaymentOrder(outTradeNo) {
+  return request({ url: `/payments/wechat/orders/${outTradeNo}` }).then(unwrapData);
+}
+
+function bindPhone(payload) {
+  const data = typeof payload === "string" ? { phone: payload } : payload;
   return request({
     url: "/users/phone-bind",
     method: "POST",
-    data: { phone }
+    data
   });
 }
 
@@ -192,6 +226,10 @@ module.exports = {
   getTask,
   listUserCreations,
   getCreditBalance,
+  listPaymentPackages,
+  getWechatPaymentStatus,
+  createWechatPaymentOrder,
+  getWechatPaymentOrder,
   redeemCode,
   bindPhone,
   listFavorites,

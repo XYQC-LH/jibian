@@ -1,5 +1,7 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { Response } from "express";
+import { BadRequestException, Injectable, ServiceUnavailableException } from "@nestjs/common";
+import { Response as ExpressResponse } from "express";
+import { existsSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { PrismaService } from "../prisma/prisma.service";
 import { AssetUrlService } from "./asset-url.service";
@@ -67,28 +69,86 @@ export class AssetsService {
     return this.assetUrls.getPublicUrl(storageKey);
   }
 
-  serveMockAsset(path: string, res: Response) {
+  async assertUploaded(storageKey: string) {
+    const publicUrl = this.getPublicUrl(storageKey);
+    if (!/^https?:\/\//i.test(publicUrl)) {
+      return;
+    }
+    if (publicUrl.includes("/api/assets/mock/")) {
+      return;
+    }
+
+    let response: globalThis.Response;
+    try {
+      response = await fetch(publicUrl, { headers: { Range: "bytes=0-0" } });
+    } catch {
+      throw new BadRequestException("Input asset is not uploaded or reachable");
+    }
+
+    response.body?.cancel().catch(() => undefined);
+    if (!response.ok) {
+      throw new BadRequestException("Input asset is not uploaded or reachable");
+    }
+  }
+
+  async materializeRemoteAsset(assetId: string, ownerUserId: string, signal?: AbortSignal) {
+    const asset = await this.prisma.asset.findUnique({ where: { id: assetId } });
+    if (!asset || !/^https?:\/\//i.test(asset.storageKey)) {
+      return asset;
+    }
+
+    const response = await fetch(asset.storageKey, { signal });
+    if (!response.ok) {
+      throw new ServiceUnavailableException(`下载生成结果失败: HTTP ${response.status}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "image/png";
+    const storageKey = this.buildStorageKey(asset.assetType, ownerUserId, contentType);
+    const uploadUrl = this.assetUrls.createUploadUrl(storageKey);
+    const upload = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "content-type": contentType },
+      body: Buffer.from(await response.arrayBuffer()),
+      signal,
+    });
+    if (!upload.ok) {
+      throw new ServiceUnavailableException(`保存生成结果失败: HTTP ${upload.status}`);
+    }
+
+    return this.prisma.asset.update({
+      where: { id: asset.id },
+      data: { ownerUserId, storageKey },
+    });
+  }
+
+  serveMockAsset(path: string, res: ExpressResponse) {
     const storageKey = this.assetUrls.getMockAssetStorageKey(path);
     const assetPath = this.resolveMockAssetPath(storageKey);
 
-    return res.sendFile(join(process.cwd(), "..", "wechat", assetPath));
+    return res.sendFile(assetPath);
   }
 
   private resolveMockAssetPath(storageKey: string) {
+    let relativePath = "assets/design/close-up-face.webp";
     if (storageKey.startsWith("assets/design/")) {
-      return storageKey;
+      relativePath = storageKey;
+    } else {
+      const fallbackKey = Object.keys(mockAssetFallbacks).find((prefix) => storageKey.startsWith(prefix));
+      if (fallbackKey) {
+        relativePath = mockAssetFallbacks[fallbackKey];
+      }
     }
 
-    const fallbackKey = Object.keys(mockAssetFallbacks).find((prefix) => storageKey.startsWith(prefix));
-    if (fallbackKey) {
-      return mockAssetFallbacks[fallbackKey];
+    const bundledPath = join(process.cwd(), relativePath);
+    if (existsSync(bundledPath)) {
+      return bundledPath;
     }
 
-    return "assets/design/close-up-face.webp";
+    return join(process.cwd(), "..", "Frontend-Wechat", relativePath);
   }
 
   private buildStorageKey(assetType: string, ownerSegment: string, contentType?: string) {
-    return `${assetType}/${ownerSegment}/${Date.now()}${this.resolveExtension(contentType)}`;
+    return `${assetType}/${ownerSegment}/${Date.now()}-${randomUUID()}${this.resolveExtension(contentType)}`;
   }
 
   private resolveExtension(contentType?: string) {

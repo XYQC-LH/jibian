@@ -19,6 +19,9 @@ const asRecord = (value: unknown): Record<string, unknown> | null => {
 
 const normalizeAdminTaskStatus = (value: unknown): BackendTaskStatus => {
   const raw = String(value ?? '').trim().toLowerCase()
+  if (raw === 'running') {
+    return 'running'
+  }
   if (raw === 'generating' || raw === 'succeeded' || raw === 'failed') {
     return raw
   }
@@ -137,6 +140,12 @@ export class TaskAdminClient extends BaseAdminClient {
     if (!response.data?.success) {
       throw new ApiError(response.data?.error || response.data?.message || 'Failed to delete task', { details: response.data });
     }
+  }
+
+  async rerunAdminTask(taskId: string): Promise<Task> {
+    const response = await this.client.post<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/tasks/${encodeURIComponent(taskId)}/rerun`);
+    const task = ensureData(response.data, 'Failed to rerun admin task');
+    return mapAdminTaskRecord(task);
   }
 
 }

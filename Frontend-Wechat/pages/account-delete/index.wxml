@@ -11,8 +11,8 @@
       <view class="warning-list">
         <text>账号资料将无法继续使用</text>
         <text>积分与会员权益将停止展示</text>
-        <text>本地作品记录需要自行备份</text>
-        <text>注销申请提交后不可撤销</text>
+        <text>本地作品记录会从本机清除</text>
+        <text>确认后将立即注销且不可撤销</text>
       </view>
     </view>
 
@@ -22,32 +22,29 @@
 
   <block wx:elif="{{step === 'verify'}}">
     <view class="verify-panel">
-      <text class="verify-title">验证手机号</text>
-      <text class="verify-copy">为了确认是你本人操作，请输入短信验证码。</text>
+      <text class="verify-title">确认绑定手机号</text>
+      <text class="verify-copy">当前账号已绑定手机号。确认后后端会立即注销账号并停止该账号继续使用。</text>
       <view class="phone-display">{{maskedPhone}}</view>
-      <view class="code-row">
-        <input class="code-input" value="{{code}}" type="number" maxlength="6" placeholder="请输入验证码" bindinput="inputCode" />
-        <view class="code-button" bindtap="sendCode" hover-class="button-pressed">发送验证码</view>
-      </view>
     </view>
-    <view class="danger-button" bindtap="confirmDelete" hover-class="button-pressed">确认注销</view>
+    <view class="danger-button" bindtap="confirmDelete" hover-class="button-pressed">立即注销账号</view>
+    <view class="cancel-button" bindtap="cancelDelete" hover-class="button-pressed">我再想想</view>
   </block>
 
   <block wx:elif="{{step === 'unbound'}}">
     <view class="verify-panel">
       <text class="verify-title">无需验证手机号</text>
-      <text class="verify-copy">当前账号未绑定手机号，不需要短信验证码。确认后将直接提交注销申请。</text>
+      <text class="verify-copy">当前账号未绑定手机号，不需要短信验证码。确认后将直接注销账号。</text>
       <view class="phone-display">未绑定手机号</view>
     </view>
-    <view class="danger-button" bindtap="confirmDelete" hover-class="button-pressed">提交注销申请</view>
+    <view class="danger-button" bindtap="confirmDelete" hover-class="button-pressed">立即注销账号</view>
     <view class="cancel-button" bindtap="cancelDelete" hover-class="button-pressed">我再想想</view>
   </block>
 
   <block wx:else>
     <view class="success-panel">
       <view class="success-icon">✓</view>
-      <text class="success-title">注销申请已提交</text>
-      <text class="success-copy">申请已记录在本地前端状态中，真实账号清除会在后端接口接入后完成。</text>
+      <text class="success-title">账号已注销</text>
+      <text class="success-copy">后端已清理账号资料，该账号已停止继续使用。</text>
       <view class="finish-button" bindtap="finish" hover-class="button-pressed">完成</view>
     </view>
   </block>

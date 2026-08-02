@@ -1,5 +1,6 @@
 const { findTemplate } = require("../../data/templates");
 const api = require("../../services/api");
+const { saveImageToAlbum } = require("../../utils/saveImage");
 
 const TASK_POLL_INTERVAL = 2000;
 const TASK_MAX_ATTEMPTS = 10;
@@ -95,9 +96,13 @@ Page({
   },
 
   downloadImage() {
-    wx.showToast({
-      title: "下载能力待接入",
-      icon: "none"
+    wx.showLoading({ title: "保存中" });
+    saveImageToAlbum(this.data.image).then(() => {
+      wx.hideLoading();
+      wx.showToast({ title: "已保存", icon: "success" });
+    }).catch((err) => {
+      wx.hideLoading();
+      wx.showToast({ title: (err && err.message) || "保存失败", icon: "none" });
     });
   },
 

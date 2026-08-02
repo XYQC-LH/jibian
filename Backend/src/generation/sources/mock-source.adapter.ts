@@ -17,6 +17,10 @@ export class MockSourceAdapter implements SourceAdapter {
   }
 
   async generate(input: StandardGenerateInput): Promise<StandardGenerateOutput> {
+    if (input.signal?.aborted) {
+      return { ok: false, errorMessage: "Generation task timed out" };
+    }
+
     const asset = await this.prisma.asset.create({
       data: {
         assetType: "generated_image",

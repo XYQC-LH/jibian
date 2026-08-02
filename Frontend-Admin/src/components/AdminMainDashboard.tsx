@@ -310,6 +310,8 @@ export default function AdminMainDashboard() {
 
           {activeModule === '模板与模型' && <AdminResourceCenter />}
 
+          {activeModule === '积分与兑换' && <AdminFinanceCenter />}
+
           {activeModule === '系统配置' && <SystemConfigPanel />}
 
           {activeModule === '资源监控' && <MonitorPanel />}
@@ -331,7 +333,7 @@ export default function AdminMainDashboard() {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-text-primary font-medium">模块未实现或不可用</div>
+                    <div className="text-text-primary font-medium">模块暂未接入当前控制台</div>
                     <div className="text-sm text-text-muted mt-1">
                       当前模块：{activeModule}
                     </div>

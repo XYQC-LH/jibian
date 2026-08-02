@@ -120,6 +120,16 @@
   font-weight: 900;
 }
 
+.bind-button {
+  padding: 0;
+  border: 0;
+  line-height: normal;
+}
+
+.bind-button::after {
+  border: 0;
+}
+
 .success-panel {
   display: flex;
   flex-direction: column;

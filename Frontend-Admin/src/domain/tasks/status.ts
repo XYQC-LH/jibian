@@ -3,6 +3,7 @@ import type { BackendTaskStatus, NormalizedTaskStatus, TaskStatusFilter } from '
 const normalizeRawStatus = (value: BackendTaskStatus): BackendTaskStatus => value
 
 export const normalizeTaskStatus = (value: BackendTaskStatus): NormalizedTaskStatus => {
+  if (value === 'running') return 'generating'
   if (value === 'generating') return 'generating'
   if (value === 'succeeded') return 'succeeded'
   return 'failed'

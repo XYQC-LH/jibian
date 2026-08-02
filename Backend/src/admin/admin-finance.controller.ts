@@ -119,8 +119,4 @@ export class AdminFinanceController {
     return this.finance.getTransactionStatistics(Number(days));
   }
 
-  @Get("xianyu/issue-records/overview")
-  getXianyuIssueRecordsOverview() {
-    return this.finance.getXianyuIssueRecordsOverview();
-  }
 }

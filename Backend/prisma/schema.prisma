@@ -15,6 +15,7 @@ model User {
   avatarUrl  String?  @map("avatar_url") @db.Text
   phone      String?  @db.VarChar(32)
   phoneBound Boolean  @default(false) @map("phone_bound")
+  adminNote  String?  @map("admin_note") @db.Text
   status     String   @default("active") @db.VarChar(32)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
 
@@ -22,6 +23,7 @@ model User {
   tasks         Task[]
   creditAccount CreditAccount?
   creditLedger  CreditLedger[]
+  paymentOrders PaymentOrder[]
   userCreations UserCreation[]
   favorites     Favorite[]
 
@@ -43,11 +45,14 @@ model Task {
   templateId          String    @map("template_id") @db.Uuid
   inputAssetId        String    @map("input_asset_id") @db.Uuid
   resultAssetId       String?   @map("result_asset_id") @db.Uuid
+  idempotencyKey      String?   @map("idempotency_key") @db.VarChar(128)
+  ratio               String    @default("1:1") @db.VarChar(16)
   status              String    @default("running") @db.VarChar(32)
   expectedResultCount Int       @default(1) @map("expected_result_count")
   creditCost          Int       @default(0) @map("credit_cost")
   creditStatus        String    @default("charged") @map("credit_status") @db.VarChar(32)
   isVisible           Boolean   @default(false) @map("is_visible")
+  adminDeletedAt      DateTime? @map("admin_deleted_at") @db.Timestamptz
   errorMessage        String?   @map("error_message") @db.Text
   createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
   finishedAt          DateTime? @map("finished_at") @db.Timestamptz
@@ -60,6 +65,7 @@ model Task {
   sourceRuns  SourceRun[]
   creations   UserCreation[]
 
+  @@unique([userId, idempotencyKey])
   @@map("tasks")
 }
 
@@ -69,6 +75,7 @@ model SourceRun {
   sourceId           String   @map("source_id") @db.VarChar(128)
   upstreamJobId      String?  @map("upstream_job_id") @db.VarChar(128)
   status             String   @db.VarChar(32)
+  latencyMs          Int?     @map("latency_ms")
   costAmount         Decimal? @map("cost_amount") @db.Decimal(12, 4)
   sourceErrorMessage String?  @map("source_error_message") @db.Text
   createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -160,6 +167,49 @@ model CreditLedger {
   @@map("credit_ledger")
 }
 
+model PaymentOrder {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  provider        String    @default("wechat_pay") @db.VarChar(32)
+  packageId       String    @map("package_id") @db.VarChar(64)
+  outTradeNo      String    @unique @map("out_trade_no") @db.VarChar(64)
+  prepayId        String?   @map("prepay_id") @db.VarChar(128)
+  wxTransactionId String?   @map("wx_transaction_id") @db.VarChar(128)
+  status          String    @default("pending") @db.VarChar(32)
+  amountFen       Int       @map("amount_fen")
+  credits         Int
+  failureReason   String?   @map("failure_reason") @db.Text
+  paidAt          DateTime? @map("paid_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id])
+  refunds PaymentRefund[]
+
+  @@index([userId, createdAt])
+  @@map("payment_orders")
+}
+
+model PaymentRefund {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paymentOrderId String    @map("payment_order_id") @db.Uuid
+  outRefundNo   String    @unique @map("out_refund_no") @db.VarChar(64)
+  wxRefundId    String?   @map("wx_refund_id") @db.VarChar(128)
+  status         String    @default("processing") @db.VarChar(32)
+  amountFen      Int       @map("amount_fen")
+  credits        Int
+  reason         String?   @db.Text
+  failureReason  String?   @map("failure_reason") @db.Text
+  succeededAt    DateTime? @map("succeeded_at") @db.Timestamptz
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  paymentOrder PaymentOrder @relation(fields: [paymentOrderId], references: [id])
+
+  @@index([paymentOrderId, createdAt])
+  @@map("payment_refunds")
+}
+
 model RedeemCode {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code      String    @unique @db.VarChar(64)
@@ -187,6 +237,8 @@ model UserCreation {
   taskId       String   @map("task_id") @db.Uuid
   title        String?  @db.VarChar(120)
   coverAssetId String   @map("cover_asset_id") @db.Uuid
+  status       String   @default("active") @db.VarChar(32)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   user       User  @relation(fields: [userId], references: [id])

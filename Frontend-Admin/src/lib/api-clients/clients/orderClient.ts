@@ -3,6 +3,7 @@ import {
   ApiResponse,
   PaginatedResponse,
   OrderInfo,
+  OrderRefundResult,
   OrderStatistics,
   RedemptionCode,
   RedemptionCodeUsage,
@@ -51,8 +52,8 @@ export class OrderAdminClient extends BaseAdminClient {
     return ensureData(response.data, 'Failed to fetch order detail');
   }
 
-  async processOrderRefund(orderId: number | string, reason: string): Promise<Record<string, unknown>> {
-    const response = await this.client.post<ApiResponse<Record<string, unknown>>>(
+  async processOrderRefund(orderId: number | string, reason: string): Promise<OrderRefundResult> {
+    const response = await this.client.post<ApiResponse<OrderRefundResult>>(
       `/api/v1/admin/orders/${orderId}/refund`,
       { reason }
     );

@@ -455,21 +455,6 @@ export class AdminFinanceService {
     };
   }
 
-  async getXianyuIssueRecordsOverview() {
-    return {
-      success: true,
-      data: {
-        total: 0,
-        today_count: 0,
-        pending: 0,
-        succeeded: 0,
-        failed: 0,
-        total_issued: 0,
-        recent_records: [],
-      },
-    };
-  }
-
   // ── Helpers ──
 
   private resolvePagination(page: number, pageSize: number) {

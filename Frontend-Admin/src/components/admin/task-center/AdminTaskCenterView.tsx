@@ -35,10 +35,15 @@ export default function AdminTaskCenterView({
   detailTask,
   deleteDialogOpen,
   deleteTarget,
+  rerunDialogOpen,
+  rerunTarget,
   openTaskDetail,
   requestDeleteTask,
+  requestRerunTask,
   closeDeleteDialog,
   confirmDeleteTask,
+  closeRerunDialog,
+  confirmRerunTask,
   closeDetail,
   handleQueueRefresh,
   queueRefreshing,
@@ -144,7 +149,13 @@ export default function AdminTaskCenterView({
                 </div>
               ) : (
                 recentTasks.map((task) => (
-                  <TaskRow key={task.id} task={task} onView={openTaskDetail} onDelete={requestDeleteTask} />
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    onView={openTaskDetail}
+                    onDelete={requestDeleteTask}
+                    onRerun={requestRerunTask}
+                  />
                 ))
               )}
 
@@ -175,18 +186,33 @@ export default function AdminTaskCenterView({
         />
 
         <ConfirmDialog
+          isOpen={Boolean(rerunDialogOpen && rerunTarget)}
+          onClose={closeRerunDialog}
+          onConfirm={confirmRerunTask}
+          title="重跑失败任务"
+          message={
+            rerunTarget
+              ? `任务 ${rerunTarget.id} 将重新进入生成队列，并按原任务价格重新扣除 ${rerunTarget.cost} 积分；如果入队失败，后端会自动退回积分。确认重跑？`
+              : '确认重跑该失败任务？'
+          }
+          confirmText="确认重跑"
+          cancelText="取消"
+          type="warning"
+        />
+
+        <ConfirmDialog
           isOpen={Boolean(deleteDialogOpen && deleteTarget)}
           onClose={closeDeleteDialog}
           onConfirm={confirmDeleteTask}
-          title={deleteTarget?.purgeError ? '重试彻底删除任务' : '彻底删除任务'}
+          title={deleteTarget?.purgeError ? '重试移除任务' : '移除任务'}
           message={
             deleteTarget?.purgeError
-              ? `上次删除失败：${String(deleteTarget.purgeError)}。重试将再次尝试取消任务并彻底删除（含 OSS 产物）。确认继续？`
+              ? `上次移除失败：${String(deleteTarget.purgeError)}。重试将再次从任务中心隐藏该任务和用户作品。确认继续？`
               : deleteTarget && (deleteTarget.status === 'generating' || deleteTarget.status === 'pending')
-              ? '该任务仍在进行中：删除将先取消任务，再执行彻底删除（含 OSS 产物）。确认继续？'
-              : '该操作将彻底删除任务并清理 OSS 产物文件，且无法恢复。确认继续？'
+              ? '该任务仍在进行中：移除后将从任务中心隐藏，但不会物理删除 OSS 产物。确认继续？'
+              : '该操作将从任务中心隐藏任务，并同步隐藏用户作品；不会物理删除 OSS 产物。确认继续？'
           }
-          confirmText={deleteTarget?.purgeError ? '重试删除' : '确认删除'}
+          confirmText={deleteTarget?.purgeError ? '重试移除' : '确认移除'}
           cancelText="取消"
           type="danger"
         />

@@ -39,20 +39,34 @@ export class CreditsService {
     if (!userId) {
       throw new BadRequestException("Missing x-user-id header");
     }
-    if (!code) {
+    const normalizedCode = String(code ?? "").trim();
+    if (!normalizedCode) {
       throw new BadRequestException("Missing redeem code");
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const redeemCode = await tx.redeemCode.findUnique({ where: { code } });
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId}), hashtext(${normalizedCode}))`;
+
+      const redeemCode = await tx.redeemCode.findUnique({ where: { code: normalizedCode } });
       if (!redeemCode || redeemCode.status !== "active") {
         throw new NotFoundException("Redeem code not found");
       }
-      if (redeemCode.usedCount >= redeemCode.maxUses) {
-        throw new BadRequestException("Redeem code exhausted");
-      }
       if (redeemCode.expiresAt && redeemCode.expiresAt.getTime() <= Date.now()) {
         throw new BadRequestException("Redeem code expired");
+      }
+      const existingUsage = await tx.creditLedger.findFirst({
+        where: { userId, refType: "redeem_code", refId: redeemCode.id },
+      });
+      if (existingUsage) {
+        throw new BadRequestException("Redeem code already used by this user");
+      }
+
+      const consumed = await tx.redeemCode.updateMany({
+        where: { id: redeemCode.id, usedCount: { lt: redeemCode.maxUses } },
+        data: { usedCount: { increment: 1 } },
+      });
+      if (consumed.count !== 1) {
+        throw new BadRequestException("Redeem code exhausted");
       }
 
       const account = await tx.creditAccount.findUnique({ where: { userId } });
@@ -61,10 +75,6 @@ export class CreditsService {
         where: { userId },
         update: { balance: balanceAfter, updatedAt: new Date() },
         create: { userId, balance: balanceAfter, updatedAt: new Date() },
-      });
-      await tx.redeemCode.update({
-        where: { id: redeemCode.id },
-        data: { usedCount: redeemCode.usedCount + 1 },
       });
       await tx.creditLedger.create({
         data: {
