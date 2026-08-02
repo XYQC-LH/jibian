@@ -173,6 +173,8 @@ export const mapModelResponse = (model: unknown, defaultId?: string, defaultCred
     usage_count: usageCount,
     status,
     is_enabled: isEnabled,
+    cover_asset_id: (m?.cover_asset_id as string | null | undefined) ?? null,
+    cover_url: (m?.cover_url as string | null | undefined) ?? null,
     description: (m?.description as string) || '',
     prompt: (m?.prompt as string) || undefined,
     cost_credits: (m?.credits_cost as number) ?? defaultCredits ?? 1,

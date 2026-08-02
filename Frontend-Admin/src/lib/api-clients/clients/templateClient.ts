@@ -69,10 +69,10 @@ export class TemplateAdminClient extends BaseAdminClient {
     return ensureData(response.data, 'Failed to create template');
   }
 
-  async createCoverUploadUrl(): Promise<AdminCoverUploadUrl> {
+  async createCoverUploadUrl(contentType?: string): Promise<AdminCoverUploadUrl> {
     const response = await this.client.post<ApiResponse<AdminCoverUploadUrl>>(
       '/api/v1/admin/assets/upload-url',
-      { asset_type: 'template_cover' }
+      { asset_type: 'template_cover', content_type: contentType }
     );
     return ensureData(response.data, 'Failed to create upload URL');
   }

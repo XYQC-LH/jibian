@@ -48,6 +48,18 @@ export class AssetUrlService {
     }
 
     const storageConfig = this.getStorageConfig();
+
+    // Public-bucket assets (written via createPublicUploadUrl) resolve to the
+    // public bucket's static URL. Keeps read path symmetric with the upload path.
+    if (storageConfig?.publicBucket && this.isPublicAssetKey(storageKey)) {
+      const { baseUrl, objectPath } = this.resolveObjectAddress(
+        storageConfig,
+        storageKey,
+        storageConfig.publicBucket,
+      );
+      return `${baseUrl}${objectPath}`;
+    }
+
     const publicBaseUrl = storageConfig?.publicBaseUrl
       ?? this.readEnv("ASSET_PUBLIC_BASE_URL")
       ?? this.readEnv("COS_PUBLIC_BASE_URL");
@@ -65,6 +77,11 @@ export class AssetUrlService {
     }
 
     return `${publicBaseUrl.replace(/\/$/, "")}/${this.encodeStorageKey(storageKey)}`;
+  }
+
+  private isPublicAssetKey(storageKey: string) {
+    // Mirrors the asset types uploaded to the public bucket (admin template covers).
+    return storageKey.startsWith("template_cover/");
   }
 
   getMockAssetStorageKey(path: string) {

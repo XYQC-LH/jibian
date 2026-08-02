@@ -153,9 +153,6 @@ export class ModelManagementService {
     if (payload.credits_cost !== undefined) {
       updateDto.price_credits = payload.credits_cost;
     }
-    if (payload.prompt !== undefined) {
-      updateDto.prompt = payload.prompt;
-    }
     if (payload.order != null) {
       updateDto.sort_order = payload.order;
     }

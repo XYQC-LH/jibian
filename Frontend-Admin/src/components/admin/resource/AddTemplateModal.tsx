@@ -45,7 +45,7 @@ const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryOptions, on
 
     setUploadingCover(true);
     try {
-      const upload = await apiClient.template.createCoverUploadUrl();
+      const upload = await apiClient.template.createCoverUploadUrl(coverFile.type);
       const response = await fetch(upload.upload_url, {
         method: 'PUT',
         body: await coverFile.arrayBuffer(),

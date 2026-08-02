@@ -10,6 +10,14 @@ const mockAssetFallbacks: Record<string, string> = {
   "input_image": "assets/design/close-up-face.webp",
 };
 
+const contentTypeExtensions: Record<string, string> = {
+  "image/gif": ".gif",
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/svg+xml": ".svg",
+  "image/webp": ".webp",
+};
+
 @Injectable()
 export class AssetsService {
   constructor(
@@ -22,7 +30,7 @@ export class AssetsService {
       throw new BadRequestException("Missing x-user-id header");
     }
 
-    const storageKey = `${dto.asset_type}/${userId}/${Date.now()}.bin`;
+    const storageKey = this.buildStorageKey(dto.asset_type, userId, dto.content_type);
     const asset = await this.prisma.asset.create({
       data: {
         ownerUserId: userId,
@@ -39,7 +47,7 @@ export class AssetsService {
   }
 
   async createUploadUrlForAdmin(dto: CreateUploadUrlDto) {
-    const storageKey = `${dto.asset_type}/admin/${Date.now()}.bin`;
+    const storageKey = this.buildStorageKey(dto.asset_type, "admin", dto.content_type);
     const asset = await this.prisma.asset.create({
       data: {
         ownerUserId: null,
@@ -77,5 +85,14 @@ export class AssetsService {
     }
 
     return "assets/design/close-up-face.webp";
+  }
+
+  private buildStorageKey(assetType: string, ownerSegment: string, contentType?: string) {
+    return `${assetType}/${ownerSegment}/${Date.now()}${this.resolveExtension(contentType)}`;
+  }
+
+  private resolveExtension(contentType?: string) {
+    const normalized = String(contentType || "").split(";")[0].trim().toLowerCase();
+    return contentTypeExtensions[normalized] ?? ".bin";
   }
 }
