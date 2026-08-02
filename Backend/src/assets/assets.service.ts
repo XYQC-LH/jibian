@@ -51,7 +51,7 @@ export class AssetsService {
     return {
       asset_id: asset.id,
       storage_key: storageKey,
-      upload_url: this.assetUrls.createUploadUrl(storageKey),
+      upload_url: this.assetUrls.createPublicUploadUrl(storageKey),
     };
   }
 

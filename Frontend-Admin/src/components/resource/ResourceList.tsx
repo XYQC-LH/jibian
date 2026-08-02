@@ -83,64 +83,78 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
   };
 
   const logoUrl = getModelLogoUrl(model.id);
+  const coverUrl = model.cover_url || null;
   const isEnabled = model.is_enabled ?? model.is_active;
 
   return (
     <div
       ref={dragOverlay ? undefined : setNodeRef}
       style={style}
-      className={`card-primary p-5 transition-all duration-200 ${
+      className={`card-primary overflow-hidden transition-all duration-200 ${
         dragOverlay
           ? 'rotate-[0.6deg] scale-[1.02] border-white/20 shadow-[0_18px_45px_rgba(0,0,0,0.35)]'
           : 'hover:border-white/20'
       } ${isDragging ? 'shadow-[0_12px_30px_rgba(0,0,0,0.28)]' : ''}`}
     >
-      {/* header: drag + logo + id/name + toggle */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <button
-            type="button"
-            className={`flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-text-muted transition shrink-0 ${
-              dragOverlay
-                ? 'cursor-grabbing text-white/80'
-                : dragDisabled
-                  ? 'cursor-default opacity-50'
-                  : 'cursor-grab touch-none hover:border-white/20 hover:bg-white/[0.08] hover:text-white/80 active:cursor-grabbing'
-            }`}
-            onPointerDown={(event) => event.stopPropagation()}
-            {...(dragOverlay ? {} : attributes)}
-            {...(dragOverlay ? {} : listeners)}
-          >
-            <GripVertical size={16} />
-          </button>
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0">
+      {/* 封面大图 */}
+      <div className="relative h-20 bg-gradient-to-br from-blue-500 to-purple-500">
+        {coverUrl ? (
+          <img
+            src={coverUrl}
+            alt={`${model.name || model.id} 封面`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
             <img
               src={logoUrl}
               alt={`${model.name || model.id} logo`}
-              className="w-full h-full object-contain rounded-lg"
+              className="w-12 h-12 object-contain"
               loading="lazy"
             />
           </div>
+        )}
+        <button
+          type="button"
+          className={`absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black/30 text-white/80 backdrop-blur-sm transition ${
+            dragOverlay
+              ? 'cursor-grabbing'
+              : dragDisabled
+                ? 'cursor-default opacity-50'
+                : 'cursor-grab touch-none hover:bg-black/50 active:cursor-grabbing'
+          }`}
+          onPointerDown={(event) => event.stopPropagation()}
+          {...(dragOverlay ? {} : attributes)}
+          {...(dragOverlay ? {} : listeners)}
+        >
+          <GripVertical size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={onEditInfo}
+          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black/30 text-white/80 backdrop-blur-sm hover:bg-black/50 transition"
+          aria-label="编辑信息"
+        >
+          <Edit size={14} />
+        </button>
+      </div>
+
+      {/* 信息区 */}
+      <div className="p-4">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <div className="min-w-0">
-            <h4 className="font-semibold text-sm text-text-primary truncate">{model.id}</h4>
-            <p className="text-xs text-text-muted truncate">{model.name || '-'}</p>
+            <h4 className="font-semibold text-sm text-text-primary truncate">{model.name || model.id}</h4>
+            {model.category ? (
+              <p className="text-xs text-text-muted truncate">{model.category}</p>
+            ) : null}
           </div>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0 ml-2">
-          <button
-            type="button"
-            onClick={onEditInfo}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-text-muted hover:border-white/20 hover:text-text-primary transition"
-            aria-label="编辑信息"
-          >
-            <Edit size={12} />
-          </button>
           <button
             type="button"
             onClick={() => onToggleEnabled(!isEnabled)}
             disabled={toggleLoading}
             aria-label={isEnabled ? '停用模板' : '启用模板'}
-            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${
               isEnabled ? 'bg-green-500/80' : 'bg-gray-500/40'
             } ${toggleLoading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
           >
@@ -151,36 +165,19 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
             />
           </button>
         </div>
-      </div>
 
-      {/* metrics row: success rate */}
-      <div className="flex items-center justify-between mb-2 text-sm">
-        <div />
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-text-muted">{'成功率'}</span>
-          <span className="font-medium text-green-400">{model.performance.success_rate.toFixed(1)}%</span>
+        <div className="flex items-center justify-between text-xs text-text-muted">
+          <span>积分 <span className="font-medium text-text-primary">{formatCreditsCost(model.cost_credits)}</span></span>
+          <span>成功率 <span className="font-medium text-green-400">{model.performance.success_rate.toFixed(1)}%</span></span>
+          <span>总计 <span className="font-medium text-text-primary">{model.performance.total_usage.toLocaleString()}</span></span>
         </div>
-      </div>
 
-      {/* success rate bar */}
-      <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-3">
-        <div
-          className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-300"
-          style={{ width: `${model.performance.success_rate}%` }}
-        />
-      </div>
-
-      {/* bottom row: credits + usage */}
-      <div className="flex items-center justify-between text-xs mb-3">
-        <div className="flex items-center gap-1.5">
-          <span className="text-text-muted">积分</span>
-          <span className="font-medium text-text-primary">
-            {formatCreditsCost(model.cost_credits)}
-          </span>
-        </div>
-        <div className="flex items-center gap-3 text-text-muted">
-          <span>{'日均'} <span className="text-text-primary">{model.performance.daily_usage}</span></span>
-          <span>{'总计'} <span className="text-text-primary">{model.performance.total_usage.toLocaleString()}</span></span>
+        {/* 成功率进度条 */}
+        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-3">
+          <div
+            className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-300"
+            style={{ width: `${model.performance.success_rate}%` }}
+          />
         </div>
       </div>
     </div>

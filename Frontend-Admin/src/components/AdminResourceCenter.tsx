@@ -1,23 +1,23 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Plus, Settings, Tags } from 'lucide-react';
+import { Plus, Settings } from 'lucide-react';
 import ResourceActions from '@/components/resource/ResourceActions';
 import AdminResourceModelsSection from '@/components/admin/resource/AdminResourceModelsSection';
 import AddTemplateModal from '@/components/admin/resource/AddTemplateModal';
-import CategoryManageModal from '@/components/admin/resource/CategoryManageModal';
 import EditModelModal from '@/components/admin/resource/EditModelModal';
+import TemplateCategoryBar from '@/components/admin/resource/TemplateCategoryBar';
 import { useAdminModels } from '@/components/admin/resource/useAdminModels';
 import { useAdminTemplateStats } from '@/components/admin/resource/useAdminTemplateStats';
+import { useAdminTemplateCategories } from '@/components/admin/resource/useAdminTemplateCategories';
 
 const AdminResourceCenter: React.FC = () => {
   const [reloadKey, setReloadKey] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [categoryVersion, setCategoryVersion] = useState(0);
 
   const models = useAdminModels(reloadKey);
   const templateStats = useAdminTemplateStats(reloadKey);
+  const categories = useAdminTemplateCategories();
 
   const serviceStatus = useMemo(() => {
     if (models.baseStatus === 'unavailable') {
@@ -31,7 +31,13 @@ const AdminResourceCenter: React.FC = () => {
 
   const handleRefreshAll = () => {
     setReloadKey((prev) => prev + 1);
+    void categories.refetch();
   };
+
+  const categoryOptions = useMemo(
+    () => categories.categories.map((item) => item.name),
+    [categories.categories]
+  );
 
   return (
     <div className="min-h-screen bg-background text-text-primary p-6">
@@ -51,13 +57,18 @@ const AdminResourceCenter: React.FC = () => {
               <Plus size={16} className="mr-2" />
               添加模板
             </button>
-            <button className="btn-secondary border border-white/10" onClick={() => setShowCategoryModal(true)}>
-              <Tags size={16} className="mr-2" />
-              分类管理
-            </button>
             <ResourceActions serviceStatus={serviceStatus} onRefresh={handleRefreshAll} />
           </div>
         </div>
+
+        <TemplateCategoryBar
+          categories={categories.categories}
+          loading={categories.loading}
+          onCreate={categories.create}
+          onUpdate={categories.update}
+          onRemove={categories.remove}
+          onMove={categories.move}
+        />
 
         <AdminResourceModelsSection
           searchTerm={models.searchTerm}
@@ -84,6 +95,7 @@ const AdminResourceCenter: React.FC = () => {
         {models.showEditModal && models.editingModel && (
           <EditModelModal
             model={models.editingModel}
+            categoryOptions={categoryOptions}
             onClose={() => {
               models.setShowEditModal(false);
               models.setEditingModel(null);
@@ -94,16 +106,9 @@ const AdminResourceCenter: React.FC = () => {
 
         {showAddModal && (
           <AddTemplateModal
-            categoryVersion={categoryVersion}
+            categoryOptions={categoryOptions}
             onClose={() => setShowAddModal(false)}
             onCreated={handleRefreshAll}
-          />
-        )}
-
-        {showCategoryModal && (
-          <CategoryManageModal
-            onClose={() => setShowCategoryModal(false)}
-            onChanged={() => setCategoryVersion((prev) => prev + 1)}
           />
         )}
       </div>

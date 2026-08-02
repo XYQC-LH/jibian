@@ -197,7 +197,7 @@ model UserCreation {
 }
 
 model Favorite {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String   @id @default(uuid()) @db.Uuid
   userId     String   @map("user_id") @db.Uuid
   templateId String   @map("template_id") @db.Uuid
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -207,4 +207,14 @@ model Favorite {
 
   @@unique([userId, templateId])
   @@map("favorites")
+}
+
+model TemplateCategory {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(32)
+  displayName String   @map("display_name") @db.VarChar(80)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("template_categories")
 }

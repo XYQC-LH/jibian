@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import apiClient from '@/lib/api';
 import { getErrorMessage } from '@/lib/http/errors';
-import { getTemplateCategories } from '@/lib/templateCategories';
 import type { AIModel } from '@/components/resource/types';
 
 type EditModelModalProps = {
   model: AIModel;
+  categoryOptions: string[];
   onClose: () => void;
   onSave: (model: AIModel) => void;
 };
@@ -24,6 +24,7 @@ const normalizeCreditsCost = (value: unknown, defaultValue = 1): number => {
 
 const EditModelModal: React.FC<EditModelModalProps> = ({
   model,
+  categoryOptions,
   onClose,
   onSave,
 }) => {
@@ -38,15 +39,11 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
   const [uploadingCover, setUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const categoryOptions = useMemo(() => getTemplateCategories(), []);
-
   useEffect(() => {
     if (categoryOptions.length > 0 && !category) {
       setCategory(categoryOptions[0]);
     }
   }, [categoryOptions, category]);
-
-  const modelId = useMemo(() => String(model.id || '').trim(), [model.id]);
 
   const handleUploadCover = async (): Promise<string | null> => {
     if (!coverFile) return null;
@@ -98,7 +95,7 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
         }
       }
 
-      const updated = await apiClient.model.updateModelConfig(modelId, {
+      const updated = await apiClient.model.updateModelConfig(model.id, {
         display_name: name,
         ...(category.trim() ? { category: category.trim() } : {}),
         ...(resolvedCoverAssetId ? { cover_asset_id: resolvedCoverAssetId } : {}),
@@ -132,11 +129,6 @@ const EditModelModal: React.FC<EditModelModalProps> = ({
           <h3 className="text-xl font-bold text-text-primary mb-6">编辑模板</h3>
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-text-muted mb-2">模板 ID（只读）</label>
-              <input className="input-primary w-full opacity-70" value={modelId} disabled />
-            </div>
-
             <div>
               <label className="block text-sm text-text-muted mb-2">名称</label>
               <input

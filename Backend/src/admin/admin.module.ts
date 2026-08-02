@@ -5,6 +5,8 @@ import { GenerationModule } from "../generation/generation.module";
 import { TemplatesModule } from "../templates/templates.module";
 import { HealthController } from "../health.controller";
 import { AdminAssetsController } from "./admin-assets.controller";
+import { AdminTemplateCategoriesController } from "./admin-template-categories.controller";
+import { AdminTemplateCategoriesService } from "./admin-template-categories.service";
 import { AdminDispatchController } from "./admin-dispatch.controller";
 import { AdminDispatchService } from "./admin-dispatch.service";
 import { AdminFinanceController } from "./admin-finance.controller";
@@ -33,6 +35,7 @@ import { ModelManagementService } from "./model-management.service";
   controllers: [
     HealthController,
     AdminAssetsController,
+    AdminTemplateCategoriesController,
     AdminTasksController,
     AdminTemplatesController,
     AdminStatisticsController,
@@ -53,6 +56,7 @@ import { ModelManagementService } from "./model-management.service";
     AdminUsersService,
     AdminFinanceService,
     AdminTemplatesService,
+    AdminTemplateCategoriesService,
     AdminDispatchService,
     AdminSettingsService,
     AdminOrdersService,

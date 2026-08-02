@@ -1,20 +1,19 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import apiClient from '@/lib/api';
 import { getErrorMessage } from '@/lib/http/errors';
-import { getTemplateCategories } from '@/lib/templateCategories';
 
 type AddTemplateModalProps = {
-  categoryVersion?: number;
+  categoryOptions: string[];
   onClose: () => void;
   onCreated: () => void;
 };
 
-const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryVersion = 0, onClose, onCreated }) => {
+const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryOptions, onClose, onCreated }) => {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -23,12 +22,6 @@ const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryVersion = 0
   const [uploadingCover, setUploadingCover] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const categoryOptions = useMemo(
-    () => getTemplateCategories(),
-    // 分类管理保存后通过 categoryVersion 触发重新读取
-    [categoryVersion]
-  );
 
   useEffect(() => {
     if (categoryOptions.length > 0) {

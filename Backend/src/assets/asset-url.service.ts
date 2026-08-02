@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 
 type StorageConfig = {
   bucket: string;
+  publicBucket?: string;
   region: string;
   endpoint: string;
   accessKeyId: string;
@@ -26,6 +27,19 @@ export class AssetUrlService {
     }
 
     return this.createS3PresignedPutUrl(storageKey, storageConfig);
+  }
+
+  createPublicUploadUrl(storageKey: string) {
+    const storageConfig = this.getStorageConfig();
+    if (!storageConfig) {
+      if (this.readEnv("NODE_ENV") === "production") {
+        throw new ServiceUnavailableException("Storage is not configured");
+      }
+
+      return `mock://upload/${storageKey}`;
+    }
+
+    return this.createS3PresignedPutUrl(storageKey, storageConfig, storageConfig.publicBucket);
   }
 
   getPublicUrl(storageKey: string) {
@@ -62,6 +76,7 @@ export class AssetUrlService {
 
   private getStorageConfig(): StorageConfig | null {
     const bucket = this.readEnv("ASSET_STORAGE_BUCKET") ?? this.readEnv("COS_BUCKET_PRIVATE");
+    const publicBucket = this.readEnv("COS_BUCKET_PUBLIC");
     const region = this.readEnv("ASSET_STORAGE_REGION") ?? this.readEnv("COS_REGION");
     const endpoint = this.readEnv("ASSET_STORAGE_ENDPOINT") ?? this.readEnv("COS_ENDPOINT");
     const accessKeyId = this.readEnv("ASSET_STORAGE_ACCESS_KEY_ID") ?? this.readEnv("COS_SECRET_ID");
@@ -75,6 +90,7 @@ export class AssetUrlService {
 
     return {
       bucket,
+      ...(publicBucket ? { publicBucket } : {}),
       region,
       endpoint: endpoint.replace(/\/$/, ""),
       accessKeyId,
@@ -83,13 +99,21 @@ export class AssetUrlService {
     };
   }
 
-  private createS3PresignedPutUrl(storageKey: string, storageConfig: StorageConfig) {
+  private createS3PresignedPutUrl(
+    storageKey: string,
+    storageConfig: StorageConfig,
+    bucketOverride?: string,
+  ) {
     const now = new Date();
     const amzDate = this.formatAmzDate(now);
     const dateStamp = amzDate.slice(0, 8);
     const credentialScope = `${dateStamp}/${storageConfig.region}/s3/aws4_request`;
     const signedHeaders = "host";
-    const { baseUrl, host, objectPath } = this.resolveObjectAddress(storageConfig, storageKey);
+    const { baseUrl, host, objectPath } = this.resolveObjectAddress(
+      storageConfig,
+      storageKey,
+      bucketOverride,
+    );
     const query = new URLSearchParams({
       "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
       "X-Amz-Credential": `${storageConfig.accessKeyId}/${credentialScope}`,
@@ -153,14 +177,19 @@ export class AssetUrlService {
     return `${baseUrl}${objectPath}?${canonicalQueryString}&X-Amz-Signature=${signature}`;
   }
 
-  private resolveObjectAddress(storageConfig: StorageConfig, storageKey: string) {
+  private resolveObjectAddress(
+    storageConfig: StorageConfig,
+    storageKey: string,
+    bucketOverride?: string,
+  ) {
     const endpoint = new URL(storageConfig.endpoint);
+    const bucket = bucketOverride ?? storageConfig.bucket;
     const encodedKey = this.encodeStorageKey(storageKey);
     if (
       endpoint.hostname === `cos.${storageConfig.region}.myqcloud.com` &&
       (endpoint.pathname === "/" || endpoint.pathname === "")
     ) {
-      const host = `${storageConfig.bucket}.cos.${storageConfig.region}.myqcloud.com`;
+      const host = `${bucket}.cos.${storageConfig.region}.myqcloud.com`;
       return {
         baseUrl: `${endpoint.protocol}//${host}`,
         host,
@@ -171,7 +200,7 @@ export class AssetUrlService {
     return {
       baseUrl: storageConfig.endpoint,
       host: endpoint.host,
-      objectPath: `/${storageConfig.bucket}/${encodedKey}`,
+      objectPath: `/${bucket}/${encodedKey}`,
     };
   }
 
