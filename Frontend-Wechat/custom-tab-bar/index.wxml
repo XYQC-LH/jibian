@@ -1,17 +1,17 @@
-<view class="tab-bar-shell">
-  <view class="tab-bar-glow"></view>
-  <view class="tab-bar-card">
+<view class="jibian-bottom-nav-shell">
+  <view class="jibian-bottom-nav-card">
     <block wx:for="{{tabs}}" wx:key="key">
       <view
-        class="tab-bar-item {{selected === index ? 'tab-bar-item-active' : ''}}"
+        class="jibian-bottom-nav-item {{selected === index ? 'jibian-bottom-nav-item-active' : ''}}"
+        style="left: {{item.leftRpx}}rpx;"
         data-index="{{index}}"
         bindtap="handleTap"
-        hover-class="tab-bar-pressed"
+        hover-class="jibian-bottom-nav-pressed"
       >
-        <view class="tab-bar-active-bg" wx:if="{{selected === index}}">
-          <view class="tab-bar-active-shine"></view>
+        <view class="jibian-bottom-nav-active-bg" wx:if="{{selected === index}}">
+          <view class="jibian-bottom-nav-active-shine"></view>
         </view>
-        <text class="tab-bar-label">{{item.label}}</text>
+        <text class="jibian-bottom-nav-label">{{item.label}}</text>
       </view>
     </block>
   </view>

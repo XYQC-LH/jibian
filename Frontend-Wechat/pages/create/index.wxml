@@ -21,7 +21,7 @@
   <view class="preview-card">
     <image class="preview-image" src="{{previewImage}}" mode="aspectFill" />
     <view class="preview-fade"></view>
-    <text class="preview-title">{{template.name}}</text>
+    <text class="preview-title">{{previewTitle}}</text>
     <button class="preview-share" open-type="share" hover-class="button-pressed">↗</button>
     <view class="preview-generating" wx:if="{{generating}}">
       <text class="generating-title">正在变化中...</text>
@@ -51,10 +51,10 @@
         <view wx:if="{{imagePath}}" class="remove-photo" catchtap="removeImage">×</view>
       </view>
 
-      <view class="template-mini" bindtap="openTemplatePicker" hover-class="button-pressed">
-        <image class="template-mini-image" src="{{template.cover}}" mode="aspectFill" />
+      <view class="template-mini" bindtap="selectMiniTemplate" hover-class="button-pressed">
+        <image class="template-mini-image" src="{{miniTemplate.cover}}" mode="aspectFill" />
         <view class="template-mini-fade"></view>
-        <text class="template-mini-name">{{template.name}}</text>
+        <text class="template-mini-name">{{miniTemplateName}}</text>
       </view>
     </view>
 

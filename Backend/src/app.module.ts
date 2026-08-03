@@ -12,6 +12,7 @@ import { FavoritesModule } from "./favorites/favorites.module";
 import { InvitesModule } from "./invites/invites.module";
 import { MembershipsModule } from "./memberships/memberships.module";
 import { ModerationModule } from "./moderation/content-moderation.module";
+import { OperationModule } from "./operation/operation.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { TemplateIngestModule } from "./template-ingest/template-ingest.module";
@@ -55,6 +56,7 @@ import { UsersModule } from "./users/users.module";
     FavoritesModule,
     InvitesModule,
     ModerationModule,
+    OperationModule,
   ],
 })
 export class AppModule {}

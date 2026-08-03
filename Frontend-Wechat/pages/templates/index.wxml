@@ -1,4 +1,4 @@
-<view class="templates-page safe-bottom">
+<view class="templates-page safe-bottom" style="padding-top: {{statusBarHeight}}px;">
   <view class="templates-hero">
     <view>
       <text class="templates-kicker">即变风格库</text>

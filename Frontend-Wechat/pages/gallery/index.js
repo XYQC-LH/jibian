@@ -1,4 +1,5 @@
-const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
+const { getStatusBarHeight } = require("../../utils/system");
+const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const api = require("../../services/api");
 
 function dayStart(time) {
@@ -48,7 +49,6 @@ function buildGroups(records) {
 Page({
   data: {
     statusBarHeight: 0,
-    menuButtonRightGap: 0,
     groups: [],
     hasRecords: false,
     previewUrls: []
@@ -56,12 +56,12 @@ Page({
 
   onLoad() {
     this.setData({
-      statusBarHeight: getStatusBarHeight(),
-      menuButtonRightGap: getMenuButtonRightGap()
+      statusBarHeight: getStatusBarHeight()
     });
   },
 
   async onShow() {
+    syncTabBar(this, "gallery");
     const app = getApp();
     await app.ensureLogin();
 
@@ -91,12 +91,6 @@ Page({
     wx.previewImage({
       current: url,
       urls: this.data.previewUrls
-    });
-  },
-
-  goCreate() {
-    wx.navigateTo({
-      url: "/pages/inspiration/index"
     });
   },
 

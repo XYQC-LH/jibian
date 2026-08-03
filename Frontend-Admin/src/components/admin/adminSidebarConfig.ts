@@ -4,6 +4,7 @@ import {
   Coins,
   ImagePlus,
   LayoutDashboard,
+  Megaphone,
   RefreshCcw,
   Settings,
   ShieldCheck,
@@ -68,6 +69,14 @@ export const adminSidebarModules: AdminSidebarModule[] = [
     href: '/system',
     description: '任务超时与运行参数',
     color: 'from-violet-500 to-purple-500',
+    requiredPermission: 'admin.system.read',
+  },
+  {
+    name: '设置运营',
+    icon: Megaphone,
+    href: '/operation',
+    description: '首页轮播与运营位',
+    color: 'from-rose-500 to-orange-500',
     requiredPermission: 'admin.system.read',
   },
   {

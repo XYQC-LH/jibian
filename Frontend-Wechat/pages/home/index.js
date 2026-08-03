@@ -1,4 +1,6 @@
+const api = require("../../services/api");
 const templateService = require("../../services/templateService");
+const { syncTabBar } = require("../../components/bottom-nav/tabs");
 
 const categories = templateService.getCategories();
 const categoryIcons = templateService.getCategoryIcons();
@@ -89,16 +91,19 @@ Page({
     creditBalance: 0,
     activeCategory: "热门",
     categories: toCategoryItems("热门"),
+    homeBanners: [],
     sections: templateService.getHomeSections("热门")
   },
 
   remoteItems: null,
 
   onShow() {
+    syncTabBar(this, "home");
     this.refreshSections();
     this.setData({
       creditBalance: getApp().globalData.credits
     });
+    this.loadHomeBanners();
     this.loadTemplates();
   },
 
@@ -121,6 +126,23 @@ Page({
     });
   },
 
+  loadHomeBanners() {
+    api.getHomeOperation().then((config) => {
+      const banners = Array.isArray(config && config.home_banners)
+        ? config.home_banners.filter((item) => item && item.image_url && item.template_id)
+        : [];
+
+      this.setData({
+        homeBanners: banners
+      });
+    }).catch((err) => {
+      console.warn("[operation fallback]", err);
+      this.setData({
+        homeBanners: []
+      });
+    });
+  },
+
   selectCategory(event) {
     const { category } = event.currentTarget.dataset;
 
@@ -138,6 +160,18 @@ Page({
 
     wx.navigateTo({
       url: `/pages/create/index?id=${id}`
+    });
+  },
+
+  goHeroBanner(event) {
+    const { templateId } = event.currentTarget.dataset;
+
+    if (!templateId) {
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/create/index?id=${encodeURIComponent(templateId)}`
     });
   },
 

@@ -1,4 +1,5 @@
 const api = require("../../services/api");
+const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const { templates } = require("../../data/templates");
 const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
 
@@ -39,6 +40,7 @@ Page({
   },
 
   async onShow() {
+    syncTabBar(this, "profile");
     const app = getApp();
     const records = app.globalData.generatedRecords;
 

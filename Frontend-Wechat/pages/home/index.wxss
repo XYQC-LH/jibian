@@ -7,6 +7,8 @@
 }
 
 .hero-fallback,
+.hero-swiper,
+.hero-slide,
 .hero-bg {
   position: absolute;
   top: 0;
@@ -21,6 +23,18 @@
 
 .hero-bg {
   opacity: 0.92;
+}
+
+.hero-swiper {
+  z-index: 1;
+}
+
+.hero-slide {
+  overflow: hidden;
+}
+
+.hero-slide-pressed {
+  opacity: 0.96;
 }
 
 .credit-pill {

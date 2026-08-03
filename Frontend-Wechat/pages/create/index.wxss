@@ -24,30 +24,30 @@
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  width: 732rpx;
-  height: 68rpx;
-  margin: 0 24rpx;
+  width: 504rpx;
+  height: 88rpx;
+  margin: 0;
   overflow: hidden;
-  border: 2rpx solid rgba(221, 235, 255, 0.9);
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 12rpx 28rpx rgba(165, 140, 255, 0.12);
+  border: 2rpx solid rgba(255, 255, 255, 0.7);
+  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8rpx 20rpx rgba(142, 163, 255, 0.07);
   backdrop-filter: blur(18rpx);
   -webkit-backdrop-filter: blur(18rpx);
 }
 
 .template-nav {
   width: 100%;
-  height: 72rpx;
+  height: 88rpx;
   white-space: nowrap;
 }
 
 .template-nav-track {
   display: inline-flex;
   align-items: center;
-  gap: 10rpx;
-  height: 72rpx;
-  padding: 0 170rpx 0 12rpx;
+  gap: 12rpx;
+  height: 88rpx;
+  padding: 6rpx 20rpx;
 }
 
 .template-nav-pill {
@@ -55,25 +55,25 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-width: 73rpx;
+  min-width: 98rpx;
   height: 56rpx;
-  padding: 0 21rpx;
-  border: 2rpx solid rgba(221, 235, 255, 0.86);
+  padding: 0 24rpx;
+  border: 2rpx solid #DDEBFF;
   border-radius: 999rpx;
   color: #8E7F8B;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.03);
-  font-size: 23rpx;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  font-size: 24rpx;
   font-weight: 700;
 }
 
 .template-nav-pill-active {
-  min-width: 144rpx;
-  border-color: rgba(255, 255, 255, 0.7);
+  min-width: 146rpx;
+  border-color: rgba(255, 255, 255, 0.65);
   color: #FFFFFF;
-  background: linear-gradient(90deg, #FF77B9 0%, #A58CFF 100%);
-  box-shadow: 0 10rpx 20rpx rgba(165, 140, 255, 0.22);
-  font-weight: 900;
+  background: linear-gradient(130deg, #A58CFF 0%, #C7A8FF 55%, #FF9AD5 100%);
+  box-shadow: 0 10rpx 24rpx rgba(165, 140, 255, 0.24);
+  font-weight: 800;
 }
 
 .preview-card {

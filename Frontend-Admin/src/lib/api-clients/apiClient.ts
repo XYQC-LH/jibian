@@ -7,6 +7,7 @@ import { SystemAdminClient } from './clients/systemClient';
 import { TaskAdminClient } from './clients/taskClient';
 import { ModerationAdminClient } from './clients/moderationClient';
 import { DispatchAdminClient } from './clients/dispatchClient';
+import { OperationAdminClient } from './clients/operationClient';
 import { TemplateAdminClient } from './clients/templateClient';
 
 export class ApiClient {
@@ -17,6 +18,7 @@ export class ApiClient {
   readonly task: TaskAdminClient;
   readonly moderation: ModerationAdminClient;
   readonly dispatch: DispatchAdminClient;
+  readonly operation: OperationAdminClient;
   readonly template: TemplateAdminClient;
 
   constructor() {
@@ -27,6 +29,7 @@ export class ApiClient {
     this.task = new TaskAdminClient(httpClient);
     this.moderation = new ModerationAdminClient(httpClient);
     this.dispatch = new DispatchAdminClient(httpClient);
+    this.operation = new OperationAdminClient(httpClient);
     this.template = new TemplateAdminClient(httpClient);
   }
 }

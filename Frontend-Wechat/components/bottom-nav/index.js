@@ -1,12 +1,4 @@
-const { templates } = require("../../data/templates");
-
-const tabs = [
-  { key: "home", label: "首页" },
-  { key: "inspiration", label: "灵感" },
-  { key: "create", label: "即变" },
-  { key: "gallery", label: "图库" },
-  { key: "profile", label: "我的" }
-];
+const { tabs } = require("./tabs");
 
 Component({
   properties: {
@@ -23,19 +15,13 @@ Component({
   methods: {
     handleTap(event) {
       const { key } = event.currentTarget.dataset;
-      const routeMap = {
-        home: "/pages/home/index",
-        inspiration: "/pages/inspiration/index",
-        create: "/pages/create/index",
-        gallery: "/pages/gallery/index",
-        profile: "/pages/profile/index"
-      };
+      const target = tabs.find((item) => item.key === key);
 
       if (key === this.properties.active) {
         return;
       }
 
-      wx.switchTab({ url: routeMap[key] || routeMap.gallery });
+      wx.switchTab({ url: target ? target.url : "/pages/gallery/index" });
     }
   }
 });

@@ -1,4 +1,5 @@
 const templateService = require("../../services/templateService");
+const { getStatusBarHeight } = require("../../utils/system");
 
 const categories = templateService.getCategories();
 
@@ -7,10 +8,15 @@ Page({
     activeCategory: "热门",
     categories,
     creditBalance: 0,
+    statusBarHeight: 0,
     templates: templateService.filterTemplates("热门")
   },
 
   remoteItems: null,
+
+  onLoad() {
+    this.setData({ statusBarHeight: getStatusBarHeight() });
+  },
 
   onShow() {
     this.refreshTemplates();

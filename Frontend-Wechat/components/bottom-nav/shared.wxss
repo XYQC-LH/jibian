@@ -1,0 +1,85 @@
+.jibian-bottom-nav-shell {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  height: calc(123rpx + env(safe-area-inset-bottom));
+  overflow: visible;
+}
+
+.jibian-bottom-nav-card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+  height: 123rpx;
+  border: 2rpx solid var(--card-stroke);
+  border-radius: 46rpx 46rpx 62rpx 62rpx;
+  background: rgba(255, 255, 255, 0.85);
+  overflow: visible;
+  box-shadow: 0 19rpx 54rpx #8EA3FF2E;
+  -webkit-backdrop-filter: blur(46rpx);
+  backdrop-filter: blur(46rpx);
+}
+
+.jibian-bottom-nav-item {
+  position: absolute;
+  top: 0;
+  width: 150rpx;
+  height: 123rpx;
+}
+
+.jibian-bottom-nav-active-bg {
+  position: absolute;
+  top: 12rpx;
+  left: 4rpx;
+  width: 146rpx;
+  height: 85rpx;
+  box-sizing: border-box;
+  border: 2rpx solid #FFFFFFC7;
+  border-radius: 43rpx;
+  background:
+    linear-gradient(0deg, #FFFFFF6B, #FFFFFF6B),
+    linear-gradient(112deg, #5FD3DC85 0%, #F6A6DD85 55%, #9E8CFF85 100%);
+  box-shadow:
+    0 2rpx 15rpx #FFFFFF66,
+    0 15rpx 35rpx #A58CFF2E;
+  -webkit-backdrop-filter: blur(38rpx);
+  backdrop-filter: blur(38rpx);
+}
+
+.jibian-bottom-nav-active-shine {
+  position: absolute;
+  top: 12rpx;
+  left: 17rpx;
+  width: 112rpx;
+  height: 23rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(90deg, #FFFFFFB8, #FFFFFF1A);
+}
+
+.jibian-bottom-nav-label {
+  position: absolute;
+  top: 27rpx;
+  left: 15rpx;
+  z-index: 1;
+  width: 123rpx;
+  height: 50rpx;
+  color: var(--text-tertiary);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+  font-size: 29rpx;
+  font-weight: 700;
+  line-height: 50rpx;
+  text-align: center;
+}
+
+.jibian-bottom-nav-item-active .jibian-bottom-nav-label {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.jibian-bottom-nav-pressed {
+  transform: scale(0.96);
+}

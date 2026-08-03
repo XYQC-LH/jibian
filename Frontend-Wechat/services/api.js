@@ -46,6 +46,10 @@ function listTemplates() {
   return request({ url: "/templates" }).then(unwrapList);
 }
 
+function getHomeOperation() {
+  return request({ url: "/operation/home" }).then(unwrapData);
+}
+
 function listFavorites() {
   return request({ url: "/favorites" }).then(unwrapList);
 }
@@ -259,6 +263,7 @@ function bindPhone(payload) {
 module.exports = {
   login,
   listTemplates,
+  getHomeOperation,
   createUploadUrl,
   uploadInputImage,
   createTask,

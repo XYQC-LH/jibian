@@ -1,4 +1,5 @@
 const templateService = require("../../services/templateService");
+const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
 
 const categories = ["热门", "职场", "头像", "写真", "角色"];
@@ -45,6 +46,7 @@ Page({
   },
 
   onShow() {
+    syncTabBar(this, "inspiration");
     this.refreshTemplates();
     templateService.refreshFavoriteTemplateIds().then(() => this.refreshTemplates());
     templateService.loadTemplates().then(() => this.refreshTemplates());

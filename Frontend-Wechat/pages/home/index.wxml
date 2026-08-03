@@ -1,6 +1,27 @@
 <view class="home-page">
   <view class="hero-fallback"></view>
-  <image class="hero-bg" src="/assets/design/hero-bg.webp" mode="aspectFill" />
+  <swiper
+    wx:if="{{homeBanners.length}}"
+    class="hero-swiper"
+    autoplay
+    circular
+    interval="3500"
+    duration="450"
+  >
+    <block wx:for="{{homeBanners}}" wx:key="id">
+      <swiper-item>
+        <view
+          class="hero-slide"
+          bindtap="goHeroBanner"
+          data-template-id="{{item.template_id}}"
+          hover-class="hero-slide-pressed"
+        >
+          <image class="hero-bg" src="{{item.image_url}}" mode="aspectFill" />
+        </view>
+      </swiper-item>
+    </block>
+  </swiper>
+  <image wx:else class="hero-bg" src="/assets/design/hero-bg.webp" mode="aspectFill" />
 
   <view class="content-sheet">
     <text class="home-title">今天想变成什么样?</text>
@@ -62,6 +83,4 @@
       </view>
     </scroll-view>
   </view>
-
-  <bottom-nav active="home"></bottom-nav>
 </view>

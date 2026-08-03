@@ -5,6 +5,7 @@ import { AssetsModule } from "../assets/assets.module";
 import { GenerationModule } from "../generation/generation.module";
 import { PaymentsModule } from "../payments/payments.module";
 import { PricingModule } from "../pricing/pricing.module";
+import { OperationModule } from "../operation/operation.module";
 import { TemplatesModule } from "../templates/templates.module";
 import { HealthController } from "../health.controller";
 import { AdminAssetsController } from "./admin-assets.controller";
@@ -34,7 +35,7 @@ import { ModelManagementController } from "./model-management.controller";
 import { ModelManagementService } from "./model-management.service";
 
 @Module({
-  imports: [AdminAuthModule, BullModule.registerQueue({ name: "generation" }), TemplatesModule, AssetsModule, GenerationModule, PaymentsModule, PricingModule],
+  imports: [AdminAuthModule, BullModule.registerQueue({ name: "generation" }), TemplatesModule, AssetsModule, GenerationModule, PaymentsModule, PricingModule, OperationModule],
   controllers: [
     HealthController,
     AdminAssetsController,

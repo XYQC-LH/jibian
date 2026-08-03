@@ -3,31 +3,133 @@ const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const { getStatusBarHeight } = require("../../utils/system");
 const api = require("../../services/api");
 
+const DEFAULT_TEMPLATE_ID = "vintage-film";
+
+const templateKeysByRemoteId = {
+  "00000000-0000-4000-8000-000000000001": "pearl-portrait",
+  "00000000-0000-4000-8000-000000000002": "street-boyfriend",
+  "00000000-0000-4000-8000-000000000003": "gufeng-mood",
+  "00000000-0000-4000-8000-000000000004": "private-photo",
+  "00000000-0000-4000-8000-000000000005": "japanese-clean",
+  "00000000-0000-4000-8000-000000000006": "vintage-film",
+  "00000000-0000-4000-8000-000000000007": "dream-glow",
+  "00000000-0000-4000-8000-000000000008": "cinematic-portrait",
+  "00000000-0000-4000-8000-000000000009": "forest-avatar",
+  "00000000-0000-4000-8000-000000000010": "city-night",
+  "00000000-0000-4000-8000-000000000011": "light-shadow",
+  "00000000-0000-4000-8000-000000000012": "dark-texture"
+};
+
 const templateLabels = {
-  "pearl-portrait": "珠光",
-  "street-boyfriend": "街拍",
+  "pearl-portrait": "漫画",
+  "street-boyfriend": "潮玩",
   "gufeng-mood": "古风",
   "private-photo": "写真",
   "japanese-clean": "日系",
   "vintage-film": "复古胶片",
-  "dream-glow": "梦幻",
+  "dream-glow": "COS",
   "cinematic-portrait": "电影",
-  "forest-avatar": "森系",
+  "forest-avatar": "角色",
   "city-night": "夜景",
   "light-shadow": "光影",
-  "dark-texture": "暗调"
+  "dark-texture": "趣味"
 };
 
-function toTemplateNavItems(activeId) {
+const templateNameKeys = [
+  { keyword: "珠光", key: "pearl-portrait" },
+  { keyword: "街拍", key: "street-boyfriend" },
+  { keyword: "古风", key: "gufeng-mood" },
+  { keyword: "私房", key: "private-photo" },
+  { keyword: "日系", key: "japanese-clean" },
+  { keyword: "复古胶片", key: "vintage-film" },
+  { keyword: "梦幻", key: "dream-glow" },
+  { keyword: "电影", key: "cinematic-portrait" },
+  { keyword: "森系", key: "forest-avatar" },
+  { keyword: "夜景", key: "city-night" },
+  { keyword: "光影", key: "light-shadow" },
+  { keyword: "暗调", key: "dark-texture" }
+];
+
+const templateNavOrder = [
+  "pearl-portrait",
+  "vintage-film",
+  "gufeng-mood",
+  "street-boyfriend",
+  "dream-glow",
+  "dark-texture",
+  "forest-avatar"
+];
+
+const displayNames = {
+  "vintage-film": "复古胶片写真",
+  "street-boyfriend": "街拍日常"
+};
+
+function getTemplateKey(templateOrId) {
+  const id = typeof templateOrId === "string" ? templateOrId : templateOrId?.id;
+  const name = typeof templateOrId === "object" ? String(templateOrId?.name || "") : "";
+  const nameKey = templateNameKeys.find((item) => name.includes(item.keyword));
+
+  if (nameKey) {
+    return nameKey.key;
+  }
+
+  return templateKeysByRemoteId[id] || id;
+}
+
+function findTemplateByKey(key) {
+  return templateService.getCurrentTemplates().find((template) => getTemplateKey(template) === key);
+}
+
+function resolveTemplate(id) {
+  return findTemplateByKey(getTemplateKey(id)) || templateService.findTemplate(id);
+}
+
+function getDefaultTemplate() {
+  return findTemplateByKey(DEFAULT_TEMPLATE_ID) || templateService.getCurrentTemplates()[0];
+}
+
+function getOrderedTemplates() {
   const allTemplates = templateService.getCurrentTemplates();
-  const activeIndex = Math.max(allTemplates.findIndex((template) => template.id === activeId), 0);
+  const byId = allTemplates.reduce((acc, template) => {
+    acc[getTemplateKey(template)] = template;
+    return acc;
+  }, {});
+  const ordered = templateNavOrder.map((id) => byId[id]).filter(Boolean);
+  const orderedIds = ordered.reduce((acc, template) => {
+    acc[template.id] = true;
+    return acc;
+  }, {});
+
+  return ordered.concat(allTemplates.filter((template) => !orderedIds[template.id]));
+}
+
+function toTemplateNavItems(activeId) {
+  const allTemplates = getOrderedTemplates();
+  const activeKey = getTemplateKey(activeId);
+  const activeIndex = Math.max(allTemplates.findIndex((template) => getTemplateKey(template) === activeKey), 0);
   const startIndex = activeIndex > 0 ? activeIndex - 1 : 0;
   const orderedTemplates = allTemplates.slice(startIndex).concat(allTemplates.slice(0, startIndex));
 
   return orderedTemplates.map((template) => ({
     id: template.id,
-    label: templateLabels[template.id] || template.name
+    label: templateLabels[getTemplateKey(template)] || template.name
   }));
+}
+
+function getDisplayName(template) {
+  return template ? (displayNames[getTemplateKey(template)] || template.name) : "";
+}
+
+function getMiniTemplate(activeId) {
+  const activeKey = getTemplateKey(activeId);
+  const preferredId = activeKey === "street-boyfriend" ? DEFAULT_TEMPLATE_ID : "street-boyfriend";
+  const preferred = findTemplateByKey(preferredId);
+  if (preferred && getTemplateKey(preferred) !== activeKey) {
+    return preferred;
+  }
+
+  return templateService.getCurrentTemplates().find((template) => getTemplateKey(template) !== activeKey) || getDefaultTemplate();
 }
 
 function toApiRatio(ratio) {
@@ -41,13 +143,16 @@ function createIdempotencyKey() {
 Page({
   data: {
     statusBarHeight: 0,
-    template: templateService.getCurrentTemplates()[0],
-    templateNavItems: toTemplateNavItems(templateService.getCurrentTemplates()[0].id),
+    template: getDefaultTemplate(),
+    templateNavItems: toTemplateNavItems(getDefaultTemplate().id),
     templates: templateService.getCurrentTemplates(),
     ratios: ["原图", "1:1", "3:4", "9:16", "4:3"],
     selectedRatio: "3:4",
     imagePath: "",
-    previewImage: templateService.getCurrentTemplates()[0].cover,
+    previewImage: getDefaultTemplate().cover,
+    previewTitle: getDisplayName(getDefaultTemplate()),
+    miniTemplate: getMiniTemplate(getDefaultTemplate().id),
+    miniTemplateName: getDisplayName(getMiniTemplate(getDefaultTemplate().id)),
     generating: false,
     progress: 0
   },
@@ -56,10 +161,11 @@ Page({
   pollTimer: null,
   pendingIdempotencyKey: "",
 
-  onLoad(query) {
-    const requestedId = query.id || getApp().globalData.selectedTemplateId;
-    const template = templateService.findTemplate(requestedId) || templateService.getCurrentTemplates()[0];
+  onLoad(query = {}) {
+    const requestedId = query.id || DEFAULT_TEMPLATE_ID;
+    const template = resolveTemplate(requestedId) || getDefaultTemplate();
     const imagePath = getApp().globalData.draftImage;
+    const miniTemplate = getMiniTemplate(template.id);
 
     getApp().globalData.selectedTemplateId = template.id;
     this.setData({
@@ -67,7 +173,10 @@ Page({
       template,
       templateNavItems: toTemplateNavItems(template.id),
       imagePath,
-      previewImage: template.cover
+      previewImage: template.cover,
+      previewTitle: getDisplayName(template),
+      miniTemplate,
+      miniTemplateName: getDisplayName(miniTemplate)
     });
     this.loadTemplates(template.id);
   },
@@ -78,17 +187,22 @@ Page({
 
   loadTemplates(activeId) {
     templateService.loadTemplates().then(() => {
-      this.applyTemplate(templateService.findTemplate(activeId));
+      this.applyTemplate(resolveTemplate(activeId));
     });
   },
 
   applyTemplate(template) {
-    getApp().globalData.selectedTemplateId = template.id;
+    const safeTemplate = template || getDefaultTemplate();
+    const miniTemplate = getMiniTemplate(safeTemplate.id);
+    getApp().globalData.selectedTemplateId = safeTemplate.id;
     this.setData({
-      template,
-      templateNavItems: toTemplateNavItems(template.id),
+      template: safeTemplate,
+      templateNavItems: toTemplateNavItems(safeTemplate.id),
       templates: templateService.getCurrentTemplates(),
-      previewImage: template.cover
+      previewImage: safeTemplate.cover,
+      previewTitle: getDisplayName(safeTemplate),
+      miniTemplate,
+      miniTemplateName: getDisplayName(miniTemplate)
     });
   },
 
@@ -137,7 +251,7 @@ Page({
 
     const { id } = event.currentTarget.dataset;
     this.pendingIdempotencyKey = "";
-    this.applyTemplate(templateService.findTemplate(id));
+    this.applyTemplate(resolveTemplate(id));
   },
 
   selectRatio(event) {
@@ -169,6 +283,15 @@ Page({
     wx.navigateTo({
       url: "/pages/templates/index"
     });
+  },
+
+  selectMiniTemplate() {
+    if (this.data.generating || !this.data.miniTemplate) {
+      return;
+    }
+
+    this.pendingIdempotencyKey = "";
+    this.applyTemplate(this.data.miniTemplate);
   },
 
   async startGenerate() {
