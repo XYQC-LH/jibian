@@ -7,7 +7,9 @@ import toast from 'react-hot-toast';
 import apiClient from '@/lib/api';
 import { getErrorMessage } from '@/lib/http/errors';
 import type { OperationHomeBanner } from '@/lib/api-clients/clients/operationClient';
+import type { AdminTemplate } from '@/lib/api-clients/clients/templateClient';
 import { Skeleton } from '@/components/ui/Skeleton';
+import TemplatePicker from './TemplatePicker';
 
 type EditableBanner = OperationHomeBanner & {
   local_preview_url?: string;
@@ -31,6 +33,8 @@ export default function OperationSettingsPanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<AdminTemplate[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
 
   const activeCount = useMemo(
     () => banners.filter((banner) => banner.status === 'active' && (banner.image_url || banner.local_preview_url)).length,
@@ -50,8 +54,21 @@ export default function OperationSettingsPanel() {
     }
   };
 
+  const loadTemplates = async () => {
+    setTemplatesLoading(true);
+    try {
+      setTemplates(await apiClient.template.listTemplates());
+    } catch (error: unknown) {
+      console.error('load templates error:', error);
+      toast.error(getErrorMessage(error, '模板列表加载失败'));
+    } finally {
+      setTemplatesLoading(false);
+    }
+  };
+
   useEffect(() => {
     void loadConfig();
+    void loadTemplates();
   }, []);
 
   const updateBanner = (id: string, patch: Partial<EditableBanner>) => {
@@ -324,15 +341,17 @@ export default function OperationSettingsPanel() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-text-primary">绑定模板 ID</label>
-                      <input
-                        className="input-primary w-full font-mono"
+                      <label className="mb-2 block text-sm font-medium text-text-primary">绑定模板</label>
+                      <TemplatePicker
                         value={banner.template_id}
-                        onChange={(event) => updateBanner(banner.id, { template_id: event.target.value })}
-                        placeholder="填写模板 ID，点击轮播图后跳转到即变页面"
+                        templates={templates}
+                        loading={templatesLoading}
+                        onChange={(id) => updateBanner(banner.id, { template_id: id })}
+                        placeholder="搜索并选择跳转目标模板"
+                        disabled={saving || Boolean(uploadingId)}
                       />
                       <p className="mt-2 text-xs text-text-muted">
-                        支持后台模板 UUID 或小程序公开模板 ID。保存后点击图片会进入 /pages/create/index?id=模板ID。
+                        从列表中选择模板，保存后点击轮播图进入 /pages/create/index?id=模板ID。支持按名称/分类搜索。
                       </p>
                     </div>
                   </div>

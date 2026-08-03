@@ -26,6 +26,7 @@ export interface AdminTemplate {
   name: string;
   category: string;
   cover_asset_id: string | null;
+  cover_url?: string | null;
   prompt: string;
   price_credits: number;
   result_count: number;
@@ -59,6 +60,11 @@ export class TemplateAdminClient extends BaseAdminClient {
       '/api/v1/admin/templates/statistics'
     );
     return ensureData(response.data, 'Failed to fetch template statistics');
+  }
+
+  async listTemplates(): Promise<AdminTemplate[]> {
+    const response = await this.client.get<ApiResponse<AdminTemplate[]>>('/api/v1/admin/templates');
+    return ensureData(response.data, 'Failed to fetch templates') ?? [];
   }
 
   async createTemplate(payload: CreateTemplatePayload): Promise<AdminTemplate> {

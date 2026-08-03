@@ -74,11 +74,26 @@ export class TemplatesService {
 
   async listAdmin() {
     const [templates, categoryOrderByName] = await Promise.all([
-      this.prisma.template.findMany(),
+      this.prisma.template.findMany({
+        include: { coverAsset: { select: { storageKey: true } } },
+      }),
       this.getCategoryOrderByName(),
     ]);
 
-    return { success: true, data: sortTemplatesByCategoryOrder(templates, categoryOrderByName) };
+    const data = sortTemplatesByCategoryOrder(templates, categoryOrderByName).map((template) => ({
+      id: template.id, // 保持原始 UUID,运营轮播绑定需要
+      name: template.name,
+      category: template.category,
+      cover_asset_id: template.coverAssetId,
+      cover_url: template.coverAsset ? this.assets.getPublicUrl(template.coverAsset.storageKey) : null,
+      prompt: template.prompt,
+      price_credits: template.priceCredits,
+      result_count: template.resultCount,
+      sort_order: template.sortOrder,
+      status: template.status,
+    }));
+
+    return { success: true, data };
   }
 
   async createAdmin(dto: CreateTemplateDto) {

@@ -85,8 +85,12 @@ export class AssetUrlService {
   }
 
   private isPublicAssetKey(storageKey: string) {
-    // Mirrors the asset types uploaded to the public bucket (admin template covers).
-    return storageKey.startsWith("template_cover/");
+    // Mirrors the asset types uploaded to the public bucket via createPublicUploadUrl
+    // (admin template covers, operation home banners). Keeps read path symmetric.
+    return (
+      storageKey.startsWith("template_cover/") ||
+      storageKey.startsWith("operation_banner/")
+    );
   }
 
   private isBundledSeedAssetKey(storageKey: string) {
