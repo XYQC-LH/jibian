@@ -50,11 +50,12 @@
 
 .template-nav {
   box-sizing: border-box;
-  width: 750rpx;
+  width: 500rpx;
   height: 85rpx;
   margin-top: 15rpx;
   line-height: 85rpx;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .template-nav-track {
