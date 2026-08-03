@@ -86,54 +86,9 @@
   line-height: 58rpx;
 }
 
-.category-scroll {
-  position: absolute;
-  top: 79rpx;
-  left: 31rpx;
-  width: 719rpx;
-  height: 65rpx;
-  white-space: nowrap;
-}
-
-.category-track {
-  display: flex;
-  align-items: center;
-  gap: 19rpx;
-  width: 1250rpx;
-  height: 65rpx;
-}
-
-.category-chip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 142rpx;
-  height: 65rpx;
-  gap: 8rpx;
-  padding: 0 19rpx;
-  border-radius: 999rpx;
-  color: var(--text-secondary);
-  background: #F4F4F5;
-  font-size: 25rpx;
-  font-weight: 700;
-  line-height: 37rpx;
-}
-
-.category-icon {
-  font-size: 24rpx;
-  line-height: 1;
-}
-
-.category-chip-active {
-  color: #FFFFFF;
-  background: var(--jibian-soft-violet);
-  font-weight: 800;
-}
-
 .home-scroll {
   position: absolute;
-  top: 150rpx;
+  top: 96rpx;
   left: 0;
   right: 0;
   bottom: 0;
