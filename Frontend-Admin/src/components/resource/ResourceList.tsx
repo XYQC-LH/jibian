@@ -97,16 +97,16 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
       } ${isDragging ? 'shadow-[0_12px_30px_rgba(0,0,0,0.28)]' : ''}`}
     >
       {/* 封面大图 */}
-      <div className="relative aspect-[4/3] w-full bg-gradient-to-br from-blue-500 to-purple-500">
+      <div className="relative w-full bg-gradient-to-br from-blue-500 to-purple-500">
         {coverUrl ? (
           <img
             src={coverUrl}
             alt={`${model.name || model.id} 封面`}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="block w-full h-auto max-h-64 object-contain bg-black/20"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full aspect-[4/3] flex items-center justify-center">
             <img
               src={logoUrl}
               alt={`${model.name || model.id} logo`}
