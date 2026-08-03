@@ -8,6 +8,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { DEFAULT_REGISTRATION_BONUS, REGISTRATION_BONUS_KEY } from "../common/settings.constants";
+import { InvitesService } from "../invites/invites.service";
 import { PrismaTransactionClient } from "../prisma/prisma-transaction-client";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -30,9 +31,10 @@ export class WechatAuthService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
+    private readonly invites: InvitesService,
   ) {}
 
-  async login(code: string | undefined) {
+  async login(code: string | undefined, inviteCode?: string) {
     const normalizedCode = String(code || "").trim();
     if (!normalizedCode) {
       throw new BadRequestException("Missing code");
@@ -78,6 +80,7 @@ export class WechatAuthService {
       return { user, account };
     });
 
+    const inviteBindResult = await this.bindInviteCode(result.user.id, inviteCode);
     const expiresIn = this.accessTokenExpiresInSeconds();
 
     return {
@@ -86,6 +89,7 @@ export class WechatAuthService {
       expires_in: expiresIn,
       user: result.user,
       credit_balance: result.account.balance,
+      invite_bind_status: inviteBindResult.status,
     };
   }
 
@@ -171,6 +175,14 @@ export class WechatAuthService {
     }
 
     return DEFAULT_REGISTRATION_BONUS;
+  }
+
+  private async bindInviteCode(userId: string, inviteCode: string | undefined) {
+    const normalizedInviteCode = String(inviteCode ?? "").trim();
+    if (!normalizedInviteCode) {
+      return { status: "ignored" as const };
+    }
+    return this.invites.tryBindByCode(userId, normalizedInviteCode);
   }
 
   private getMockInitialCredits() {

@@ -40,6 +40,18 @@ export interface CreditStatisticsData {
   period_days: number;
 }
 
+export interface InviteStatisticsData {
+  total_relations: number;
+  pending_relations: number;
+  rewarded_relations: number;
+  total_credits_issued: number;
+  period_relations: number;
+  period_rewards: number;
+  period_credits_issued: number;
+  reward_credits: number;
+  period_days: number;
+}
+
 export interface CreditLedgerItem {
   id: string;
   user_id: string;

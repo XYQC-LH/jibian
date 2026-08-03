@@ -4,6 +4,7 @@ import { Job } from "bullmq";
 import { AssetsService } from "../assets/assets.service";
 import { StandardGenerateInput } from "../generation/contracts/standard-generate.contract";
 import { SourceAdapterRegistry } from "../generation/sources/source-adapter.registry";
+import { InvitesService } from "../invites/invites.service";
 import { ContentModerationService } from "../moderation/content-moderation.service";
 import { PrismaTransactionClient } from "../prisma/prisma-transaction-client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -26,6 +27,7 @@ export class TasksProcessor extends WorkerHost {
     private readonly sources: SourceAdapterRegistry,
     private readonly assets: AssetsService,
     private readonly moderation: ContentModerationService,
+    private readonly invites: InvitesService,
   ) {
     super();
   }
@@ -84,7 +86,12 @@ export class TasksProcessor extends WorkerHost {
             continue;
           }
 
-          const asset = await this.assets.materializeRemoteAsset(output.assetId, task.userId, controller.signal);
+          const asset = await this.assets.materializeRemoteAsset(
+            output.assetId,
+            task.userId,
+            controller.signal,
+            { taskId: task.id, assetId: output.assetId },
+          );
           if (controller.signal.aborted) {
             lastError = TASK_TIMEOUT_ERROR;
             await this.markSourceRunFailed(sourceRun.id, lastError, Date.now() - startedAt, output.upstreamJobId, output.costAmount);
@@ -205,6 +212,7 @@ export class TasksProcessor extends WorkerHost {
           updatedAt: now,
         },
       });
+      await this.invites.rewardFirstSuccessfulTask(tx, userId, taskId);
     });
   }
 

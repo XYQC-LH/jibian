@@ -15,17 +15,22 @@ model User {
   avatarUrl  String?  @map("avatar_url") @db.Text
   phone      String?  @db.VarChar(32)
   phoneBound Boolean  @default(false) @map("phone_bound")
+  inviteCode String?  @unique @map("invite_code") @db.VarChar(16)
   adminNote  String?  @map("admin_note") @db.Text
   status     String   @default("active") @db.VarChar(32)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  assets        Asset[]
-  tasks         Task[]
-  creditAccount CreditAccount?
-  creditLedger  CreditLedger[]
-  paymentOrders PaymentOrder[]
-  userCreations UserCreation[]
-  favorites     Favorite[]
+  assets                  Asset[]
+  tasks                   Task[]
+  creditAccount           CreditAccount?
+  creditLedger            CreditLedger[]
+  paymentOrders           PaymentOrder[]
+  membershipSubscriptions MembershipSubscription[]
+  membershipOrders        MembershipOrder[]
+  userCreations           UserCreation[]
+  favorites               Favorite[]
+  inviteRelationsSent     InviteRelation[] @relation("InviteRelationInviter")
+  inviteRelationReceived  InviteRelation?  @relation("InviteRelationInvitee")
 
   @@map("users")
 }
@@ -210,6 +215,104 @@ model PaymentRefund {
   @@map("payment_refunds")
 }
 
+model MembershipPlan {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code       String   @unique @db.VarChar(32)
+  name       String   @db.VarChar(64)
+  amountFen  Int      @map("amount_fen")
+  periodDays Int      @map("period_days")
+  status     String   @default("active") @db.VarChar(32)
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  subscriptions MembershipSubscription[]
+  orders        MembershipOrder[]
+
+  @@map("membership_plans")
+}
+
+model MembershipSubscription {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String    @map("user_id") @db.Uuid
+  planId             String    @map("plan_id") @db.Uuid
+  outContractCode    String    @unique @map("out_contract_code") @db.VarChar(64)
+  contractId         String?   @unique @map("contract_id") @db.VarChar(128)
+  status             String    @default("pending") @db.VarChar(32)
+  currentPeriodStart DateTime? @map("current_period_start") @db.Timestamptz
+  currentPeriodEnd   DateTime? @map("current_period_end") @db.Timestamptz
+  nextRenewAt        DateTime? @map("next_renew_at") @db.Timestamptz
+  cancelAtPeriodEnd  Boolean   @default(false) @map("cancel_at_period_end")
+  canceledAt         DateTime? @map("canceled_at") @db.Timestamptz
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user   User              @relation(fields: [userId], references: [id])
+  plan   MembershipPlan    @relation(fields: [planId], references: [id])
+  orders MembershipOrder[]
+
+  @@index([userId, status])
+  @@index([currentPeriodEnd])
+  @@index([nextRenewAt])
+  @@map("membership_subscriptions")
+}
+
+model MembershipOrder {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subscriptionId  String    @map("subscription_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  planId          String    @map("plan_id") @db.Uuid
+  orderType       String    @map("order_type") @db.VarChar(32)
+  outTradeNo      String    @unique @map("out_trade_no") @db.VarChar(64)
+  wxTransactionId String?   @map("wx_transaction_id") @db.VarChar(128)
+  status          String    @default("pending") @db.VarChar(32)
+  amountFen       Int       @map("amount_fen")
+  periodStart     DateTime  @map("period_start") @db.Timestamptz
+  periodEnd       DateTime  @map("period_end") @db.Timestamptz
+  failureReason   String?   @map("failure_reason") @db.Text
+  paidAt          DateTime? @map("paid_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  subscription MembershipSubscription @relation(fields: [subscriptionId], references: [id])
+  user         User                   @relation(fields: [userId], references: [id])
+  plan         MembershipPlan         @relation(fields: [planId], references: [id])
+  refunds      MembershipRefund[]
+
+  @@index([userId, createdAt])
+  @@index([subscriptionId, createdAt])
+  @@map("membership_orders")
+}
+
+model MembershipRefund {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  membershipOrderId String    @map("membership_order_id") @db.Uuid
+  outRefundNo       String    @unique @map("out_refund_no") @db.VarChar(64)
+  wxRefundId        String?   @map("wx_refund_id") @db.VarChar(128)
+  status            String    @default("processing") @db.VarChar(32)
+  amountFen         Int       @map("amount_fen")
+  reason            String?   @db.Text
+  failureReason     String?   @map("failure_reason") @db.Text
+  succeededAt       DateTime? @map("succeeded_at") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  membershipOrder MembershipOrder @relation(fields: [membershipOrderId], references: [id])
+
+  @@index([membershipOrderId, createdAt])
+  @@map("membership_refunds")
+}
+
+model WechatMembershipEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId     String   @unique @map("event_id") @db.VarChar(128)
+  eventType   String   @map("event_type") @db.VarChar(64)
+  payload     Json
+  processedAt DateTime @default(now()) @map("processed_at") @db.Timestamptz
+
+  @@map("wechat_membership_events")
+}
+
 model RedeemCode {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code      String    @unique @db.VarChar(64)
@@ -221,6 +324,23 @@ model RedeemCode {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("redeem_codes")
+}
+
+model InviteRelation {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inviterId     String    @map("inviter_id") @db.Uuid
+  inviteeId     String    @unique @map("invitee_id") @db.Uuid
+  status        String    @default("bound") @db.VarChar(32)
+  rewardCredits Int       @default(30) @map("reward_credits")
+  rewardedAt    DateTime? @map("rewarded_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  inviter User @relation("InviteRelationInviter", fields: [inviterId], references: [id])
+  invitee User @relation("InviteRelationInvitee", fields: [inviteeId], references: [id])
+
+  @@index([inviterId, status])
+  @@map("invite_relations")
 }
 
 model Setting {

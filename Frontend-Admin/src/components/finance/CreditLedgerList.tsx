@@ -10,6 +10,7 @@ const TYPE_LABELS: Record<string, string> = {
   refund: '失败退款',
   recharge: '充值',
   redeem: '兑换码',
+  invite_reward: '邀请奖励',
   adjustment: '人工调整',
 };
 
@@ -19,6 +20,7 @@ const TYPE_OPTIONS = [
   { value: 'refund', label: '失败退款' },
   { value: 'recharge', label: '充值' },
   { value: 'redeem', label: '兑换码' },
+  { value: 'invite_reward', label: '邀请奖励' },
   { value: 'adjustment', label: '人工调整' },
 ];
 

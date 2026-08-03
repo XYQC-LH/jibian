@@ -78,6 +78,11 @@ export class AdminFinanceController {
     return this.finance.getCreditStatistics(Number(days));
   }
 
+  @Get("invites/statistics")
+  getInviteStatistics(@Query("days") days = "30") {
+    return this.finance.getInviteStatistics(Number(days));
+  }
+
   @Get("recharge-records")
   listRechargeRecords(
     @Query("page") page = "1",

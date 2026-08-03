@@ -3,16 +3,17 @@
 import React from 'react';
 import { Coins, Wallet, TrendingUp, TrendingDown, Gift, Users, FileText } from 'lucide-react';
 import StatCard from '@/components/admin/resource/StatCard';
-import type { CreditStatisticsData } from '../AdminFinanceCenterTypes';
+import type { CreditStatisticsData, InviteStatisticsData } from '../AdminFinanceCenterTypes';
 
 interface CreditStatsProps {
   stats: CreditStatisticsData | null;
+  inviteStats?: InviteStatisticsData | null;
 }
 
 const formatNumber = (value: number | undefined | null) =>
   (Number(value) || 0).toLocaleString();
 
-const CreditStats: React.FC<CreditStatsProps> = ({ stats }) => {
+const CreditStats: React.FC<CreditStatsProps> = ({ stats, inviteStats }) => {
   const summary = stats?.summary;
   const redemption = stats?.redemption;
 
@@ -37,7 +38,7 @@ const CreditStats: React.FC<CreditStatsProps> = ({ stats }) => {
         value={formatNumber(summary?.total_issued)}
         icon={Gift}
         color="green"
-        description="充值 + 兑换 + 调整发放"
+        description="充值 + 兑换 + 邀请 + 调整"
       />
       <StatCard
         title="累计消费"
@@ -59,6 +60,20 @@ const CreditStats: React.FC<CreditStatsProps> = ({ stats }) => {
         icon={Coins}
         color="yellow"
         description={`累计已用 ${formatNumber(redemption?.total_used)} 次`}
+      />
+      <StatCard
+        title="邀请绑定"
+        value={formatNumber(inviteStats?.total_relations)}
+        icon={Users}
+        color="purple"
+        description={`已奖励 ${formatNumber(inviteStats?.rewarded_relations)} 人，待奖励 ${formatNumber(inviteStats?.pending_relations)} 人`}
+      />
+      <StatCard
+        title="邀请奖励"
+        value={formatNumber(inviteStats?.total_credits_issued)}
+        icon={Gift}
+        color="green"
+        description={`近${inviteStats?.period_days ?? 30}天发放 ${formatNumber(inviteStats?.period_credits_issued)} 积分`}
       />
       <StatCard
         title="流水总笔数"

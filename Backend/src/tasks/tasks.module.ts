@@ -2,6 +2,7 @@ import { BullModule } from "@nestjs/bullmq";
 import { Module, Provider } from "@nestjs/common";
 import { AssetsModule } from "../assets/assets.module";
 import { GenerationModule } from "../generation/generation.module";
+import { InvitesModule } from "../invites/invites.module";
 import { ModerationModule } from "../moderation/content-moderation.module";
 import { PricingModule } from "../pricing/pricing.module";
 import { TasksController } from "./tasks.controller";
@@ -14,7 +15,7 @@ const providers: Provider[] = [
 ];
 
 @Module({
-  imports: [BullModule.registerQueue({ name: "generation" }), AssetsModule, GenerationModule, ModerationModule, PricingModule],
+  imports: [BullModule.registerQueue({ name: "generation" }), AssetsModule, GenerationModule, InvitesModule, ModerationModule, PricingModule],
   controllers: [TasksController],
   providers,
   exports: [TasksService],

@@ -126,6 +126,12 @@ const localTemplateIdsByUuid = new Map([
 
 const prisma = new PrismaClient();
 
+const membershipPlans = [
+  { code: "month", name: "连续包月", amountFen: 1500, periodDays: 30, sortOrder: 1 },
+  { code: "season", name: "连续包季", amountFen: 4000, periodDays: 90, sortOrder: 2 },
+  { code: "year", name: "连续包年", amountFen: 10800, periodDays: 365, sortOrder: 3 },
+];
+
 async function main() {
   const now = new Date();
   const adminUsername = process.env.ADMIN_USERNAME?.trim();
@@ -238,6 +244,23 @@ async function main() {
     update: { amount: 30, status: "active", maxUses: 100 },
     create: { code: "JIBIAN2026", amount: 30, status: "active", maxUses: 100 },
   });
+
+  for (const plan of membershipPlans) {
+    await prisma.membershipPlan.upsert({
+      where: { code: plan.code },
+      update: {
+        name: plan.name,
+        amountFen: plan.amountFen,
+        periodDays: plan.periodDays,
+        sortOrder: plan.sortOrder,
+        status: "active",
+      },
+      create: {
+        ...plan,
+        status: "active",
+      },
+    });
+  }
 }
 
 main()

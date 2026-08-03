@@ -520,11 +520,16 @@ async function main() {
   assert(queue.jobs.length === 1, "idempotency race should not enqueue a second job");
   assert(state.creditAccounts[0].balance === 7, "idempotency race should not charge credits again");
 
+  const invites = {
+    rewardFirstSuccessfulTask: async () => ({ rewarded: false }),
+  };
+
   const successProcessor = new TasksProcessor(
     prisma as unknown as PrismaService,
     createSourceRegistry(prisma, true) as unknown as SourceAdapterRegistry,
     assets as unknown as AssetsService,
     moderation as unknown as ContentModerationService,
+    invites as never,
   );
   await successProcessor.process({ data: { taskId: created.task_id } } as Job<{ taskId: string }>);
 
@@ -548,6 +553,7 @@ async function main() {
     createSourceRegistry(prisma, false) as unknown as SourceAdapterRegistry,
     assets as unknown as AssetsService,
     new FakeModeration() as unknown as ContentModerationService,
+    invites as never,
   );
   await failProcessor.process({ data: { taskId: failing.task_id } } as Job<{ taskId: string }>);
 
@@ -568,6 +574,7 @@ async function main() {
     createTimeoutSourceRegistry() as unknown as SourceAdapterRegistry,
     assets as unknown as AssetsService,
     new FakeModeration() as unknown as ContentModerationService,
+    invites as never,
   );
   await timeoutProcessor.process({ data: { taskId: timedOut.task_id } } as Job<{ taskId: string }>);
 

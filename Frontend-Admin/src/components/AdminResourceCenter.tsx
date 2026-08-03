@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Plus, Settings } from 'lucide-react';
 import ResourceActions from '@/components/resource/ResourceActions';
 import AdminResourceModelsSection from '@/components/admin/resource/AdminResourceModelsSection';
@@ -10,29 +10,47 @@ import TemplateCategoryBar from '@/components/admin/resource/TemplateCategoryBar
 import { useAdminModels } from '@/components/admin/resource/useAdminModels';
 import { useAdminTemplateStats } from '@/components/admin/resource/useAdminTemplateStats';
 import { useAdminTemplateCategories } from '@/components/admin/resource/useAdminTemplateCategories';
-import { useServiceHealth } from '@/components/admin/resource/useServiceHealth';
 
 const AdminResourceCenter: React.FC = () => {
   const [reloadKey, setReloadKey] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
   const models = useAdminModels(reloadKey);
   const templateStats = useAdminTemplateStats(reloadKey);
   const categories = useAdminTemplateCategories();
-  const health = useServiceHealth();
-
-  const serviceStatus = health.status;
 
   const handleRefreshAll = () => {
     setReloadKey((prev) => prev + 1);
     void categories.refetch();
-    void health.refresh();
   };
 
   const categoryOptions = useMemo(
     () => categories.categories.map((item) => item.name),
     [categories.categories]
   );
+
+  const categoryCounts = useMemo(() => {
+    return models.filteredModels.reduce<Record<string, number>>((counts, model) => {
+      const category = String(model.category || '').trim();
+      if (!category) return counts;
+      counts[category] = (counts[category] || 0) + 1;
+      return counts;
+    }, {});
+  }, [models.filteredModels]);
+
+  const visibleModels = useMemo(() => {
+    if (!selectedCategoryName) return models.filteredModels;
+    return models.filteredModels.filter((model) => model.category === selectedCategoryName);
+  }, [models.filteredModels, selectedCategoryName]);
+
+  useEffect(() => {
+    if (!selectedCategoryName) return;
+    const stillExists = categories.categories.some((category) => category.name === selectedCategoryName);
+    if (!stillExists) {
+      setSelectedCategoryName(null);
+    }
+  }, [categories.categories, selectedCategoryName]);
 
   return (
     <div className="min-h-screen bg-background text-text-primary p-6">
@@ -52,13 +70,17 @@ const AdminResourceCenter: React.FC = () => {
               <Plus size={16} className="mr-2" />
               添加模板
             </button>
-            <ResourceActions serviceStatus={serviceStatus} onRefresh={handleRefreshAll} />
+            <ResourceActions onRefresh={handleRefreshAll} />
           </div>
         </div>
 
         <TemplateCategoryBar
           categories={categories.categories}
           loading={categories.loading}
+          selectedCategoryName={selectedCategoryName}
+          categoryCounts={categoryCounts}
+          totalCount={models.filteredModels.length}
+          onSelectCategory={setSelectedCategoryName}
           onCreate={categories.create}
           onUpdate={categories.update}
           onRemove={categories.remove}
@@ -67,10 +89,11 @@ const AdminResourceCenter: React.FC = () => {
 
         <AdminResourceModelsSection
           searchTerm={models.searchTerm}
-          filteredModels={models.filteredModels}
+          filteredModels={visibleModels}
           allModels={models.models}
           modelsTotal={models.modelsTotal}
           hasActiveQuery={models.hasActiveQuery}
+          selectedCategoryName={selectedCategoryName}
           loading={models.loading}
           togglingModelId={models.togglingModelId}
           templateStats={templateStats.stats}

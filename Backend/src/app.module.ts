@@ -9,9 +9,12 @@ import { AssetsModule } from "./assets/assets.module";
 import { ClientConfigModule } from "./client-config/client-config.module";
 import { CreditsModule } from "./credits/credits.module";
 import { FavoritesModule } from "./favorites/favorites.module";
+import { InvitesModule } from "./invites/invites.module";
+import { MembershipsModule } from "./memberships/memberships.module";
 import { ModerationModule } from "./moderation/content-moderation.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { TemplateIngestModule } from "./template-ingest/template-ingest.module";
 import { TemplatesModule } from "./templates/templates.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { UserCreationsModule } from "./user-creations/user-creations.module";
@@ -42,12 +45,15 @@ import { UsersModule } from "./users/users.module";
     AdminModule,
     UsersModule,
     AssetsModule,
+    TemplateIngestModule,
     TemplatesModule,
     TasksModule,
     CreditsModule,
     PaymentsModule,
+    MembershipsModule,
     UserCreationsModule,
     FavoritesModule,
+    InvitesModule,
     ModerationModule,
   ],
 })

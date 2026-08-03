@@ -12,6 +12,7 @@ type AdminResourceModelsSectionProps = {
   allModels: AIModel[];
   modelsTotal: number;
   hasActiveQuery: boolean;
+  selectedCategoryName?: string | null;
   loading: boolean;
   togglingModelId: string | null;
   templateStats: TemplateStatistics | null;
@@ -23,24 +24,13 @@ type AdminResourceModelsSectionProps = {
   dragDisabled?: boolean;
 };
 
-type ModelGroupId = 'image' | 'video' | 'music';
-
-const MODEL_GROUP_IDS: ModelGroupId[] = ['image', 'video', 'music'];
-
-const resolveModelGroupId = (model: AIModel): ModelGroupId | null => {
-  const modelType = String((model.type || model.output_type || '')).trim().toLowerCase();
-  if (modelType === 'image') return 'image';
-  if (modelType === 'video') return 'video';
-  if (modelType === 'music' || modelType === 'audio') return 'music';
-  return null;
-};
-
 export default function AdminResourceModelsSection({
   searchTerm,
   filteredModels,
   allModels,
   modelsTotal,
   hasActiveQuery,
+  selectedCategoryName = null,
   loading,
   togglingModelId,
   templateStats,
@@ -52,13 +42,21 @@ export default function AdminResourceModelsSection({
   dragDisabled = false,
 }: AdminResourceModelsSectionProps) {
   const groupedModels = useMemo(
-    () =>
-      MODEL_GROUP_IDS.map((id) => ({
-        id,
-        models: filteredModels.filter((model) => resolveModelGroupId(model) === id),
-      })),
-    [filteredModels]
+    () => {
+      if (filteredModels.length > 0 || !loading) {
+        return [{
+          id: selectedCategoryName || 'all',
+          title: selectedCategoryName || '全部模板',
+          models: filteredModels,
+          showHeader: Boolean(selectedCategoryName),
+        }];
+      }
+
+      return [{ id: 'loading', title: '模板', models: [], showHeader: false }];
+    },
+    [filteredModels, loading, selectedCategoryName]
   );
+  const canReorderCurrentView = Boolean(selectedCategoryName) && !dragDisabled;
 
   const templateStatCards = [
     {
@@ -127,14 +125,20 @@ export default function AdminResourceModelsSection({
 
           return (
             <section key={group.id}>
+              {group.showHeader ? (
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-text-primary">{group.title}</h2>
+                  <span className="text-xs text-text-muted">{group.models.length} 个模板</span>
+                </div>
+              ) : null}
               <ResourceList
                 models={group.models}
                 loading={loading}
                 onToggleEnabled={onToggleEnabled}
                 togglingModelId={togglingModelId}
                 onEditInfo={onEditInfo}
-                onReorderModels={onReorderModels}
-                dragDisabled={dragDisabled}
+                onReorderModels={canReorderCurrentView ? onReorderModels : undefined}
+                dragDisabled={!canReorderCurrentView}
               />
             </section>
           );

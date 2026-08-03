@@ -14,7 +14,7 @@ import EditRedeemForm from './finance/EditRedeemForm';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import BatchCreateRedeemForm from './finance/BatchCreateRedeemForm';
 import { getErrorMessage } from '@/lib/http/errors';
-import type { RedeemCode, CreditStatisticsData, CreditLedgerItem, PaginationState, FinanceTab } from './AdminFinanceCenterTypes';
+import type { RedeemCode, CreditStatisticsData, InviteStatisticsData, CreditLedgerItem, PaginationState, FinanceTab } from './AdminFinanceCenterTypes';
 import { normalizeFinanceTab, getDaysFromTimeRange, exportToCSV } from './AdminFinanceCenterUtils';
 
 const AdminFinanceCenter = () => {
@@ -25,6 +25,7 @@ const AdminFinanceCenter = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [creditStats, setCreditStats] = useState<CreditStatisticsData | null>(null);
+  const [inviteStats, setInviteStats] = useState<InviteStatisticsData | null>(null);
 
   const [ledgerRecords, setLedgerRecords] = useState<CreditLedgerItem[]>([]);
   const [ledgerPagination, setLedgerPagination] = useState<PaginationState>({
@@ -63,6 +64,16 @@ const AdminFinanceCenter = () => {
     } catch (error: unknown) {
       console.error('Failed to fetch credit statistics:', error);
       setCreditStats(null);
+    }
+  }, []);
+
+  const fetchInviteStatistics = useCallback(async (days: number) => {
+    try {
+      const data = await apiClient.finance.getInviteStatistics(days);
+      setInviteStats(data as unknown as InviteStatisticsData);
+    } catch (error: unknown) {
+      console.error('Failed to fetch invite statistics:', error);
+      setInviteStats(null);
     }
   }, []);
 
@@ -112,6 +123,7 @@ const AdminFinanceCenter = () => {
       const days = getDaysFromTimeRange(timeRange);
       await Promise.all([
         fetchCreditStatistics(days),
+        fetchInviteStatistics(days),
         fetchLedger(ledgerPagination.page, ledgerPagination.pageSize),
         fetchRedeemCodes(redeemPagination.page, redeemPagination.pageSize),
       ]);
@@ -124,7 +136,7 @@ const AdminFinanceCenter = () => {
     }
   }, [timeRange, ledgerPagination.page, ledgerPagination.pageSize,
       redeemPagination.page, redeemPagination.pageSize,
-      fetchCreditStatistics, fetchLedger, fetchRedeemCodes]);
+      fetchCreditStatistics, fetchInviteStatistics, fetchLedger, fetchRedeemCodes]);
 
   useEffect(() => {
     fetchAllData(true);
@@ -339,7 +351,7 @@ const AdminFinanceCenter = () => {
 
         {activeTab === 'overview' && (
           <div className="space-y-8">
-            <CreditStats stats={creditStats} />
+            <CreditStats stats={creditStats} inviteStats={inviteStats} />
             {creditStats && (
               <div className="card-primary p-6">
                 <h3 className="text-lg font-semibold text-text-primary mb-4">按类型统计（累计）</h3>

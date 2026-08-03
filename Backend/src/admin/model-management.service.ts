@@ -9,6 +9,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { UpdateTemplateDto } from "../templates/dto/update-template.dto";
 import { TemplatesService } from "../templates/templates.service";
 import { toTemplateUuid } from "../templates/local-template-ids";
+import { sortTemplatesByCategoryOrder } from "../templates/template-ordering";
 
 export interface UpdateModelPayload {
   display_name?: string;
@@ -25,6 +26,29 @@ export interface UpdateModelPayload {
 export interface ReorderModelItem {
   model_id: string;
   order: number;
+}
+
+interface ModelPerformanceStats {
+  avgProcessingTime: number;
+  successRate: number;
+  dailyUsage: number;
+  totalUsage: number;
+}
+
+interface ModelPerformanceTaskRow {
+  templateId: string;
+  status: string;
+  createdAt: Date;
+  durationMs: number | null;
+}
+
+function emptyPerformanceStats(): ModelPerformanceStats {
+  return {
+    avgProcessingTime: 0,
+    successRate: 0,
+    dailyUsage: 0,
+    totalUsage: 0,
+  };
 }
 
 @Injectable()
@@ -74,43 +98,40 @@ export class ModelManagementService {
 
     const where = q ? { name: { contains: q } } : {};
 
-    const [modelPage, globalPricingMultiplier] = await Promise.all([
-      this.prisma.$transaction([
-        this.prisma.template.count({ where }),
-        this.prisma.template.findMany({
-          where,
-          orderBy: { sortOrder: "asc" },
-          skip: (page - 1) * pageSize,
-          take: pageSize,
-        }),
-        this.prisma.task.findMany({ select: { templateId: true } }),
-      ]),
+    const [allTemplates, categoryOrderByName, globalPricingMultiplier] = await Promise.all([
+      this.prisma.template.findMany({ where }),
+      this.getCategoryOrderByName(),
       this.pricing.getGlobalPricingMultiplier(),
     ]);
-    const [total, templates, taskRows] = modelPage;
+    const orderedTemplates = sortTemplatesByCategoryOrder(allTemplates, categoryOrderByName);
+    const total = orderedTemplates.length;
+    const templates = orderedTemplates.slice((page - 1) * pageSize, page * pageSize);
 
-    const usageByTemplate = new Map<string, number>();
-    for (const row of taskRows) {
-      usageByTemplate.set(row.templateId, (usageByTemplate.get(row.templateId) ?? 0) + 1);
-    }
+    const templateIds = templates.map((template) => template.id);
     const coverAssetIds = templates
       .map((template) => template.coverAssetId)
       .filter((id): id is string => Boolean(id));
-    const coverAssets = coverAssetIds.length > 0
-      ? await this.prisma.asset.findMany({ where: { id: { in: coverAssetIds } } })
-      : [];
+    const [performanceByTemplate, coverAssets] = await Promise.all([
+      this.getPerformanceByTemplateIds(templateIds),
+      coverAssetIds.length > 0
+        ? this.prisma.asset.findMany({ where: { id: { in: coverAssetIds } } })
+        : Promise.resolve([]),
+    ]);
     const coverUrlByAsset = new Map<string, string>();
     for (const asset of coverAssets) {
       coverUrlByAsset.set(asset.id, this.assets.getPublicUrl(asset.storageKey));
     }
-    const items = templates.map((template) =>
-      this.toModel(
+    const items = templates.map((template) => {
+      const performance = performanceByTemplate.get(template.id) ?? emptyPerformanceStats();
+      return this.toModel(
         template,
-        usageByTemplate.get(template.id) ?? 0,
+        performance.totalUsage,
         template.coverAssetId ? coverUrlByAsset.get(template.coverAssetId) ?? null : null,
         globalPricingMultiplier,
-      ),
-    );
+        categoryOrderByName.get(template.category) ?? null,
+        performance,
+      );
+    });
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     return {
@@ -172,9 +193,22 @@ export class ModelManagementService {
       }
     }
 
+    const category = await this.prisma.templateCategory.findUnique({
+      where: { name: updated.category },
+      select: { sortOrder: true },
+    });
+    const performance = (await this.getPerformanceByTemplateIds([uuid])).get(uuid) ?? emptyPerformanceStats();
+
     return {
       success: true,
-      data: this.toModel(updated, await this.countUsage(uuid), coverUrl, await this.pricing.getGlobalPricingMultiplier()),
+      data: this.toModel(
+        updated,
+        performance.totalUsage,
+        coverUrl,
+        await this.pricing.getGlobalPricingMultiplier(),
+        category?.sortOrder ?? null,
+        performance,
+      ),
     };
   }
 
@@ -239,14 +273,95 @@ export class ModelManagementService {
   }
 
   async getPricingObservations() {
-    const templates = await this.prisma.template.findMany({ orderBy: { sortOrder: "asc" } });
-    return { success: true, data: { items: await this.buildPricingObservations(templates) } };
+    const [templates, categoryOrderByName] = await Promise.all([
+      this.prisma.template.findMany(),
+      this.getCategoryOrderByName(),
+    ]);
+    return {
+      success: true,
+      data: {
+        items: await this.buildPricingObservations(
+          sortTemplatesByCategoryOrder(templates, categoryOrderByName),
+        ),
+      },
+    };
   }
 
   // ── Helpers ──
 
-  private async countUsage(templateId: string): Promise<number> {
-    return this.prisma.task.count({ where: { templateId } });
+  private async getCategoryOrderByName() {
+    const categories = await this.prisma.templateCategory.findMany({
+      select: { name: true, sortOrder: true },
+    });
+
+    return new Map(categories.map((category) => [category.name, category.sortOrder]));
+  }
+
+  private async getPerformanceByTemplateIds(templateIds: string[]) {
+    if (templateIds.length === 0) {
+      return new Map<string, ModelPerformanceStats>();
+    }
+
+    const taskRows = await this.prisma.task.findMany({
+      where: { templateId: { in: templateIds } },
+      select: {
+        templateId: true,
+        status: true,
+        createdAt: true,
+        durationMs: true,
+      },
+    });
+
+    return this.buildPerformanceByTemplate(taskRows);
+  }
+
+  private buildPerformanceByTemplate(taskRows: ModelPerformanceTaskRow[]) {
+    const since = Date.now() - 24 * 60 * 60 * 1000;
+    const buckets = new Map<string, {
+      total: number;
+      succeeded: number;
+      daily: number;
+      durationTotalMs: number;
+      durationCount: number;
+    }>();
+
+    for (const row of taskRows) {
+      const bucket = buckets.get(row.templateId) ?? {
+        total: 0,
+        succeeded: 0,
+        daily: 0,
+        durationTotalMs: 0,
+        durationCount: 0,
+      };
+
+      bucket.total += 1;
+      if (row.status === "succeeded") {
+        bucket.succeeded += 1;
+      }
+      if (row.createdAt.getTime() >= since) {
+        bucket.daily += 1;
+      }
+      if (typeof row.durationMs === "number" && Number.isFinite(row.durationMs) && row.durationMs > 0) {
+        bucket.durationTotalMs += row.durationMs;
+        bucket.durationCount += 1;
+      }
+
+      buckets.set(row.templateId, bucket);
+    }
+
+    return new Map(
+      Array.from(buckets.entries()).map(([templateId, bucket]) => [
+        templateId,
+        {
+          avgProcessingTime: bucket.durationCount > 0
+            ? Number(((bucket.durationTotalMs / bucket.durationCount) / 1000).toFixed(2))
+            : 0,
+          successRate: bucket.total > 0 ? Number(((bucket.succeeded / bucket.total) * 100).toFixed(2)) : 0,
+          dailyUsage: bucket.daily,
+          totalUsage: bucket.total,
+        },
+      ]),
+    );
   }
 
   private async buildPricingObservations(templates: Template[]) {
@@ -324,7 +439,14 @@ export class ModelManagementService {
     return Math.round(value * 10000) / 10000;
   }
 
-  private toModel(template: Template, usageCount: number, coverUrl: string | null = null, globalPricingMultiplier = 1) {
+  private toModel(
+    template: Template,
+    usageCount: number,
+    coverUrl: string | null = null,
+    globalPricingMultiplier = 1,
+    categorySortOrder: number | null = null,
+    performance: ModelPerformanceStats = emptyPerformanceStats(),
+  ) {
     const isEnabled = template.status === "published";
     const effectiveCredits = this.pricing.applyMultiplier(template.priceCredits, globalPricingMultiplier);
     return {
@@ -333,6 +455,7 @@ export class ModelManagementService {
       name: template.name,
       display_name: template.name,
       category: template.category,
+      category_sort_order: categorySortOrder,
       cover_asset_id: template.coverAssetId,
       cover_url: coverUrl,
       description: "",
@@ -342,6 +465,12 @@ export class ModelManagementService {
       provider: null,
       order: template.sortOrder,
       usage_count: usageCount,
+      performance: {
+        avg_processing_time: performance.avgProcessingTime,
+        success_rate: performance.successRate,
+        daily_usage: performance.dailyUsage,
+        total_usage: performance.totalUsage,
+      },
       base_credits_cost: template.priceCredits,
       cost_credits: effectiveCredits,
       credits_cost: effectiveCredits,

@@ -26,6 +26,10 @@ import type { TemplateCategory } from '@/lib/api-clients/clients/templateClient'
 interface TemplateCategoryBarProps {
   categories: TemplateCategory[];
   loading: boolean;
+  selectedCategoryName?: string | null;
+  categoryCounts?: Record<string, number>;
+  totalCount?: number;
+  onSelectCategory?: (name: string | null) => void;
   onCreate: (name: string, displayName?: string) => Promise<unknown>;
   onUpdate: (id: string, input: { name?: string; display_name?: string }) => Promise<unknown>;
   onRemove: (id: string) => Promise<unknown>;
@@ -37,6 +41,9 @@ type SortableChipProps = {
   index: number;
   total: number;
   busy: boolean;
+  selected: boolean;
+  count?: number;
+  onSelect?: (category: TemplateCategory) => void;
   onStartEdit: (category: TemplateCategory) => void;
   onRemove: (category: TemplateCategory) => void;
   dragOverlay?: boolean;
@@ -45,6 +52,9 @@ type SortableChipProps = {
 const SortableChip: React.FC<SortableChipProps> = ({
   category,
   busy,
+  selected,
+  count,
+  onSelect,
   onStartEdit,
   onRemove,
   dragOverlay = false,
@@ -71,18 +81,41 @@ const SortableChip: React.FC<SortableChipProps> = ({
     <div
       ref={dragOverlay ? undefined : setNodeRef}
       style={style}
-      className={`group relative flex items-center gap-2 rounded-full border bg-white/5 px-4 py-2 transition-colors ${
+      role="button"
+      tabIndex={dragOverlay ? -1 : 0}
+      onClick={() => onSelect?.(category)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect?.(category);
+        }
+      }}
+      className={`group relative flex items-center gap-2 rounded-full border px-4 py-2 transition-colors ${
         dragOverlay
-          ? 'rotate-[0.6deg] scale-[1.05] border-white/25 shadow-lg cursor-grabbing'
-          : 'border-white/10 hover:border-white/25 cursor-grab touch-none'
+          ? 'rotate-[0.6deg] scale-[1.05] border-white/25 bg-white/10 shadow-lg cursor-grabbing'
+          : selected
+            ? 'border-accent/50 bg-accent/15 text-text-primary shadow-[0_0_0_1px_rgba(168,85,247,0.15)] cursor-pointer'
+            : 'border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/[0.08] cursor-pointer'
       }`}
-      {...(dragOverlay ? {} : attributes)}
-      {...(dragOverlay ? {} : listeners)}
     >
-      <GripVertical size={14} className="text-text-muted/60 shrink-0" />
+      <span
+        className={`shrink-0 touch-none ${dragOverlay ? 'cursor-grabbing' : 'cursor-grab active:cursor-grabbing'}`}
+        onClick={(event) => event.stopPropagation()}
+        {...(dragOverlay ? {} : attributes)}
+        {...(dragOverlay ? {} : listeners)}
+      >
+        <GripVertical size={14} className={selected ? 'text-accent' : 'text-text-muted/60'} />
+      </span>
       <span className="text-sm font-medium text-text-primary">{category.name}</span>
       {category.display_name && category.display_name !== category.name ? (
         <span className="text-xs text-text-muted">{category.display_name}</span>
+      ) : null}
+      {typeof count === 'number' ? (
+        <span className={`rounded-full px-1.5 py-0.5 text-[10px] leading-none ${
+          selected ? 'bg-accent/25 text-purple-100' : 'bg-white/10 text-text-muted'
+        }`}>
+          {count}
+        </span>
       ) : null}
       <span
         className="hidden group-hover:flex items-center gap-0.5 ml-0.5"
@@ -114,6 +147,10 @@ const SortableChip: React.FC<SortableChipProps> = ({
 const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
   categories,
   loading,
+  selectedCategoryName = null,
+  categoryCounts = {},
+  totalCount = 0,
+  onSelectCategory,
   onCreate,
   onUpdate,
   onRemove,
@@ -216,6 +253,25 @@ const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
         模板分类
       </span>
 
+      {onSelectCategory ? (
+        <button
+          type="button"
+          onClick={() => onSelectCategory(null)}
+          className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+            selectedCategoryName
+              ? 'border-white/10 bg-white/5 text-text-muted hover:border-white/25 hover:text-text-primary'
+              : 'border-accent/50 bg-accent/15 text-text-primary shadow-[0_0_0_1px_rgba(168,85,247,0.15)]'
+          }`}
+        >
+          全部
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] leading-none ${
+            selectedCategoryName ? 'bg-white/10 text-text-muted' : 'bg-accent/25 text-purple-100'
+          }`}>
+            {totalCount}
+          </span>
+        </button>
+      ) : null}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -266,6 +322,9 @@ const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
                 index={index}
                 total={categories.length}
                 busy={busy}
+                selected={selectedCategoryName === category.name}
+                count={categoryCounts[category.name] || 0}
+                onSelect={onSelectCategory ? () => onSelectCategory(category.name) : undefined}
                 onStartEdit={startEdit}
                 onRemove={handleRemove}
               />
@@ -279,6 +338,9 @@ const TemplateCategoryBar: React.FC<TemplateCategoryBarProps> = ({
               index={0}
               total={1}
               busy={false}
+              selected={selectedCategoryName === activeCategory.name}
+              count={categoryCounts[activeCategory.name] || 0}
+              onSelect={undefined}
               onStartEdit={startEdit}
               onRemove={handleRemove}
               dragOverlay

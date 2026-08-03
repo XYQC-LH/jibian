@@ -83,6 +83,13 @@ export const normalizeOrder = (value: unknown): number => {
   return normalized >= 0 ? normalized : 0;
 };
 
+const normalizeCategoryOrder = (value: unknown): number => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return Number.MAX_SAFE_INTEGER;
+  const normalized = Math.trunc(parsed);
+  return normalized >= 0 ? normalized : Number.MAX_SAFE_INTEGER;
+};
+
 export const toPositiveInt = (value: unknown): number | null => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) return null;
@@ -91,6 +98,15 @@ export const toPositiveInt = (value: unknown): number | null => {
 
 export const sortModelsByOrder = (items: AIModel[]): AIModel[] => {
   return [...items].sort((a, b) => {
+    const categoryOrderA = normalizeCategoryOrder(a.category_sort_order);
+    const categoryOrderB = normalizeCategoryOrder(b.category_sort_order);
+    if (categoryOrderA !== categoryOrderB) return categoryOrderA - categoryOrderB;
+
+    const categoryA = String(a.category || '');
+    const categoryB = String(b.category || '');
+    const categoryCompare = categoryA.localeCompare(categoryB, 'zh-CN');
+    if (categoryCompare !== 0) return categoryCompare;
+
     const orderA = normalizeOrder(a.order ?? 0);
     const orderB = normalizeOrder(b.order ?? 0);
     if (orderA !== orderB) return orderA - orderB;

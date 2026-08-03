@@ -6,6 +6,7 @@ import {
   CreditStatistics,
   FinanceDashboard,
   FinanceStatistics,
+  InviteStatistics,
   RechargeRecord,
   TransactionRecord,
   TransactionStatistics,
@@ -84,6 +85,13 @@ export class FinanceAdminClient extends BaseAdminClient {
       `/api/v1/admin/credits/statistics?days=${days}`
     );
     return ensureData(response.data, 'Failed to fetch credit statistics');
+  }
+
+  async getInviteStatistics(days = 30): Promise<InviteStatistics> {
+    const response = await this.client.get<ApiResponse<InviteStatistics>>(
+      `/api/v1/admin/invites/statistics?days=${days}`
+    );
+    return ensureData(response.data, 'Failed to fetch invite statistics');
   }
 
   async getCreditLedger(page = 1, pageSize = 20, filters?: {

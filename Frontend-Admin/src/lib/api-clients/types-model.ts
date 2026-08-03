@@ -4,6 +4,7 @@ export interface Model {
   id: string;
   name: string;
   category?: string;
+  category_sort_order?: number | null;
   cover_asset_id?: string | null;
   cover_url?: string | null;
   type: 'image' | 'video' | 'music' | 'audio' | 'other';

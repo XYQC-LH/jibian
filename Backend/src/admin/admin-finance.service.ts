@@ -288,7 +288,7 @@ export class AdminFinanceService {
 
     const allByType = sumByType(ledgerAll);
     const sinceByType = sumByType(ledgerSince);
-    const issuedTypes = ["recharge", "redeem", "adjustment"];
+    const issuedTypes = ["recharge", "redeem", "adjustment", "invite_reward"];
     const spentTypes = ["charge", "refund"];
 
     const totalIssued = issuedTypes.reduce((sum, type) => sum + (allByType[type] ?? 0), 0);
@@ -323,6 +323,53 @@ export class AdminFinanceService {
           total_used: redeemStats._sum.usedCount ?? 0,
         },
         by_type: allByType,
+        period_days: safeDays,
+      },
+    };
+  }
+
+  async getInviteStatistics(days: number) {
+    const safeDays = Number.isFinite(days) && days > 0 ? Math.min(days, 90) : 30;
+    const since = new Date(Date.now() - safeDays * 24 * 60 * 60 * 1000);
+    const [
+      totalRelations,
+      pendingRelations,
+      rewardedRelations,
+      totalRewardCredits,
+      periodRelations,
+      periodRewards,
+      periodRewardCredits,
+    ] = await Promise.all([
+      this.prisma.inviteRelation.count(),
+      this.prisma.inviteRelation.count({ where: { status: "bound" } }),
+      this.prisma.inviteRelation.count({ where: { status: "rewarded" } }),
+      this.prisma.inviteRelation.aggregate({
+        where: { status: "rewarded" },
+        _sum: { rewardCredits: true },
+      }),
+      this.prisma.inviteRelation.count({
+        where: { createdAt: { gte: since } },
+      }),
+      this.prisma.inviteRelation.count({
+        where: { status: "rewarded", rewardedAt: { gte: since } },
+      }),
+      this.prisma.inviteRelation.aggregate({
+        where: { status: "rewarded", rewardedAt: { gte: since } },
+        _sum: { rewardCredits: true },
+      }),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        total_relations: totalRelations,
+        pending_relations: pendingRelations,
+        rewarded_relations: rewardedRelations,
+        total_credits_issued: (totalRewardCredits._sum.rewardCredits ?? 0) * 2,
+        period_relations: periodRelations,
+        period_rewards: periodRewards,
+        period_credits_issued: (periodRewardCredits._sum.rewardCredits ?? 0) * 2,
+        reward_credits: 30,
         period_days: safeDays,
       },
     };

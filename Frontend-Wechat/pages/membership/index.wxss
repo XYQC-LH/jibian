@@ -113,6 +113,70 @@
   font-weight: 900;
 }
 
+.member-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  box-sizing: border-box;
+  margin-top: 18rpx;
+  padding: 22rpx 24rpx;
+  border: 2rpx solid #F1E7F7;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.status-card-active {
+  border-color: #BEE8D0;
+  background: linear-gradient(135deg, #F0FFF6, #FFFFFF);
+}
+
+.status-card-warning {
+  border-color: #FFE0AD;
+  background: linear-gradient(135deg, #FFF9EC, #FFFFFF);
+}
+
+.status-card-muted {
+  border-color: #F1E7F7;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.status-title,
+.status-copy {
+  display: block;
+}
+
+.status-title {
+  color: var(--text-primary);
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.status-copy {
+  margin-top: 8rpx;
+  color: var(--text-secondary);
+  font-size: 21rpx;
+  line-height: 1.45;
+}
+
+.status-tag {
+  flex: 0 0 auto;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: #FF4FB3;
+  font-size: 19rpx;
+  font-weight: 900;
+}
+
+.status-card-warning .status-tag {
+  background: #F5A623;
+}
+
+.status-card-muted .status-tag {
+  background: #B3A6BA;
+}
+
 .vip-panel {
   position: relative;
   margin: 24rpx -24rpx 0;
@@ -158,6 +222,11 @@
 .plan-card-active {
   border-color: #FF4FB3;
   background: #FFF0F8;
+}
+
+.plan-card-skeleton {
+  height: 150rpx;
+  border-color: transparent;
 }
 
 .plan-name,
@@ -215,6 +284,16 @@
   line-height: 1.4;
 }
 
+.member-notice {
+  margin-top: 26rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 22rpx;
+  color: #A15B16;
+  background: #FFF4E2;
+  font-size: 22rpx;
+  line-height: 1.45;
+}
+
 .agreement-row {
   display: flex;
   align-items: center;
@@ -256,6 +335,11 @@
   background: linear-gradient(135deg, #FF52A5, #FF3F9A);
   font-size: 27rpx;
   font-weight: 900;
+}
+
+.cancel-button {
+  color: #FF3F9A;
+  background: #FFF0F8;
 }
 
 .subscribe-button-disabled {

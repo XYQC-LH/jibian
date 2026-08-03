@@ -2,6 +2,7 @@ import { ConfigService } from "@nestjs/config";
 import { createSign, generateKeyPairSync, randomUUID } from "node:crypto";
 import { AdminOrdersService } from "../src/admin/admin-orders.service";
 import { PaymentsService } from "../src/payments/payments.service";
+import { WechatPayClient } from "../src/payments/wechat-pay.client";
 import { PrismaService } from "../src/prisma/prisma.service";
 
 type PaymentOrderRow = {
@@ -174,11 +175,15 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+function wechatClient(values: Record<string, string>) {
+  return new WechatPayClient(new ConfigService(values));
+}
+
 async function main() {
   const prisma = new FakePaymentPrisma();
   const service = new PaymentsService(
     prisma as unknown as PrismaService,
-    new ConfigService({}),
+    wechatClient({}),
   );
   const disabledStatus = service.getWechatPayStatus();
   assert(disabledStatus.enabled === false, "wechat pay status should be disabled without config");
@@ -217,7 +222,7 @@ async function main() {
   const platformCert = platformPublicKey.export({ type: "spki", format: "pem" }).toString();
   const signedService = new PaymentsService(
     prisma as unknown as PrismaService,
-    new ConfigService({
+    wechatClient({
       WECHAT_PAY_ENABLED: "true",
       WECHAT_APP_ID: "wx-smoke",
       WECHAT_PAY_MCH_ID: "mch-smoke",
@@ -328,7 +333,7 @@ async function main() {
   const spentPrisma = new FakePaymentPrisma();
   const spentService = new PaymentsService(
     spentPrisma as unknown as PrismaService,
-    new ConfigService({
+    wechatClient({
       WECHAT_PAY_ENABLED: "true",
       WECHAT_APP_ID: "wx-smoke",
       WECHAT_PAY_MCH_ID: "mch-smoke",
@@ -376,7 +381,7 @@ async function main() {
   const pendingPrisma = new FakePaymentPrisma();
   const pendingService = new PaymentsService(
     pendingPrisma as unknown as PrismaService,
-    new ConfigService({
+    wechatClient({
       WECHAT_PAY_ENABLED: "true",
       WECHAT_APP_ID: "wx-smoke",
       WECHAT_PAY_MCH_ID: "mch-smoke",

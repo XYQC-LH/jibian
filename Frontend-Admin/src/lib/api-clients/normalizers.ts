@@ -163,10 +163,16 @@ export const mapModelResponse = (model: unknown, defaultId?: string, defaultCred
   const usageCount = Number.isFinite(parsedUsageCount) && parsedUsageCount >= 0
     ? Math.trunc(parsedUsageCount)
     : undefined;
+  const parsedCategoryOrder = Number(m?.category_sort_order);
+  const categorySortOrder = Number.isFinite(parsedCategoryOrder) && parsedCategoryOrder >= 0
+    ? Math.trunc(parsedCategoryOrder)
+    : null;
 
   return {
     id: (m?.model_id as string) || (m?.id as string) || defaultId || '',
     name: (m?.display_name as string) || (m?.name as string) || defaultId || 'Model',
+    category: typeof m?.category === 'string' ? m.category : undefined,
+    category_sort_order: categorySortOrder,
     type: ((m?.type || m?.output_type || 'image') as Model['type']),
     output_type: (m?.output_type as string | undefined) || (m?.type as string | undefined),
     order: normalizedOrder,

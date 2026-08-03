@@ -18,14 +18,17 @@
     "smoke:admin-tasks": "ts-node scripts/smoke-admin-tasks.ts",
     "smoke:auth": "ts-node scripts/smoke-auth.ts",
     "smoke:credits": "ts-node scripts/smoke-credits.ts",
+    "smoke:invite": "ts-node scripts/smoke-invites.ts",
     "smoke:dispatch": "ts-node scripts/smoke-dispatch.ts",
     "smoke:live-generation": "ts-node scripts/smoke-live-generation.ts",
     "smoke:moderation": "ts-node scripts/smoke-moderation.ts",
     "smoke:model-management": "ts-node scripts/smoke-model-management.ts",
     "smoke:monitor": "ts-node scripts/smoke-monitor.ts",
     "smoke:generation": "ts-node scripts/smoke-generation.ts",
+    "smoke:membership": "ts-node scripts/smoke-membership.ts",
     "smoke:payment": "ts-node scripts/smoke-payment.ts",
     "smoke:settings": "ts-node scripts/smoke-settings.ts",
+    "smoke:template-ingest": "ts-node scripts/smoke-template-ingest.ts",
     "smoke:assets": "ts-node scripts/smoke-assets.ts",
     "smoke:statistics": "ts-node scripts/smoke-statistics.ts"
   },
@@ -45,7 +48,8 @@
     "class-validator": "^0.14.2",
     "ioredis": "^5.7.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "sharp": "^0.35.3"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -57,6 +61,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
     "@types/node": "^24.2.0",
+    "@types/sharp": "^0.31.1",
     "prisma": "^6.13.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

@@ -13,13 +13,21 @@
   <view class="member-hero">
     <view>
       <text class="hero-title">开通会员</text>
-      <text class="hero-copy">高清大图、专属效果、出图加速</text>
+      <text class="hero-copy">自动续费会员，状态与有效期实时同步</text>
     </view>
     <view class="hero-stack">
-        <text>高级模板</text>
-      <text>专属画质</text>
-      <text>全部折扣</text>
+      <text>有效期</text>
+      <text>自动续费</text>
+      <text>可取消</text>
     </view>
+  </view>
+
+  <view class="member-status status-card-{{statusTone}}">
+    <view>
+      <text class="status-title">{{statusTitle}}</text>
+      <text class="status-copy">{{statusCopy}}</text>
+    </view>
+    <text class="status-tag">{{statusTag}}</text>
   </view>
 
   <view class="vip-panel">
@@ -28,7 +36,13 @@
       <text class="vip-title">即变 VIP</text>
     </view>
 
-    <view class="plan-row">
+    <view wx:if="{{loadingPlans}}" class="plan-row">
+      <view class="plan-card plan-card-skeleton skeleton"></view>
+      <view class="plan-card plan-card-skeleton skeleton"></view>
+      <view class="plan-card plan-card-skeleton skeleton"></view>
+    </view>
+
+    <view wx:else class="plan-row">
       <block wx:for="{{plans}}" wx:key="id">
         <view
           class="plan-card {{activePlan === item.id ? 'plan-card-active' : ''}}"
@@ -44,19 +58,23 @@
     </view>
 
     <view class="benefit-section">
-      <text class="benefit-title">会员权益</text>
+      <text class="benefit-title">订阅说明</text>
       <view class="benefit-row">
         <text class="benefit-check">✓</text>
-        <text class="benefit-copy">高清无水印，作品更适合发布</text>
+        <text class="benefit-copy">开通后记录会员状态、当前有效期和自动续费状态</text>
       </view>
       <view class="benefit-row">
         <text class="benefit-check">✓</text>
-        <text class="benefit-copy">专属模板折扣，热门玩法优先体验</text>
+        <text class="benefit-copy">可随时取消自动续费，已支付周期保留至到期</text>
       </view>
       <view class="benefit-row">
         <text class="benefit-check">✓</text>
-        <text class="benefit-copy">出图加速，减少排队等待时间</text>
+        <text class="benefit-copy">退款按剩余有效期折算，支付结果以微信通知为准</text>
       </view>
+    </view>
+
+    <view wx:if="{{!subscriptionAvailable}}" class="member-notice">
+      {{unavailableReason || "会员订阅暂未开放，请稍后再试。"}}
     </view>
 
     <view class="agreement-row" bindtap="toggleAgreement">
@@ -65,7 +83,35 @@
     </view>
   </view>
 
-  <view class="subscribe-button {{agreed ? '' : 'subscribe-button-disabled'}}" bindtap="subscribe" hover-class="button-pressed">
-    立即订阅 ¥108
+  <view
+    wx:if="{{membership.active && membership.auto_renewing}}"
+    class="subscribe-button cancel-button {{canceling ? 'subscribe-button-disabled' : ''}}"
+    bindtap="cancelAutoRenew"
+    hover-class="button-pressed"
+  >
+    {{canceling ? "正在取消..." : "取消自动续费"}}
+  </view>
+
+  <view
+    wx:elif="{{membership.active && membership.cancel_at_period_end}}"
+    class="subscribe-button subscribe-button-disabled"
+  >
+    已取消自动续费
+  </view>
+
+  <view
+    wx:elif="{{membership.active}}"
+    class="subscribe-button subscribe-button-disabled"
+  >
+    会员已开通
+  </view>
+
+  <view
+    wx:else
+    class="subscribe-button {{agreed && subscriptionAvailable && !subscribing ? '' : 'subscribe-button-disabled'}}"
+    bindtap="subscribe"
+    hover-class="button-pressed"
+  >
+    {{subscribing ? "正在拉起签约..." : "立即开通 "}}{{subscribing ? "" : activePrice}}
   </view>
 </view>

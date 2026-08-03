@@ -91,6 +91,7 @@ function assert(condition: unknown, message: string): asserts condition {
 async function main() {
   const prisma = new FakeAuthPrisma("88");
   let signedExpiresIn: unknown = null;
+  const inviteBindings: Array<{ userId: string; inviteCode: string }> = [];
   const service = new WechatAuthService(
     prisma as unknown as PrismaService,
     new ConfigService({
@@ -104,13 +105,22 @@ async function main() {
         return "smoke-token";
       },
     } as never,
+    {
+      tryBindByCode: async (userId: string, inviteCode: string) => {
+        inviteBindings.push({ userId, inviteCode });
+        return { status: "bound" };
+      },
+    } as never,
   );
 
-  const first = await service.login("mock-auth-smoke");
+  const first = await service.login("mock-auth-smoke", "JBTESTCODE");
   const second = await service.login("mock-auth-smoke");
 
   assert(first.credit_balance === 88, `new user should receive configured registration bonus, got ${first.credit_balance}`);
   assert(second.credit_balance === 88, "existing user should keep the same account balance");
+  assert(first.invite_bind_status === "bound", "login should report invite binding status");
+  assert(second.invite_bind_status === "ignored", "login without invite code should be ignored");
+  assert(inviteBindings.length === 1, "login should bind invite code once when provided");
   assert(prisma.creditAccounts.length === 1, "repeat login should not create duplicate credit accounts");
   assert(prisma.ledgerRows.length === 1, "repeat login should not create duplicate bonus ledger");
   assert(prisma.ledgerRows[0].refType === "mock_login_bonus", "mock login bonus should stay traceable");
@@ -122,6 +132,7 @@ async function main() {
     defaultPrisma as unknown as PrismaService,
     new ConfigService({ ALLOW_MOCK_WECHAT: "true", MOCK_WECHAT_INITIAL_CREDITS: "0" }),
     { sign: () => "smoke-token" } as never,
+    { tryBindByCode: async () => ({ status: "ignored" }) } as never,
   );
   const defaultLogin = await defaultService.login("mock-default-bonus");
   assert(defaultLogin.credit_balance === 100, "missing setting should fall back to default bonus");

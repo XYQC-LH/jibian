@@ -186,3 +186,16 @@ export interface CreditStatistics {
   period_days: number;
   [key: string]: unknown;
 }
+
+export interface InviteStatistics {
+  total_relations: number;
+  pending_relations: number;
+  rewarded_relations: number;
+  total_credits_issued: number;
+  period_relations: number;
+  period_rewards: number;
+  period_credits_issued: number;
+  reward_credits: number;
+  period_days: number;
+  [key: string]: unknown;
+}

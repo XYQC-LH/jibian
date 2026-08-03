@@ -23,14 +23,18 @@ function normalizeBalance(res) {
   return { balance: Number.isFinite(balance) ? balance : 0 };
 }
 
-function login() {
+function login(inviteCode) {
   return new Promise((resolve, reject) => {
     wx.login({
       success(res) {
+        const data = { code: res.code || `dev-${Date.now()}` };
+        if (inviteCode) {
+          data.invite_code = inviteCode;
+        }
         request({
           url: "/auth/wechat-login",
           method: "POST",
-          data: { code: res.code || `dev-${Date.now()}` }
+          data
         }).then(resolve).catch(reject);
       },
       fail: reject
@@ -74,6 +78,18 @@ function redeemCode(code) {
     method: "POST",
     data: { code }
   }).then(normalizeBalance);
+}
+
+function getMyInvite() {
+  return request({ url: "/invites/me" }).then(unwrapData);
+}
+
+function bindInviteCode(inviteCode) {
+  return request({
+    url: "/invites/bind",
+    method: "POST",
+    data: { invite_code: inviteCode }
+  }).then(unwrapData);
 }
 
 function requestAccountDeletion() {
@@ -208,6 +224,29 @@ function getWechatPaymentOrder(outTradeNo) {
   return request({ url: `/payments/wechat/orders/${outTradeNo}` }).then(unwrapData);
 }
 
+function listMembershipPlans() {
+  return request({ url: "/memberships/plans" }).then(unwrapList);
+}
+
+function getMembershipStatus() {
+  return request({ url: "/memberships/me" }).then(unwrapData);
+}
+
+function createMembershipPreSign(planId) {
+  return request({
+    url: "/memberships/wechat/contracts/pre-sign",
+    method: "POST",
+    data: { plan_id: planId }
+  }).then(unwrapData);
+}
+
+function cancelMembershipAutoRenew() {
+  return request({
+    url: "/memberships/me/cancel",
+    method: "POST"
+  }).then(unwrapData);
+}
+
 function bindPhone(payload) {
   const data = typeof payload === "string" ? { phone: payload } : payload;
   return request({
@@ -230,7 +269,13 @@ module.exports = {
   getWechatPaymentStatus,
   createWechatPaymentOrder,
   getWechatPaymentOrder,
+  listMembershipPlans,
+  getMembershipStatus,
+  createMembershipPreSign,
+  cancelMembershipAutoRenew,
   redeemCode,
+  getMyInvite,
+  bindInviteCode,
   bindPhone,
   listFavorites,
   addFavorite,

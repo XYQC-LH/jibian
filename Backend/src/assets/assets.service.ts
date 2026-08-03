@@ -4,6 +4,7 @@ import { existsSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { PrismaService } from "../prisma/prisma.service";
+import { AigcLabelContext, AigcLabelService } from "./aigc-label.service";
 import { AssetUrlService } from "./asset-url.service";
 import { CreateUploadUrlDto } from "./dto/create-upload-url.dto";
 
@@ -25,6 +26,7 @@ export class AssetsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly assetUrls: AssetUrlService,
+    private readonly aigcLabel: AigcLabelService,
   ) {}
 
   async createUploadUrl(userId: string | undefined, dto: CreateUploadUrlDto) {
@@ -91,7 +93,12 @@ export class AssetsService {
     }
   }
 
-  async materializeRemoteAsset(assetId: string, ownerUserId: string, signal?: AbortSignal) {
+  async materializeRemoteAsset(
+    assetId: string,
+    ownerUserId: string,
+    signal?: AbortSignal,
+    labelContext?: AigcLabelContext,
+  ) {
     const asset = await this.prisma.asset.findUnique({ where: { id: assetId } });
     if (!asset || !/^https?:\/\//i.test(asset.storageKey)) {
       return asset;
@@ -102,13 +109,21 @@ export class AssetsService {
       throw new ServiceUnavailableException(`下载生成结果失败: HTTP ${response.status}`);
     }
 
-    const contentType = response.headers.get("content-type") || "image/png";
+    let contentType = response.headers.get("content-type") || "image/png";
+    let imageBuffer: Buffer<ArrayBufferLike> = Buffer.from(await response.arrayBuffer());
+
+    if (asset.assetType === "generated_image" && labelContext) {
+      const labelResult = await this.aigcLabel.applyLabels(imageBuffer, contentType, labelContext);
+      imageBuffer = labelResult.buffer;
+      contentType = labelResult.contentType;
+    }
+
     const storageKey = this.buildStorageKey(asset.assetType, ownerUserId, contentType);
     const uploadUrl = this.assetUrls.createUploadUrl(storageKey);
     const upload = await fetch(uploadUrl, {
       method: "PUT",
       headers: { "content-type": contentType },
-      body: Buffer.from(await response.arrayBuffer()),
+      body: imageBuffer as unknown as BodyInit,
       signal,
     });
     if (!upload.ok) {

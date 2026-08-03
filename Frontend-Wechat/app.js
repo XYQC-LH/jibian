@@ -5,6 +5,7 @@ const ACCOUNT_KEY = "jibian_account";
 const REDEEM_RECORDS_KEY = "jibian_redeem_records";
 const ACCESS_TOKEN_KEY = "jibian_access_token";
 const USER_KEY = "jibian_user";
+const INVITE_CODE_KEY = "jibian_pending_invite_code";
 
 function normalizeCredits(value) {
   return typeof value === "number" && Number.isFinite(value) ? Math.max(0, value) : 0;
@@ -52,6 +53,18 @@ function normalizeUser(value) {
   return value && typeof value === "object" ? value : null;
 }
 
+function normalizeInviteCode(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function inviteCodeFromQuery(query) {
+  if (!query || typeof query !== "object") {
+    return "";
+  }
+
+  return normalizeInviteCode(query.invite_code || query.inviteCode);
+}
+
 function accountFromUser(user, fallback) {
   const phone = typeof user?.phone === "string" ? user.phone : fallback.phone;
   const status = String(user?.status || "");
@@ -77,10 +90,11 @@ App({
     accessToken: "",
     user: null,
     templatesLoaded: false,
-    currentTaskId: ""
+    currentTaskId: "",
+    pendingInviteCode: ""
   },
 
-  onLaunch() {
+  onLaunch(options = {}) {
     this.globalData.credits = normalizeCredits(wx.getStorageSync(CREDIT_KEY));
     this.globalData.generatedRecords = normalizeRecords(wx.getStorageSync(RECORDS_KEY));
     this.globalData.redeemRecords = normalizeRecords(wx.getStorageSync(REDEEM_RECORDS_KEY));
@@ -88,24 +102,36 @@ App({
     this.globalData.account = normalizeAccount(wx.getStorageSync(ACCOUNT_KEY));
     this.globalData.accessToken = wx.getStorageSync(ACCESS_TOKEN_KEY) || "";
     this.globalData.user = normalizeUser(wx.getStorageSync(USER_KEY));
+    this.globalData.pendingInviteCode = normalizeInviteCode(wx.getStorageSync(INVITE_CODE_KEY));
+    this.captureInviteCode(options.query);
     require("./config/env").fetchRemoteConfig();
     this.ensureLogin(true);
     this.ensureTemplates();
   },
 
+  onShow(options = {}) {
+    if (this.captureInviteCode(options.query)) {
+      this.ensureLogin(true);
+    }
+  },
+
   ensureLogin(force = false) {
-    if (!force && this.globalData.accessToken && !this.globalData.account.deleteRequested) {
+    const pendingInviteCode = this.getPendingInviteCode();
+    if (!force && !pendingInviteCode && this.globalData.accessToken && !this.globalData.account.deleteRequested) {
       return Promise.resolve(this.globalData.accessToken);
     }
 
     const api = require("./services/api");
-    return api.login().then((res) => {
+    return api.login(pendingInviteCode).then((res) => {
       this.globalData.accessToken = res.access_token || "";
       this.globalData.user = normalizeUser(res.user);
       wx.setStorageSync(ACCESS_TOKEN_KEY, this.globalData.accessToken);
       wx.setStorageSync(USER_KEY, this.globalData.user);
       this.syncAccountFromUser(this.globalData.user);
       this.setCredits(res.credit_balance || 0);
+      if (pendingInviteCode && ["bound", "invalid", "ignored"].includes(res.invite_bind_status)) {
+        this.clearPendingInviteCode();
+      }
       return res.access_token;
     }).catch((err) => {
       console.warn("[login failed]", err);
@@ -185,6 +211,26 @@ App({
     this.globalData.draftImage = "";
   },
 
+  captureInviteCode(query) {
+    const inviteCode = inviteCodeFromQuery(query);
+    if (!inviteCode || inviteCode === this.globalData.pendingInviteCode) {
+      return false;
+    }
+
+    this.globalData.pendingInviteCode = inviteCode;
+    wx.setStorageSync(INVITE_CODE_KEY, inviteCode);
+    return true;
+  },
+
+  getPendingInviteCode() {
+    return normalizeInviteCode(this.globalData.pendingInviteCode || wx.getStorageSync(INVITE_CODE_KEY));
+  },
+
+  clearPendingInviteCode() {
+    this.globalData.pendingInviteCode = "";
+    wx.removeStorageSync(INVITE_CODE_KEY);
+  },
+
   setFavoriteTemplateIds(ids) {
     this.globalData.favoriteTemplateIds = normalizeIds(ids);
     wx.setStorageSync(FAVORITES_KEY, this.globalData.favoriteTemplateIds);
@@ -244,6 +290,7 @@ App({
     this.globalData.currentRecordId = "";
     this.globalData.currentTaskId = "";
     this.globalData.draftImage = "";
+    this.globalData.pendingInviteCode = "";
 
     wx.removeStorageSync(ACCESS_TOKEN_KEY);
     wx.removeStorageSync(USER_KEY);
@@ -251,6 +298,7 @@ App({
     wx.removeStorageSync(RECORDS_KEY);
     wx.removeStorageSync(REDEEM_RECORDS_KEY);
     wx.removeStorageSync(FAVORITES_KEY);
+    wx.removeStorageSync(INVITE_CODE_KEY);
 
     return this.setAccount({
       phone: "",

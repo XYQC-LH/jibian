@@ -4,6 +4,7 @@ import { PricingService } from "../pricing/pricing.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateTemplateDto } from "./dto/create-template.dto";
 import { toPublicTemplateId } from "./local-template-ids";
+import { sortTemplatesByCategoryOrder } from "./template-ordering";
 import { UpdateTemplateDto } from "./dto/update-template.dto";
 
 @Injectable()
@@ -15,24 +16,26 @@ export class TemplatesService {
   ) {}
 
   async listPublished() {
-    const templates = await this.prisma.template.findMany({
-      where: { status: "published" },
-      orderBy: { sortOrder: "asc" },
-      select: {
-        id: true,
-        name: true,
-        category: true,
-        coverAssetId: true,
-        coverAsset: { select: { storageKey: true } },
-        priceCredits: true,
-        resultCount: true,
-        sortOrder: true,
-        status: true,
-      },
-    });
-    const multiplier = await this.pricing.getGlobalPricingMultiplier();
+    const [templates, categoryOrderByName, multiplier] = await Promise.all([
+      this.prisma.template.findMany({
+        where: { status: "published" },
+        select: {
+          id: true,
+          name: true,
+          category: true,
+          coverAssetId: true,
+          coverAsset: { select: { storageKey: true } },
+          priceCredits: true,
+          resultCount: true,
+          sortOrder: true,
+          status: true,
+        },
+      }),
+      this.getCategoryOrderByName(),
+      this.pricing.getGlobalPricingMultiplier(),
+    ]);
 
-    return templates.map((template) => ({
+    return sortTemplatesByCategoryOrder(templates, categoryOrderByName).map((template) => ({
       id: toPublicTemplateId(template.id),
       name: template.name,
       category: template.category,
@@ -47,11 +50,12 @@ export class TemplatesService {
   }
 
   async listAdmin() {
-    const templates = await this.prisma.template.findMany({
-      orderBy: { sortOrder: "asc" },
-    });
+    const [templates, categoryOrderByName] = await Promise.all([
+      this.prisma.template.findMany(),
+      this.getCategoryOrderByName(),
+    ]);
 
-    return { success: true, data: templates };
+    return { success: true, data: sortTemplatesByCategoryOrder(templates, categoryOrderByName) };
   }
 
   async createAdmin(dto: CreateTemplateDto) {
@@ -87,5 +91,13 @@ export class TemplatesService {
     });
 
     return { success: true, data: template };
+  }
+
+  private async getCategoryOrderByName() {
+    const categories = await this.prisma.templateCategory.findMany({
+      select: { name: true, sortOrder: true },
+    });
+
+    return new Map(categories.map((category) => [category.name, category.sortOrder]));
   }
 }

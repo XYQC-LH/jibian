@@ -1,6 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { InvitesService } from "../invites/invites.service";
 import { AdminAuthService } from "./admin-auth.service";
 import { AdminAuthController } from "./admin-auth.controller";
 import { AdminGuard } from "./admin.guard";
@@ -21,7 +22,7 @@ import { WechatAuthService } from "./wechat-auth.service";
     }),
   ],
   controllers: [AdminAuthController, WechatAuthController],
-  providers: [AdminAuthService, AdminGuard, UserAuthGuard, WechatAuthService],
+  providers: [AdminAuthService, AdminGuard, UserAuthGuard, WechatAuthService, InvitesService],
   exports: [AdminAuthService, AdminGuard, UserAuthGuard, JwtModule, WechatAuthService],
 })
 export class AdminAuthModule {}
