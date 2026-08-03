@@ -183,8 +183,8 @@ function getHomeSections(category) {
   if (category && category !== "热门") {
     return [withLayout({
       key: category,
-      title: `${category}玩法｜选一个马上开变`,
-      icon: categoryIcons[category] || "✦",
+      title: category,
+      icon: categoryIcons[category] || "",
       iconClass: category === "头像" ? "avatar" : "style",
       cards: filterTemplates(category)
     })];
@@ -206,8 +206,8 @@ function getHomeSections(category) {
 
   return groupKeys.map((key) => withLayout({
     key,
-    title: `${key}玩法｜选一个马上开变`,
-    icon: categoryIcons[key] || "✦",
+    title: key,
+    icon: categoryIcons[key] || "",
     iconClass: key === "头像" ? "avatar" : "style",
     cards: filterTemplates(key)
   }));

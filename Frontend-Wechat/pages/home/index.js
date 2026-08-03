@@ -19,9 +19,7 @@ function buildSections(items) {
     trackWidth: trackWidth(list)
   });
 
-  const displayNameOf = (key) => (
-    templateService.getCategoryDisplayName(key) || `${key}玩法｜选一个马上开变`
-  );
+  const displayNameOf = (key) => templateService.getCategoryDisplayName(key) || key;
   const iconOf = (key) => templateService.getCategoryIcon(key);
 
   const sections = [];
