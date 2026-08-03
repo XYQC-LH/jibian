@@ -42,7 +42,7 @@
   box-sizing: border-box;
   width: 485rpx;
   height: 85rpx;
-  margin: 0;
+  margin: 0 auto;
   overflow: hidden;
   border: 2rpx solid rgba(255, 255, 255, 0.7);
   border-radius: 36rpx;
@@ -61,9 +61,10 @@
 .template-nav-track {
   display: inline-flex;
   align-items: center;
-  gap: 12rpx;
+  justify-content: center;
+  gap: 8rpx;
   height: 85rpx;
-  padding: 6rpx 19rpx;
+  padding: 6rpx 12rpx;
 }
 
 .template-nav-pill {
@@ -71,9 +72,9 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-width: 98rpx;
+  min-width: 76rpx;
   height: 54rpx;
-  padding: 0 24rpx;
+  padding: 0 18rpx;
   border: 2rpx solid #DDEBFF;
   border-radius: 999rpx;
   color: #8E7F8B;
@@ -84,7 +85,7 @@
 }
 
 .template-nav-pill-active {
-  min-width: 146rpx;
+  min-width: 120rpx;
   height: 58rpx;
   border-color: rgba(255, 255, 255, 0.65);
   color: #FFFFFF;
@@ -98,7 +99,7 @@
   z-index: 1;
   width: 688rpx;
   height: 767rpx;
-  margin: 30rpx 31rpx 0;
+  margin: 60rpx auto 0;
   overflow: hidden;
   border-radius: 54rpx;
   background: #EDEDF2;
