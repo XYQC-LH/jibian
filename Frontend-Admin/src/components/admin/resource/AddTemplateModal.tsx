@@ -16,6 +16,8 @@ type AddTemplateModalProps = {
 const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryOptions, onClose, onCreated }) => {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [priceCredits, setPriceCredits] = useState(0);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [coverAssetId, setCoverAssetId] = useState<string | null>(null);
@@ -75,6 +77,16 @@ const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryOptions, on
       toast.error('请选择分类');
       return;
     }
+    const trimmedPrompt = prompt.trim();
+    if (!trimmedPrompt) {
+      toast.error('请输入提示词');
+      return;
+    }
+    const price = Math.round(Number(priceCredits));
+    if (!Number.isFinite(price) || price < 0) {
+      toast.error('积分价格无效');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -91,8 +103,8 @@ const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryOptions, on
         name: trimmedName,
         category: category.trim(),
         ...(resolvedCoverAssetId ? { cover_asset_id: resolvedCoverAssetId } : {}),
-        prompt: `将用户上传的人物照片转换为${trimmedName}风格的图片。`,
-        price_credits: 0,
+        prompt: prompt.trim() || `将用户上传的人物照片转换为${trimmedName}风格的图片。`,
+        price_credits: priceCredits,
         result_count: 1,
         sort_order: 0,
         status: 'published',
@@ -144,6 +156,54 @@ const AddTemplateModal: React.FC<AddTemplateModalProps> = ({ categoryOptions, on
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-text-muted mb-2">提示词</label>
+            <textarea
+              className="input-primary w-full min-h-[80px] resize-y"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={`例如：将用户上传的人物照片转换为${name || '清透珠光写真'}风格的图片。`}
+              maxLength={2000}
+            />
+            <span className="text-xs text-text-muted mt-1 block">留空则自动生成默认提示词</span>
+          </div>
+
+          <div>
+            <label className="block text-sm text-text-muted mb-2">价格（积分）</label>
+            <input
+              type="number"
+              min={0}
+              className="input-primary w-full"
+              value={priceCredits}
+              onChange={(e) => setPriceCredits(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+              placeholder="0 表示免费"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-text-muted mb-2">提示词（必填）</label>
+            <textarea
+              className="input-primary w-full min-h-28 resize-y"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="例如：将用户上传的人物照片转换为克制、自然、可发布的人物写真风格图片。"
+              maxLength={2000}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-text-muted mb-2">积分价格（必填）</label>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              className="input-primary w-full"
+              value={priceCredits}
+              onChange={(e) => setPriceCredits(Number(e.target.value))}
+              placeholder="例如：6"
+            />
           </div>
 
           <div>
