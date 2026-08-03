@@ -49,6 +49,28 @@ export class TemplatesService {
     }));
   }
 
+  async listCategories() {
+    const [categories, categoryOrderByName] = await Promise.all([
+      this.prisma.templateCategory.findMany({
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      }),
+      this.getCategoryOrderByName(),
+    ]);
+
+    const sorted = categories.sort((left, right) => {
+      const leftOrder = categoryOrderByName.get(left.name) ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = categoryOrderByName.get(right.name) ?? Number.MAX_SAFE_INTEGER;
+      if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+      return left.sortOrder - right.sortOrder;
+    });
+
+    return sorted.map((category) => ({
+      name: category.name,
+      display_name: category.displayName,
+      sort_order: category.sortOrder,
+    }));
+  }
+
   async listAdmin() {
     const [templates, categoryOrderByName] = await Promise.all([
       this.prisma.template.findMany(),

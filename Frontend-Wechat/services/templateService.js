@@ -2,6 +2,8 @@ const api = require("./api");
 const templateStore = require("../data/templates");
 
 let usingFallback = false;
+let remoteCategories = [];
+let remoteCategoryMap = {};
 
 function isFiniteNumber(value) {
   return typeof value === "number" && Number.isFinite(value);
@@ -58,6 +60,60 @@ function loadTemplates() {
   return api.listTemplates()
     .then(applyRemoteTemplates)
     .catch(useFallbackTemplates);
+}
+
+function loadCategories() {
+  return api.listCategories().then((items) => {
+    const list = Array.isArray(items) ? items : [];
+    const map = {};
+
+    list.forEach((item) => {
+      if (item && item.name) {
+        map[item.name] = item;
+      }
+    });
+
+    remoteCategories = list;
+    remoteCategoryMap = map;
+    return list;
+  }).catch((err) => {
+    console.warn("[categories fallback]", err);
+    remoteCategories = [];
+    remoteCategoryMap = {};
+    return [];
+  });
+}
+
+function getCategories() {
+  if (remoteCategories.length) {
+    return remoteCategories.map((item) => item.name);
+  }
+
+  return templateStore.categories;
+}
+
+function getCategoryDisplayName(name) {
+  const item = remoteCategoryMap[name];
+
+  if (item && item.display_name) {
+    return item.display_name;
+  }
+
+  return "";
+}
+
+function getCategoryIcon(name) {
+  const item = remoteCategoryMap[name];
+
+  if (item && item.display_name) {
+    const match = item.display_name.match(/^(\p{Extended_Pictographic}|\p{Emoji_Presentation})/u);
+
+    if (match) {
+      return match[1];
+    }
+  }
+
+  return templateStore.categoryIcons[name] || "";
 }
 
 function getCurrentTemplates() {
@@ -126,13 +182,15 @@ function listFavoriteTemplates() {
 
 module.exports = {
   loadTemplates,
+  loadCategories,
   getCurrentTemplates,
   isUsingFallback,
   findTemplate,
   filterTemplates,
   getHomeSections,
   getCategories,
-  getCategoryIcons,
+  getCategoryDisplayName,
+  getCategoryIcon,
   refreshFavoriteTemplateIds,
   listFavoriteTemplates,
   mapFavoriteTemplate

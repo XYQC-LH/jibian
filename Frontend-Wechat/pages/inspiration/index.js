@@ -2,7 +2,7 @@ const templateService = require("../../services/templateService");
 const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
 
-const categories = ["热门", "职场", "头像", "写真", "角色"];
+const LOCAL_CATEGORIES = ["热门", "风格", "头像", "写真", "角色"];
 
 function resolveCategory(category) {
   return category === "职场" ? "风格" : category;
@@ -34,7 +34,7 @@ Page({
     statusBarHeight: 0,
     menuButtonRightGap: 0,
     activeCategory: "热门",
-    categories,
+    categories: LOCAL_CATEGORIES,
     columns: { left: [], right: [] }
   },
 
@@ -50,6 +50,20 @@ Page({
     this.refreshTemplates();
     templateService.refreshFavoriteTemplateIds().then(() => this.refreshTemplates());
     templateService.loadTemplates().then(() => this.refreshTemplates());
+    this.loadCategories();
+  },
+
+  loadCategories() {
+    templateService.loadCategories().then((items) => {
+      const remote = (Array.isArray(items) ? items : []).map((item) => item.name).filter(Boolean);
+      const categories = remote.length ? remote : LOCAL_CATEGORIES;
+
+      this.setData({
+        categories,
+        activeCategory: categories.includes(this.data.activeCategory) ? this.data.activeCategory : categories[0]
+      });
+      this.refreshTemplates(this.data.activeCategory);
+    });
   },
 
   refreshTemplates(category = this.data.activeCategory) {

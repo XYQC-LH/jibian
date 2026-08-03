@@ -10,4 +10,9 @@ export class TemplatesController {
     return this.templates.listPublished();
   }
 
+  @Get("categories")
+  listCategories() {
+    return this.templates.listCategories();
+  }
+
 }

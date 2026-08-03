@@ -2,8 +2,6 @@ const api = require("../../services/api");
 const templateService = require("../../services/templateService");
 const { syncTabBar } = require("../../components/bottom-nav/tabs");
 
-const categoryIcons = templateService.getCategoryIcons();
-
 function toHomeCards(items) {
   return items.map((item) => ({
     id: item.id,
@@ -21,14 +19,19 @@ function buildSections(items) {
     trackWidth: trackWidth(list)
   });
 
+  const displayNameOf = (key) => (
+    templateService.getCategoryDisplayName(key) || `${key}玩法｜选一个马上开变`
+  );
+  const iconOf = (key) => templateService.getCategoryIcon(key) || "✦";
+
   const sections = [];
   const hot = items.slice(0, 4);
 
   if (hot.length) {
     sections.push(sectionOf({
       key: "hot",
-      title: "热门｜大家都在玩",
-      icon: categoryIcons["热门"],
+      title: displayNameOf("热门"),
+      icon: iconOf("热门"),
       iconClass: "hot"
     }, hot));
   }
@@ -57,8 +60,8 @@ function buildSections(items) {
 
     sections.push(sectionOf({
       key,
-      title: `${key}玩法｜选一个马上开变`,
-      icon: categoryIcons[key] || "✦",
+      title: displayNameOf(key),
+      icon: iconOf(key),
       iconClass: key === "头像" ? "avatar" : "style"
     }, list));
   });
@@ -82,7 +85,14 @@ Page({
       creditBalance: getApp().globalData.credits
     });
     this.loadHomeBanners();
+    this.loadCategories();
     this.loadTemplates();
+  },
+
+  loadCategories() {
+    templateService.loadCategories().then(() => {
+      this.refreshSections();
+    });
   },
 
   refreshSections() {
