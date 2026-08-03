@@ -253,21 +253,18 @@
 }
 
 .change-template {
-  position: absolute;
-  top: -21rpx;
-  right: -2rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 127rpx;
   height: 77rpx;
-  margin-top: 0;
-  border-radius: 0 0 31rpx 31rpx;
+  border: 2rpx solid #5D9CFF;
+  border-radius: 31rpx;
   color: #FFFFFF;
   background: linear-gradient(90deg, #FF77B9 0%, #A58CFF 100%);
-  box-shadow: 0 10rpx 22rpx rgba(165, 140, 255, 0.24);
   font-size: 22rpx;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .asset-row {
@@ -294,7 +291,7 @@
 .photo-empty {
   width: 100%;
   height: 100%;
-  border-radius: 20rpx;
+  border-radius: 27rpx;
 }
 
 .photo-slot-image {
@@ -338,15 +335,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38rpx;
-  height: 38rpx;
-  border: 3rpx solid #FFFFFF;
+  box-sizing: border-box;
+  width: 54rpx;
+  height: 54rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
   border-radius: 999rpx;
   color: #FFFFFF;
-  background: #20151D;
-  font-size: 26rpx;
+  background: rgba(32, 21, 29, 0.9);
+  font-size: 31rpx;
   font-weight: 900;
-  line-height: 34rpx;
+  line-height: 1;
 }
 
 .ratio-title {
