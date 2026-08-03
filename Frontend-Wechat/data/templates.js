@@ -135,30 +135,6 @@ const categoryIcons = {
   节日: "✺"
 };
 
-const homeSectionDefinitions = [
-  {
-    key: "hot",
-    title: "热门｜大家都在玩",
-    icon: categoryIcons["热门"],
-    iconClass: "hot",
-    templateIds: ["pearl-portrait", "street-boyfriend", "gufeng-mood", "private-photo"]
-  },
-  {
-    key: "style",
-    title: "风格变换｜自拍秒变小红书感",
-    icon: categoryIcons["风格"],
-    iconClass: "style",
-    templateIds: ["japanese-clean", "vintage-film", "dream-glow", "light-shadow"]
-  },
-  {
-    key: "avatar",
-    title: "头像｜换一张社交主图",
-    icon: categoryIcons["头像"],
-    iconClass: "avatar",
-    templateIds: ["cinematic-portrait", "forest-avatar", "city-night", "dark-texture"]
-  }
-];
-
 function findTemplate(id) {
   return templates.find((item) => item.id === id) || templates[0];
 }
@@ -204,24 +180,37 @@ function withLayout(section) {
 }
 
 function getHomeSections(category) {
-  if (!category || category === "热门") {
-    return homeSectionDefinitions.map((section) => {
-      const { templateIds, ...sectionMeta } = section;
-
-      return withLayout({
-        ...sectionMeta,
-        cards: templateIds.map(findTemplate)
-      });
-    });
+  if (category && category !== "热门") {
+    return [withLayout({
+      key: category,
+      title: `${category}玩法｜选一个马上开变`,
+      icon: categoryIcons[category] || "✦",
+      iconClass: category === "头像" ? "avatar" : "style",
+      cards: filterTemplates(category)
+    })];
   }
 
-  return [withLayout({
-    key: category,
-    title: `${category}玩法｜选一个马上开变`,
-    icon: categoryIcons[category] || "✦",
-    iconClass: category === "头像" ? "avatar" : "style",
-    cards: filterTemplates(category)
-  })];
+  const groupKeys = [];
+  const seen = new Set();
+
+  templates.forEach((item) => {
+    const key = item.category;
+
+    if (!key || seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    groupKeys.push(key);
+  });
+
+  return groupKeys.slice(0, 3).map((key) => withLayout({
+    key,
+    title: `${key}玩法｜选一个马上开变`,
+    icon: categoryIcons[key] || "✦",
+    iconClass: key === "头像" ? "avatar" : "style",
+    cards: filterTemplates(key)
+  }));
 }
 
 module.exports = {

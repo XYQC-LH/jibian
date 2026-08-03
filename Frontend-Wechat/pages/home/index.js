@@ -25,25 +25,15 @@ function buildSections(items) {
   const iconOf = (key) => templateService.getCategoryIcon(key);
 
   const sections = [];
-  const hot = items.slice(0, 4);
 
-  if (hot.length) {
-    sections.push(sectionOf({
-      key: "hot",
-      title: displayNameOf("热门"),
-      icon: iconOf("热门"),
-      iconClass: "hot"
-    }, hot));
-  }
-
-  // 按分类分组，补足最多 3 个分区
+  // 按分类分组，最多展示 3 个分区
   const groupKeys = [];
   const seen = new Set();
 
   items.forEach((item) => {
     const key = item.category;
 
-    if (!key || key === "热门" || seen.has(key)) {
+    if (!key || seen.has(key)) {
       return;
     }
 
@@ -77,7 +67,7 @@ Page({
   data: {
     creditBalance: 0,
     homeBanners: [],
-    sections: templateService.getHomeSections("热门")
+    sections: templateService.getHomeSections()
   },
 
   remoteItems: null,
@@ -102,7 +92,7 @@ Page({
   refreshSections() {
     const sections = this.remoteItems
       ? buildSections(this.remoteItems)
-      : templateService.getHomeSections("热门");
+      : templateService.getHomeSections();
 
     this.setData({ sections });
   },
@@ -139,6 +129,12 @@ Page({
 
   goCreate(event) {
     const { id } = event.currentTarget.dataset;
+
+    if (!this.remoteItems) {
+      wx.showToast({ title: "模板加载中，请稍后", icon: "none" });
+      this.loadTemplates();
+      return;
+    }
 
     this.chooseImageAndCreate(id);
   },
