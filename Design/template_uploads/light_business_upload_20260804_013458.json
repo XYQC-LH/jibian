@@ -1,0 +1,397 @@
+{
+  "uploaded_at": "2026-08-04T01:34:58+0800",
+  "api_base": "https://api.jibian.art",
+  "category": "👔 轻商务形象",
+  "price_credits": 6,
+  "result_count": 1,
+  "count": 20,
+  "created_count": 20,
+  "skipped_existing_count": 0,
+  "failure_count": 0,
+  "verified_count": 20,
+  "results": [
+    {
+      "index": 1,
+      "template_id": "12e142c6-15ff-4771-89ce-34cb445d7705",
+      "name": "干净职业头像",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 10,
+      "cover_asset_id": "726e9092-12fb-40ee-8ec5-6ef1ece66f5d",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\close-up-face.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_01_dcdff646e9"
+    },
+    {
+      "index": 2,
+      "template_id": "bdd795b7-ef9c-46a4-9aaf-28d664ed02b3",
+      "name": "会议前好状态",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 20,
+      "cover_asset_id": "02814b20-0f59-4230-8d5b-1a80707263ff",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_003.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_02_787f874d9f"
+    },
+    {
+      "index": 3,
+      "template_id": "47e152f5-0e58-4b29-b2a6-53dab5ef313c",
+      "name": "创始人简介照",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 30,
+      "cover_asset_id": "dd7d1350-cae7-415e-bd29-c92a95c0cc35",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-7.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_03_e613977b19"
+    },
+    {
+      "index": 4,
+      "template_id": "9e72abcb-8e08-4406-a59d-3568689abb00",
+      "name": "轻商务半身照",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 40,
+      "cover_asset_id": "5375f0fe-0d70-406a-8470-df9de94bb005",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310506071.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_04_0217110a7a"
+    },
+    {
+      "index": 5,
+      "template_id": "2ffc46cd-def8-463e-9936-1cd5a9091c8c",
+      "name": "白衬衫可信感",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 50,
+      "cover_asset_id": "bc114236-1c7e-4984-99fc-3c59beb3e816",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_019.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_05_54f76174e5"
+    },
+    {
+      "index": 6,
+      "template_id": "3849874d-3ce7-4850-ba0f-01d7b82e927d",
+      "name": "办公室自然光",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 60,
+      "cover_asset_id": "dfead902-9e55-41d8-9f05-9e9087ccd3ff",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_028.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_06_4905631ebd"
+    },
+    {
+      "index": 7,
+      "template_id": "4ac1109f-3400-4fe1-bc48-153a4e4ad333",
+      "name": "城市会客形象",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 70,
+      "cover_asset_id": "f462ba00-1ad9-44a7-976d-8df4de3cad5f",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310524074.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_07_cf287e3448"
+    },
+    {
+      "index": 8,
+      "template_id": "67f99706-b713-437f-815a-674fec50a742",
+      "name": "简历封面形象",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 80,
+      "cover_asset_id": "8d123d85-db95-4d37-a672-b70e5aa77819",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_008.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_08_f2f35dd8bd"
+    },
+    {
+      "index": 9,
+      "template_id": "1238bab7-436c-4692-bd6f-aa147a881a8d",
+      "name": "讲者海报感",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 90,
+      "cover_asset_id": "8c9dac56-e8ea-4cb6-bc3d-c09d69092c94",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_040.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_09_72a3f4715c"
+    },
+    {
+      "index": 10,
+      "template_id": "f0526053-7022-45c9-bbb4-00189b5f9bb0",
+      "name": "团队主页照片",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 100,
+      "cover_asset_id": "183d1bdb-3b7b-46ea-96d2-7d4c133f1cbf",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-3.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_10_820e246d1c"
+    },
+    {
+      "index": 11,
+      "template_id": "dce0469b-5690-47cb-adc3-3972e667b8a9",
+      "name": "温和专业感",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 110,
+      "cover_asset_id": "77566568-f7f3-4e44-b4c8-f92475169a73",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311362332.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_11_bcb68ee599"
+    },
+    {
+      "index": 12,
+      "template_id": "9063526c-9716-4496-8144-5f93b53582ca",
+      "name": "咨询顾问形象",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 120,
+      "cover_asset_id": "14f45b1a-2531-4597-b07b-dbf81424df06",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_050.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_12_2f20b6e7f2"
+    },
+    {
+      "index": 13,
+      "template_id": "364d68a8-36d5-4fbd-9ae9-3c66680461ee",
+      "name": "自由职业档案",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 130,
+      "cover_asset_id": "d0ea24e7-5ae1-4ac5-b05e-8abeaaa7d311",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_034.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_13_8d82cfac64"
+    },
+    {
+      "index": 14,
+      "template_id": "1b7f4ade-249e-4816-be28-b30cfad97354",
+      "name": "低调精英感",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 140,
+      "cover_asset_id": "9533fc91-5658-46cb-bf98-64df11c93a59",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310524605.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_14_dd2387a108"
+    },
+    {
+      "index": 15,
+      "template_id": "4e36d9bc-2b4c-4d16-a7de-4c408421ce7f",
+      "name": "干练通勤照",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 150,
+      "cover_asset_id": "aa96a94c-5005-4a32-9865-bfa7d07a6937",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_009.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_15_df1694173e"
+    },
+    {
+      "index": 16,
+      "template_id": "0620954c-de1d-45af-90f8-eaea75fc3b6c",
+      "name": "个人品牌主图",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 160,
+      "cover_asset_id": "de125033-6582-4ff5-81bf-1d33d1d98b2b",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310517270.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_16_85f75c6e8c"
+    },
+    {
+      "index": 17,
+      "template_id": "0b823b93-8602-435b-b158-8bea7605ddb7",
+      "name": "咖啡会谈照",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 170,
+      "cover_asset_id": "b281e06c-b342-44f6-942a-280e47a65862",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_018.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_17_7be7074b03"
+    },
+    {
+      "index": 18,
+      "template_id": "1d64719e-8d3d-4733-9a7f-c86bb9a97537",
+      "name": "灰调背景头像",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 180,
+      "cover_asset_id": "e918b809-394b-49a9-b6f8-cbf735c73092",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310511503.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_18_7ccc0397a9"
+    },
+    {
+      "index": 19,
+      "template_id": "936b74c6-4521-4305-b70f-d928ec38d872",
+      "name": "职场社交封面",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 190,
+      "cover_asset_id": "a2d940d7-46d1-449b-aabd-5e79e3837afa",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_046.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_19_0c47077f95"
+    },
+    {
+      "index": 20,
+      "template_id": "27e0d9da-ae58-43ce-b6e7-5f831211bc86",
+      "name": "可信介绍页照",
+      "category": "👔 轻商务形象",
+      "status": "published",
+      "sort_order": 200,
+      "cover_asset_id": "2d97ed54-609e-4058-ba0e-e498bbb5ab2c",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_030.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_light_business_20_5d88d83aa0"
+    }
+  ],
+  "failures": [],
+  "verification": [
+    {
+      "name": "干净职业头像",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "会议前好状态",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "创始人简介照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "轻商务半身照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "白衬衫可信感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "办公室自然光",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "城市会客形象",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "简历封面形象",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "讲者海报感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "团队主页照片",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "温和专业感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "咨询顾问形象",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "自由职业档案",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "低调精英感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "干练通勤照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "个人品牌主图",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "咖啡会谈照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "灰调背景头像",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "职场社交封面",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "可信介绍页照",
+      "visible": true,
+      "status": "published"
+    }
+  ]
+}

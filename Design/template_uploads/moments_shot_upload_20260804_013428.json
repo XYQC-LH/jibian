@@ -1,0 +1,397 @@
+{
+  "uploaded_at": "2026-08-04T01:34:28+0800",
+  "api_base": "https://api.jibian.art",
+  "category": "🌆 朋友圈大片",
+  "price_credits": 6,
+  "result_count": 1,
+  "count": 20,
+  "created_count": 20,
+  "skipped_existing_count": 0,
+  "failure_count": 0,
+  "verified_count": 20,
+  "results": [
+    {
+      "index": 1,
+      "template_id": "f367a797-f19b-43fc-b22a-1a8cd156c050",
+      "name": "海边落日刷屏",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 19,
+      "cover_asset_id": "c458cf33-8c2f-4505-8ae0-37adfd5c7d68",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_014.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_01_efad595664"
+    },
+    {
+      "index": 2,
+      "template_id": "8ab67eb7-35d9-43af-9ed1-b4f71ce2c620",
+      "name": "城市夜景大片",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 29,
+      "cover_asset_id": "52384cc1-1e8d-445a-b792-46c13baf142f",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785321850925.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_02_ea4391a9e1"
+    },
+    {
+      "index": 3,
+      "template_id": "e2b7dfb4-b74a-4b22-97ed-d5c4a55e19de",
+      "name": "雪天氛围感",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 39,
+      "cover_asset_id": "82f2b70b-7177-4904-91a3-5b1241f1fcd8",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_031.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_03_41477c200f"
+    },
+    {
+      "index": 4,
+      "template_id": "d0f9f778-e874-484a-93ae-b8092fa74482",
+      "name": "旅行明信片",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 49,
+      "cover_asset_id": "04c33411-2f52-4bbc-93e9-961cad6b4502",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310491337.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_04_9fcd9d967b"
+    },
+    {
+      "index": 5,
+      "template_id": "e4a64019-ff5d-4b40-82f0-3b9aaba145d5",
+      "name": "天台风很大",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 59,
+      "cover_asset_id": "00fb4f90-dd30-4a30-b711-a6844cd15c3b",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311416498.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_05_c09f65dfd0"
+    },
+    {
+      "index": 6,
+      "template_id": "1f30c0e6-1eab-4628-b567-033fa877aacd",
+      "name": "山野自由感",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 69,
+      "cover_asset_id": "bdcd6457-ee66-4897-9bcb-85dd94e57ec8",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-9.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_06_ff9616d1d3"
+    },
+    {
+      "index": 7,
+      "template_id": "fd66baa3-b7a7-413c-a9e4-01f9e1aecc7b",
+      "name": "公路电影照",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 79,
+      "cover_asset_id": "223a114d-20eb-4020-a6af-87d44ca549a1",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_015.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_07_61b77cb51e"
+    },
+    {
+      "index": 8,
+      "template_id": "b83f5280-768d-4691-b60e-00516d56824c",
+      "name": "落地窗假日",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 89,
+      "cover_asset_id": "404ad164-4d25-4e4b-8af4-168355d7ae9a",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311395274.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_08_aa92db7f13"
+    },
+    {
+      "index": 9,
+      "template_id": "af1a79c0-7a8c-4e0b-968a-e75698ac06c8",
+      "name": "雨夜霓虹漫步",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 99,
+      "cover_asset_id": "00cc4a28-5c39-46a7-b8e6-ac1489a179f7",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310506071.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_09_ec6806f663"
+    },
+    {
+      "index": 10,
+      "template_id": "471e833e-1688-405a-b8f8-c4d15a177680",
+      "name": "秋日银杏路",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 109,
+      "cover_asset_id": "ee51c547-f090-4a06-960c-ff232846cdae",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\portrait-perfect.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_10_0f59b8d8a0"
+    },
+    {
+      "index": 11,
+      "template_id": "691085b8-1f29-4069-b899-ba2f30876a9e",
+      "name": "海岛度假感",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 119,
+      "cover_asset_id": "1878b0c1-95e4-4dc1-9892-31883e5ab09f",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_038.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_11_268d6a2483"
+    },
+    {
+      "index": 12,
+      "template_id": "c91e6efd-ef9b-44c2-96d5-1cb2f0e3e8fc",
+      "name": "日落露营照",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 129,
+      "cover_asset_id": "373b4111-698d-457d-b30a-06f042183b1f",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-16.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_12_7aade150bd"
+    },
+    {
+      "index": 13,
+      "template_id": "66fbc1a3-abce-4871-85a6-a3b72f4293b4",
+      "name": "城市广角街拍",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 139,
+      "cover_asset_id": "b572f8ba-e502-4eb0-b7d3-e54531eab10a",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311413660.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_13_cc88bd1f63"
+    },
+    {
+      "index": 14,
+      "template_id": "0ccb01b5-4569-4510-95f0-ed0ac9488bff",
+      "name": "湖边清晨大片",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 149,
+      "cover_asset_id": "5df6345d-7e59-473b-9f81-9caabfb7eb51",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_046.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_14_1fa1b72b89"
+    },
+    {
+      "index": 15,
+      "template_id": "187c4251-0b27-4c40-890d-d72355f65040",
+      "name": "复古港岛夜色",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 159,
+      "cover_asset_id": "ad6200f8-fbd2-4ed3-9d64-ee958beaacf2",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_027.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_15_320e6601dd"
+    },
+    {
+      "index": 16,
+      "template_id": "c7fd63da-50b9-4f03-9f8d-b36e9bff85ff",
+      "name": "草原风吹过",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 169,
+      "cover_asset_id": "f0796cd1-ba22-48ce-8e4b-bd01b70489b6",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_012.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_16_dbfaa9761c"
+    },
+    {
+      "index": 17,
+      "template_id": "6ba9069e-4644-40a0-bcce-757480c3e01c",
+      "name": "温泉旅拍感",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 179,
+      "cover_asset_id": "37b22bf5-cf51-4a7d-ad2a-ac57bcee33a6",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310500393.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_17_757751b848"
+    },
+    {
+      "index": 18,
+      "template_id": "cd834fce-bd65-47c8-a974-aa20be46ddfc",
+      "name": "节日灯火氛围",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 189,
+      "cover_asset_id": "d21b3d83-c66f-4131-b53b-1cf9d48ab51a",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_013.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_18_71a56aa7e9"
+    },
+    {
+      "index": 19,
+      "template_id": "311741cf-3980-4e9b-a5b4-da491ca42c76",
+      "name": "机场出发感",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 199,
+      "cover_asset_id": "79efef7a-4722-42a2-bcdc-a2aae8af490a",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311417442.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_19_79990854f5"
+    },
+    {
+      "index": 20,
+      "template_id": "d9288445-00ac-4fee-bcdc-da09406df94f",
+      "name": "朋友圈封面照",
+      "category": "🌆 朋友圈大片",
+      "status": "published",
+      "sort_order": 209,
+      "cover_asset_id": "5836de07-18b1-4d83-8106-08cc2d7256ad",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_022.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_moments_shot_20_c98ff5eb64"
+    }
+  ],
+  "failures": [],
+  "verification": [
+    {
+      "name": "海边落日刷屏",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "城市夜景大片",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "雪天氛围感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "旅行明信片",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "天台风很大",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "山野自由感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "公路电影照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "落地窗假日",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "雨夜霓虹漫步",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "秋日银杏路",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "海岛度假感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "日落露营照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "城市广角街拍",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "湖边清晨大片",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "复古港岛夜色",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "草原风吹过",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "温泉旅拍感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "节日灯火氛围",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "机场出发感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "朋友圈封面照",
+      "visible": true,
+      "status": "published"
+    }
+  ]
+}

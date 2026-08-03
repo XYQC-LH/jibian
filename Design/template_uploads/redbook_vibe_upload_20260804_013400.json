@@ -1,0 +1,397 @@
+{
+  "uploaded_at": "2026-08-04T01:34:00+0800",
+  "api_base": "https://api.jibian.art",
+  "category": "🍓 小红书感",
+  "price_credits": 6,
+  "result_count": 1,
+  "count": 20,
+  "created_count": 20,
+  "skipped_existing_count": 0,
+  "failure_count": 0,
+  "verified_count": 20,
+  "results": [
+    {
+      "index": 1,
+      "template_id": "745eba10-6aca-4246-afe0-04b4430a0659",
+      "name": "周末咖啡封面",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 15,
+      "cover_asset_id": "cc55c122-76c3-4072-be6c-d97ca22f10ec",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_037.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_01_e950c04b87"
+    },
+    {
+      "index": 2,
+      "template_id": "c1090dfe-2eac-4e91-a732-527af2a82d88",
+      "name": "法式松弛早餐",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 25,
+      "cover_asset_id": "4a039011-2772-452e-82b7-1f571dfff910",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310518315.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_02_950dc60140"
+    },
+    {
+      "index": 3,
+      "template_id": "02031027-391a-4d64-a80d-6f9fd98fb6bf",
+      "name": "窗边自然光",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 35,
+      "cover_asset_id": "96e053ba-c3f3-4ac8-8c10-65bc1f18ad89",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310491337.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_03_8ec357c64b"
+    },
+    {
+      "index": 4,
+      "template_id": "4d1678a3-6c3e-4498-9a41-58fed53290cc",
+      "name": "奶油家居感",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 45,
+      "cover_asset_id": "bbaaebc5-529b-48f5-ac58-71a789f34dae",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311395274.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_04_7daeb63fa9"
+    },
+    {
+      "index": 5,
+      "template_id": "ce9b541b-0e0d-4917-948a-d9b25c0febf4",
+      "name": "低饱和探店照",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 55,
+      "cover_asset_id": "1ea63c8d-bfde-42ed-82a5-5ddfbedb9073",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_019.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_05_86df7307d9"
+    },
+    {
+      "index": 6,
+      "template_id": "3423d818-dcc1-4c2b-b3ec-0d5070be5e2d",
+      "name": "清透出门 OOTD",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 65,
+      "cover_asset_id": "0bed1ec5-654d-4ebb-9304-c3227805674d",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_044.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_06_eaaf266264"
+    },
+    {
+      "index": 7,
+      "template_id": "bcffd7d5-4169-4a15-b107-aeca2811fccc",
+      "name": "花市随拍",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 75,
+      "cover_asset_id": "81f3376f-7fbd-481b-8940-a81cef7c7f58",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_039.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_07_f6d1fa2897"
+    },
+    {
+      "index": 8,
+      "template_id": "336b901a-dc20-4287-b0a0-1fd43cc836a7",
+      "name": "胶片生活碎片",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 85,
+      "cover_asset_id": "2337667c-daa5-45f7-ad02-38822c013341",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_023.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_08_7028a5eb8c"
+    },
+    {
+      "index": 9,
+      "template_id": "359f35e4-8300-437e-ac16-3cd4fc2c982c",
+      "name": "日杂封面感",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 95,
+      "cover_asset_id": "f20b0ff1-7584-43e9-99b9-2376ddbf4e90",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-5.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_09_ed4d84f0f4"
+    },
+    {
+      "index": 10,
+      "template_id": "7f314469-4d78-4591-b15c-a4970ccb2750",
+      "name": "慵懒午后自拍",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 105,
+      "cover_asset_id": "e31aeb82-4896-47f8-a93a-fe498ebbb15b",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_015.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_10_3af8ff8acb"
+    },
+    {
+      "index": 11,
+      "template_id": "511cae4e-74c6-417f-b97f-4e969ba40583",
+      "name": "治愈浅色系",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 115,
+      "cover_asset_id": "ae8aa0bb-b2d4-4260-8c87-006fc8f88abc",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\hero-bg.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_11_7467b9e48f"
+    },
+    {
+      "index": 12,
+      "template_id": "7a19a6f1-b87c-4a67-9687-731f1cd77144",
+      "name": "公园野餐感",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 125,
+      "cover_asset_id": "c9b893f6-11a2-4a21-9f7d-9378e4eaf6de",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_017.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_12_7182f3f919"
+    },
+    {
+      "index": 13,
+      "template_id": "20368708-5e85-4805-b2c4-46a3c9821750",
+      "name": "书店氛围图",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 135,
+      "cover_asset_id": "e3e9d010-b644-4d75-92ff-452b8230186b",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310524605.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_13_66c2536104"
+    },
+    {
+      "index": 14,
+      "template_id": "d4dc75bc-1c86-4b3b-8121-b3b64e02d158",
+      "name": "海盐蓝夏日",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 145,
+      "cover_asset_id": "17251b89-2c0b-40e6-9262-41de71bede7a",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_029.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_14_df5f16a09c"
+    },
+    {
+      "index": 15,
+      "template_id": "975d3b96-ce45-4f93-b37d-4f096ea26465",
+      "name": "雨后街角",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 155,
+      "cover_asset_id": "8b13b5a3-09d5-43b8-add8-a6dc6572019e",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_013.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_15_1345659572"
+    },
+    {
+      "index": 16,
+      "template_id": "2382aae9-39b9-4d3b-be3a-7a6d80fd8d8a",
+      "name": "甜酷穿搭封面",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 165,
+      "cover_asset_id": "bd9c6ef7-11df-46a4-a9cd-950ae7880eae",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-6.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_16_e50146dc30"
+    },
+    {
+      "index": 17,
+      "template_id": "80d4aa64-e0aa-4575-a80a-89745a89fa19",
+      "name": "极简白墙大片",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 175,
+      "cover_asset_id": "efb90a61-545d-4429-831d-6febabcebd7c",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-1.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_17_b40d71883f"
+    },
+    {
+      "index": 18,
+      "template_id": "a314e20e-4ae6-4ae9-9308-13fe2fa3bd7e",
+      "name": "软糯毛衣季",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 185,
+      "cover_asset_id": "566ba777-fafc-4eaf-9ed9-fb20c1564fbc",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-4.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_18_19b02da39b"
+    },
+    {
+      "index": 19,
+      "template_id": "b1aea4a2-7179-41d1-94e9-065f001b0401",
+      "name": "高赞氛围首图",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 195,
+      "cover_asset_id": "33dfd21d-e5a9-4190-ad92-65c8abd9a270",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_009.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_19_9321b1a219"
+    },
+    {
+      "index": 20,
+      "template_id": "763f5de9-7e80-4fc1-a154-57434d99a0aa",
+      "name": "今日好气色",
+      "category": "🍓 小红书感",
+      "status": "published",
+      "sort_order": 205,
+      "cover_asset_id": "a2e6613d-da28-4bf3-bbc7-30cf5085a834",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-13.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_redbook_vibe_20_f5edf321d6"
+    }
+  ],
+  "failures": [],
+  "verification": [
+    {
+      "name": "周末咖啡封面",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "法式松弛早餐",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "窗边自然光",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "奶油家居感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "低饱和探店照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "清透出门 OOTD",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "花市随拍",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "胶片生活碎片",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "日杂封面感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "慵懒午后自拍",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "治愈浅色系",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "公园野餐感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "书店氛围图",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "海盐蓝夏日",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "雨后街角",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "甜酷穿搭封面",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "极简白墙大片",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "软糯毛衣季",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "高赞氛围首图",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "今日好气色",
+      "visible": true,
+      "status": "published"
+    }
+  ]
+}

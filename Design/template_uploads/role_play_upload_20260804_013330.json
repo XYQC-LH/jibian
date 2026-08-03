@@ -1,0 +1,397 @@
+{
+  "uploaded_at": "2026-08-04T01:33:30+0800",
+  "api_base": "https://api.jibian.art",
+  "category": "🪄 角色入戏",
+  "price_credits": 6,
+  "result_count": 1,
+  "count": 20,
+  "created_count": 20,
+  "skipped_existing_count": 0,
+  "failure_count": 0,
+  "verified_count": 20,
+  "results": [
+    {
+      "index": 1,
+      "template_id": "6a544a4a-2804-4fd9-b9e1-1b23ff8e1542",
+      "name": "银翼调查员",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 16,
+      "cover_asset_id": "0377cb9a-6c5b-4d80-ba5e-a93688afed69",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-16.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_01_efad93ad8e"
+    },
+    {
+      "index": 2,
+      "template_id": "a86cebaa-d2fb-4411-b2cb-0e4389685c76",
+      "name": "古风游侠",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 26,
+      "cover_asset_id": "c32bfc4d-b593-4ee2-9546-c94304cd6eb7",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_010.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_02_c400d21adc"
+    },
+    {
+      "index": 3,
+      "template_id": "149d6ee8-7199-4ace-9e7b-9eda36cc45b0",
+      "name": "民国报社主角",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 36,
+      "cover_asset_id": "ac0c174f-fc8a-41cf-8aef-ac6dffeedbab",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_024.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_03_0eae7cdede"
+    },
+    {
+      "index": 4,
+      "template_id": "60a27a8e-06c7-4800-bb9f-49345c988671",
+      "name": "魔法学院来信",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 46,
+      "cover_asset_id": "6156938d-a03e-4207-a87a-8ad383d2c49a",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-4.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_04_f72161a09a"
+    },
+    {
+      "index": 5,
+      "template_id": "796a74ba-056e-4790-bf77-07e521477f9e",
+      "name": "赛博街区来客",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 56,
+      "cover_asset_id": "8fd90d6f-d5ba-4ede-ae78-289d833f45ee",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_008.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_05_ee1865db3c"
+    },
+    {
+      "index": 6,
+      "template_id": "1a95bb67-f30c-42bc-b6c3-006d08725211",
+      "name": "荒野赏金猎人",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 66,
+      "cover_asset_id": "314c2235-fca9-4a30-a90d-986f7eb23af1",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_012.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_06_ab1daa4fd5"
+    },
+    {
+      "index": 7,
+      "template_id": "fef930b9-cc81-48a2-adf5-b44d6129a107",
+      "name": "东方玄幻使者",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 76,
+      "cover_asset_id": "66a23b57-3ab2-4aa6-a7db-b1b11cabf34f",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_004.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_07_18acbcbb9a"
+    },
+    {
+      "index": 8,
+      "template_id": "d2f631ca-1f35-4180-a8c0-5eb85761135a",
+      "name": "复古侦探档案",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 86,
+      "cover_asset_id": "abab4dda-4c59-46cf-a55e-eadc119984df",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-3.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_08_41c37052d3"
+    },
+    {
+      "index": 9,
+      "template_id": "30f61aef-4c30-46e7-bfc9-0a03c2c449fa",
+      "name": "星际领航员",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 96,
+      "cover_asset_id": "1ee2652e-53c0-4763-91d5-678167045041",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_026.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_09_2627762cd4"
+    },
+    {
+      "index": 10,
+      "template_id": "bcd4633b-2a76-424f-b409-3a7c4c888485",
+      "name": "宫廷密信角色",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 106,
+      "cover_asset_id": "fc24aebd-857d-496d-88a6-1af2b7c21b36",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_003.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_10_855d9f1267"
+    },
+    {
+      "index": 11,
+      "template_id": "2bcce7af-ae89-449d-a332-ea684e8016df",
+      "name": "末日城市幸存者",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 116,
+      "cover_asset_id": "93f675ed-50ac-44c4-9850-38cfe4ee51ec",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-9.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_11_3ecea9cc96"
+    },
+    {
+      "index": 12,
+      "template_id": "7f8034bf-33bb-44d2-8562-7f66876174b9",
+      "name": "海港冒险家",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 126,
+      "cover_asset_id": "ecff00ba-6212-4311-8ee1-698910e088ee",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-8.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_12_d316221ccd"
+    },
+    {
+      "index": 13,
+      "template_id": "08741f86-7590-4012-82a3-1f2f2cc6ee1c",
+      "name": "蒸汽机械师",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 136,
+      "cover_asset_id": "97624d9e-31f7-4a32-9f59-ea0c20232d96",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\hero-bg.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_13_34fcb09c67"
+    },
+    {
+      "index": 14,
+      "template_id": "d26032a1-2c18-47be-8cb7-8e19736083f4",
+      "name": "游戏登录封面",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 146,
+      "cover_asset_id": "e3c9c338-0a03-4271-b882-a4e62888dc75",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310497076.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_14_b2a68c0e0c"
+    },
+    {
+      "index": 15,
+      "template_id": "8124ed72-b747-48ae-b814-62557cd73a6f",
+      "name": "雪境守护者",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 156,
+      "cover_asset_id": "9cb74d53-e429-41de-b0c6-0c352e46b69e",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785310510351.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_15_4360e1deef"
+    },
+    {
+      "index": 16,
+      "template_id": "3467dd6e-d5c6-40e9-ba7c-512103ad6209",
+      "name": "暗夜玫瑰骑士",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 166,
+      "cover_asset_id": "1e551c89-cab8-45e6-8353-bb7448976026",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\dongya-vintage.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_16_f00adbe50d"
+    },
+    {
+      "index": 17,
+      "template_id": "71f5dbaa-3f41-440b-b185-e8b13839556b",
+      "name": "江湖茶馆侠客",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 176,
+      "cover_asset_id": "9a00751b-08ae-4a7f-aa4f-911f289b41bc",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311374308.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_17_5d822c42da"
+    },
+    {
+      "index": 18,
+      "template_id": "0c4f47a7-c02f-4dbe-97f7-a8a91cc5288e",
+      "name": "未来机能角色",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 186,
+      "cover_asset_id": "90216cf4-ade1-4a8d-91b8-b047b6f40d60",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785321848878.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_18_e985044c44"
+    },
+    {
+      "index": 19,
+      "template_id": "a0ca3a51-9d9b-43b2-b59d-b18b1dcdd353",
+      "name": "童话森林访客",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 196,
+      "cover_asset_id": "629beed9-8999-429e-b9bd-1794a83d0f71",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311415591.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_19_c84c1aec25"
+    },
+    {
+      "index": 20,
+      "template_id": "42c8cb78-fbb1-4ed3-a0f5-aa9a54fedab3",
+      "name": "电影反派登场",
+      "category": "🪄 角色入戏",
+      "status": "published",
+      "sort_order": 206,
+      "cover_asset_id": "5b09d1a4-6a70-4c7d-b7f6-bf81f105c5f2",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_031.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_role_play_20_d9f9427617"
+    }
+  ],
+  "failures": [],
+  "verification": [
+    {
+      "name": "银翼调查员",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "古风游侠",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "民国报社主角",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "魔法学院来信",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "赛博街区来客",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "荒野赏金猎人",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "东方玄幻使者",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "复古侦探档案",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "星际领航员",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "宫廷密信角色",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "末日城市幸存者",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "海港冒险家",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "蒸汽机械师",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "游戏登录封面",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "雪境守护者",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "暗夜玫瑰骑士",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "江湖茶馆侠客",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "未来机能角色",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "童话森林访客",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "电影反派登场",
+      "visible": true,
+      "status": "published"
+    }
+  ]
+}

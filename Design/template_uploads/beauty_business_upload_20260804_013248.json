@@ -1,0 +1,397 @@
+{
+  "uploaded_at": "2026-08-04T01:32:48+0800",
+  "api_base": "https://api.jibian.art",
+  "category": "💄 变美营业",
+  "price_credits": 6,
+  "result_count": 1,
+  "count": 20,
+  "created_count": 20,
+  "skipped_existing_count": 0,
+  "failure_count": 0,
+  "verified_count": 20,
+  "results": [
+    {
+      "index": 1,
+      "template_id": "b0f0ec9d-2d73-440d-9264-ffc6327bc488",
+      "name": "清透上镜营业",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 17,
+      "cover_asset_id": "6678a246-3467-49ec-98b5-1eecb7dd035c",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_030.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_01_c40268684d"
+    },
+    {
+      "index": 2,
+      "template_id": "d75248f3-8a4c-4962-b22e-77cd0d237ad1",
+      "name": "镜前好状态",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 27,
+      "cover_asset_id": "ac7a3102-c542-4169-82d2-00657aba9ac8",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311395616.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_02_1dca51fd2d"
+    },
+    {
+      "index": 3,
+      "template_id": "294280f3-242d-465e-9763-a8b71ab1a37b",
+      "name": "温柔奶油光",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 37,
+      "cover_asset_id": "624905f9-0f59-4f1f-a835-5a5335c9acfe",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_041.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_03_8f07166e7c"
+    },
+    {
+      "index": 4,
+      "template_id": "31e97619-cffd-4e5f-bd95-0e1a5530c106",
+      "name": "韩系通勤妆",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 47,
+      "cover_asset_id": "f5fce193-f7ff-4d6c-ba1c-ba2c0de016ea",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311417442.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_04_a1ca35855e"
+    },
+    {
+      "index": 5,
+      "template_id": "85c8a7ff-46e4-4c55-950b-06bc0642bfef",
+      "name": "冷感高级照",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 57,
+      "cover_asset_id": "36e9fbb4-780d-4eb7-8be0-b3d8fc6897b0",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_039.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_05_047ece8a6c"
+    },
+    {
+      "index": 6,
+      "template_id": "5df625bc-d5b1-4f55-9f1d-f240a27a4ecb",
+      "name": "精致出门照",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 67,
+      "cover_asset_id": "99f2302a-37a2-45f6-bd6c-db33dd80062b",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311407039.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_06_0d553be1ac"
+    },
+    {
+      "index": 7,
+      "template_id": "8b77a214-6e16-4a8f-8310-eb8db8fd4f84",
+      "name": "午后棚拍感",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 77,
+      "cover_asset_id": "182a9ac2-9537-4e72-82fc-92a9196c0ae2",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_008.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_07_fa70638fa1"
+    },
+    {
+      "index": 8,
+      "template_id": "9a939ea3-46a4-4748-8894-e5242f89de92",
+      "name": "低饱和妆造",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 87,
+      "cover_asset_id": "08b9450e-265d-43a0-ad70-5d1bae813bbc",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311407307.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_08_b7656d2668"
+    },
+    {
+      "index": 9,
+      "template_id": "dd589f09-2841-4ab4-b887-134d60f0dd9a",
+      "name": "白衬衫氛围",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 97,
+      "cover_asset_id": "61f9f78b-2b4c-419e-90d1-85d6384a0f0d",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311374308.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_09_bcd9737352"
+    },
+    {
+      "index": 10,
+      "template_id": "d4c6c826-4950-4e9e-b061-0a551a8617c1",
+      "name": "花店柔光",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 107,
+      "cover_asset_id": "3e62f76e-3265-4b8a-bb2e-21e97d3b40ae",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-10.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_10_ca3034f550"
+    },
+    {
+      "index": 11,
+      "template_id": "dcb57f40-51b2-46a0-a06c-d5fc08b80361",
+      "name": "杂志感半身",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 117,
+      "cover_asset_id": "566c0d55-d897-4e73-9a90-5c088d43a289",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_020.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_11_0b64226e9c"
+    },
+    {
+      "index": 12,
+      "template_id": "e2b8e757-1479-4dac-80fa-994fef28bff8",
+      "name": "气色拉满",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 127,
+      "cover_asset_id": "0caee754-fdd9-4cf0-a4c3-843ce44f6f7e",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311408308.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_12_39fef55dcc"
+    },
+    {
+      "index": 13,
+      "template_id": "a9ab5960-4ced-41a1-b00d-02b6811003d5",
+      "name": "法式松弛照",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 137,
+      "cover_asset_id": "3280621f-7dbc-4c81-a523-11e0f3f58822",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_027.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_13_f319aae7c4"
+    },
+    {
+      "index": 14,
+      "template_id": "0d79d28e-ac59-4029-b394-d6167be083d4",
+      "name": "城市约拍感",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 147,
+      "cover_asset_id": "9d26985b-2913-47b2-aeea-481edba3c7da",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311376859.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_14_2c3903e933"
+    },
+    {
+      "index": 15,
+      "template_id": "762ed383-e9e4-426f-8fd7-b583874dc037",
+      "name": "干净底妆感",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 157,
+      "cover_asset_id": "725540d1-dd2f-4ad0-82c2-9118f8630c1d",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785311413660.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_15_c1587b3cef"
+    },
+    {
+      "index": 16,
+      "template_id": "e69b151e-b425-42df-9984-dfa8c17832d6",
+      "name": "轻甜发光照",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 167,
+      "cover_asset_id": "56820efb-e65b-4273-b326-c84451f3c578",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785321851109.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_16_76b8f9bb2c"
+    },
+    {
+      "index": 17,
+      "template_id": "a02921df-ccbf-4138-b5f5-75650fd3eace",
+      "name": "自然精修照",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 177,
+      "cover_asset_id": "e3f14cdc-d16c-4ecf-b7cb-bfd2b1030a24",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\generated-1785321850925.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_17_17f9d91c2b"
+    },
+    {
+      "index": 18,
+      "template_id": "48739c27-bab6-4c76-bc03-bd274c7849a5",
+      "name": "明亮生活妆",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 187,
+      "cover_asset_id": "cfdcb172-7c48-495a-82af-1864f641dd56",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_031.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_18_962d11ff3c"
+    },
+    {
+      "index": 19,
+      "template_id": "b0fe9d52-3e9e-4907-b9cb-960a7cea5ab8",
+      "name": "温柔侧光照",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 197,
+      "cover_asset_id": "8ddf89df-eba4-45bf-aaea-7fc1a26ea1b3",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng_009.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_19_cf3f473b1b"
+    },
+    {
+      "index": 20,
+      "template_id": "0f4d4625-0ba9-48a7-b1d8-50b9ec0c13f6",
+      "name": "不费力高级感",
+      "category": "💄 变美营业",
+      "status": "published",
+      "sort_order": 207,
+      "cover_asset_id": "13c53e17-11b2-4f8d-9d85-7c673e2b086e",
+      "source_image": "C:\\code\\my\\jibian\\Design\\images\\jimeng-feed-14.png",
+      "content_type": "image/png",
+      "price_credits": 6,
+      "result_count": 1,
+      "external_id": "jibian_prompt_v1_beauty_business_20_be98e35882"
+    }
+  ],
+  "failures": [],
+  "verification": [
+    {
+      "name": "清透上镜营业",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "镜前好状态",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "温柔奶油光",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "韩系通勤妆",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "冷感高级照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "精致出门照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "午后棚拍感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "低饱和妆造",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "白衬衫氛围",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "花店柔光",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "杂志感半身",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "气色拉满",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "法式松弛照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "城市约拍感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "干净底妆感",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "轻甜发光照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "自然精修照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "明亮生活妆",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "温柔侧光照",
+      "visible": true,
+      "status": "published"
+    },
+    {
+      "name": "不费力高级感",
+      "visible": true,
+      "status": "published"
+    }
+  ]
+}
