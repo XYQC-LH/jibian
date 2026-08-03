@@ -40,7 +40,7 @@ function buildSections(items) {
   });
 
   groupKeys.forEach((key) => {
-    const list = items.filter((item) => item.category === key).slice(0, 4);
+    const list = items.filter((item) => item.category === key);
 
     if (!list.length) {
       return;
