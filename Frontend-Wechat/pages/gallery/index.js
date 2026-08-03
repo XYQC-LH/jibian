@@ -2,6 +2,8 @@ const { getStatusBarHeight } = require("../../utils/system");
 const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const api = require("../../services/api");
 
+const SELECT_PRESS_DELAY_MS = 1500;
+
 function dayStart(time) {
   const date = new Date(time);
   date.setHours(0, 0, 0, 0);
@@ -47,6 +49,9 @@ function buildGroups(records) {
 }
 
 Page({
+  selectPressTimer: null,
+  selectPressTriggered: false,
+
   data: {
     statusBarHeight: 0,
     groups: [],
@@ -61,6 +66,8 @@ Page({
   },
 
   async onShow() {
+    this.clearSelectPressTimer();
+    this.selectPressTriggered = false;
     syncTabBar(this, "gallery");
     const app = getApp();
     await app.ensureLogin();
@@ -85,7 +92,48 @@ Page({
     });
   },
 
+  onHide() {
+    this.clearSelectPressTimer();
+  },
+
+  onUnload() {
+    this.clearSelectPressTimer();
+  },
+
+  clearSelectPressTimer() {
+    if (!this.selectPressTimer) {
+      return;
+    }
+
+    clearTimeout(this.selectPressTimer);
+    this.selectPressTimer = null;
+  },
+
+  startSelectPress(event) {
+    const { id } = event.currentTarget.dataset;
+    if (!id || !this.data.hasRecords) {
+      return;
+    }
+
+    this.clearSelectPressTimer();
+    this.selectPressTriggered = false;
+    this.selectPressTimer = setTimeout(() => {
+      this.selectPressTimer = null;
+      this.selectPressTriggered = true;
+      this.goManage(id);
+    }, SELECT_PRESS_DELAY_MS);
+  },
+
+  cancelSelectPress() {
+    this.clearSelectPressTimer();
+  },
+
   previewImage(event) {
+    if (this.selectPressTriggered) {
+      this.selectPressTriggered = false;
+      return;
+    }
+
     const { url } = event.currentTarget.dataset;
 
     wx.previewImage({
@@ -94,13 +142,15 @@ Page({
     });
   },
 
-  goManage() {
+  goManage(selectedId) {
     if (!this.data.hasRecords) {
       return;
     }
 
+    const query = selectedId ? `?selected_id=${encodeURIComponent(selectedId)}` : "";
+
     wx.navigateTo({
-      url: "/pages/gallery-manage/index"
+      url: `/pages/gallery-manage/index${query}`
     });
   }
 });

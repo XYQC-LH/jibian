@@ -17,9 +17,13 @@
                 class="gallery-image"
                 src="{{work.image}}"
                 mode="aspectFill"
+                data-id="{{work.id}}"
                 data-url="{{work.image}}"
                 bindtap="previewImage"
-                bindlongpress="goManage"
+                bindtouchstart="startSelectPress"
+                bindtouchmove="cancelSelectPress"
+                bindtouchend="cancelSelectPress"
+                bindtouchcancel="cancelSelectPress"
               />
             </block>
           </view>

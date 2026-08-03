@@ -66,6 +66,21 @@ function buildGroups(items, selectedIds) {
   }));
 }
 
+function getDefaultSelectedIds(items, selectedId) {
+  if (!items.length) {
+    return [];
+  }
+
+  if (selectedId) {
+    const selected = items.find((item) => String(item.id) === String(selectedId));
+    if (selected) {
+      return [selected.id];
+    }
+  }
+
+  return [items[0].id];
+}
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -73,13 +88,15 @@ Page({
     items: [],
     groups: [],
     selectedIds: [],
-    allSelected: false
+    allSelected: false,
+    initialSelectedId: ""
   },
 
-  onLoad() {
+  onLoad(options = {}) {
     this.setData({
       statusBarHeight: getStatusBarHeight(),
-      menuButtonRightGap: getMenuButtonRightGap()
+      menuButtonRightGap: getMenuButtonRightGap(),
+      initialSelectedId: options.selected_id ? decodeURIComponent(options.selected_id) : ""
     });
   },
 
@@ -90,11 +107,11 @@ Page({
   loadCreations() {
     api.listUserCreations().then((creations) => {
       const items = buildCreations(creations);
-      this.applyItems(items, items.length ? [items[0].id] : []);
+      this.applyItems(items, getDefaultSelectedIds(items, this.data.initialSelectedId));
     }).catch((err) => {
       console.warn("[creations fallback]", err);
       const items = buildItems(getApp().globalData.generatedRecords);
-      this.applyItems(items, items.length ? [items[0].id] : []);
+      this.applyItems(items, getDefaultSelectedIds(items, this.data.initialSelectedId));
     });
   },
 

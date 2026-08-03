@@ -8,7 +8,7 @@
   <view class="manage-groups" wx:if="{{items.length}}">
     <block wx:for="{{groups}}" wx:key="title" wx:for-item="group">
       <view class="manage-group">
-        <view class="manage-group-header">
+        <view class="manage-group-header" style="width: 527rpx; display: block; box-sizing: border-box; left: 0rpx; top: 0rpx; height: 123rpx">
           <text class="group-title">{{group.title}}</text>
           <view class="group-select" data-title="{{group.title}}" bindtap="toggleGroup" hover-class="button-pressed">{{group.allSelected ? "取消" : "全选"}}</view>
         </view>
