@@ -49,6 +49,7 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  flex-shrink: 0;
   min-width: 100rpx;
   height: 62rpx;
   padding: 0 26rpx;
