@@ -204,9 +204,11 @@
   height: 578rpx;
   margin: 0;
   padding: 20rpx 26rpx 0;
-  border-radius: 40rpx 40rpx 0 0;
-  background: #FFFFFF;
-  box-shadow: 0 -10rpx 30rpx rgba(165, 140, 255, 0.08);
+  border-radius: 46rpx 46rpx 0 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(46rpx);
+  -webkit-backdrop-filter: blur(46rpx);
+  box-shadow: 0 -16rpx 46rpx rgba(0, 0, 0, 0.08);
 }
 
 .panel-handle {
@@ -261,14 +263,18 @@
   width: 156rpx;
   height: 156rpx;
   overflow: visible;
+  box-sizing: border-box;
+  padding: 8rpx;
+  border: 2rpx solid #DDEBFF;
+  border-radius: 27rpx;
+  background: #F3FAFF;
 }
 
 .photo-slot-image,
 .photo-empty {
-  width: 140rpx;
-  height: 140rpx;
-  margin: 8rpx;
-  border-radius: 26rpx;
+  width: 100%;
+  height: 100%;
+  border-radius: 20rpx;
 }
 
 .photo-slot-image {

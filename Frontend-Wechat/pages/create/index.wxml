@@ -84,6 +84,4 @@
       <block wx:else>马上开变</block>
     </view>
   </view>
-
-  <bottom-nav active="create"></bottom-nav>
 </view>

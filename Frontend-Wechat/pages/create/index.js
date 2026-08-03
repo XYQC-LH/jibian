@@ -1,4 +1,5 @@
 const templateService = require("../../services/templateService");
+const { syncTabBar } = require("../../components/bottom-nav/tabs");
 const { getStatusBarHeight } = require("../../utils/system");
 const api = require("../../services/api");
 
@@ -69,6 +70,10 @@ Page({
       previewImage: template.cover
     });
     this.loadTemplates(template.id);
+  },
+
+  onShow() {
+    syncTabBar(this, "create");
   },
 
   loadTemplates(activeId) {
