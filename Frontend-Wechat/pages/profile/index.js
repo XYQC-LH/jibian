@@ -1,6 +1,5 @@
 const api = require("../../services/api");
 const { syncTabBar } = require("../../components/bottom-nav/tabs");
-const { templates } = require("../../data/templates");
 const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/system");
 
 const DEFAULT_AVATAR = "/assets/design/close-up-face.webp";
@@ -20,8 +19,6 @@ Page({
   data: {
     statusBarHeight: 0,
     menuButtonRightGap: 0,
-    recent: templates.slice(0, 6),
-    hasGeneratedRecords: false,
     creditBalance: 0,
     userName: "即变用户",
     userAvatar: DEFAULT_AVATAR,
@@ -42,13 +39,10 @@ Page({
   async onShow() {
     syncTabBar(this, "profile");
     const app = getApp();
-    const records = app.globalData.generatedRecords;
 
     this.setData({
       creditBalance: app.globalData.credits,
-      ...normalizeUser(null, app),
-      hasGeneratedRecords: records.length > 0,
-      recent: records.length ? records : templates.slice(0, 6)
+      ...normalizeUser(null, app)
     });
 
     await app.ensureLogin();
@@ -71,24 +65,6 @@ Page({
       this.setData(normalizeUser(me, app));
     } catch (err) {
       console.warn("[me failed]", err);
-    }
-
-    try {
-      const creations = await api.listUserCreations();
-
-      if (Array.isArray(creations) && creations.length) {
-        this.setData({
-          recent: creations.slice(0, 6).map((item) => ({
-            id: item.id,
-            name: item.title,
-            cover: item.cover_url,
-            result: item.cover_url
-          })),
-          hasGeneratedRecords: true
-        });
-      }
-    } catch (err) {
-      console.warn("[creations failed]", err);
     }
   },
 
@@ -113,27 +89,6 @@ Page({
 
     wx.navigateTo({
       url: routeMap[target] || "/pages/settings/index"
-    });
-  },
-
-  openRecent(event) {
-    const { id } = event.currentTarget.dataset;
-
-    if (this.data.hasGeneratedRecords) {
-      wx.navigateTo({
-        url: `/pages/preview/index?creationId=${id}`
-      });
-      return;
-    }
-
-    wx.navigateTo({
-      url: `/pages/create/index?id=${id}`
-    });
-  },
-
-  showAllRecent() {
-    wx.navigateTo({
-      url: "/pages/gallery/index"
     });
   }
 });

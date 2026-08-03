@@ -46,18 +46,4 @@
     </block>
   </view>
 
-  <view class="profile-section-head">
-    <text class="profile-section-title">最近作品</text>
-    <text class="profile-section-more" bindtap="showAllRecent">查看全部</text>
-  </view>
-
-  <view class="recent-grid">
-    <block wx:for="{{recent}}" wx:key="id">
-      <view class="recent-card" bindtap="openRecent" data-id="{{item.id}}" hover-class="button-pressed">
-        <image class="recent-cover" src="{{item.result || item.cover}}" mode="aspectFill" />
-        <text class="recent-name">{{item.name}}</text>
-      </view>
-    </block>
-  </view>
-
 </view>
