@@ -23,14 +23,18 @@
 
   <view class="preview-card">
     <block wx:if="{{resultReady}}">
-      <image class="preview-image preview-result" src="{{resultImage}}" mode="aspectFit" bindtap="previewResult" />
+      <image class="preview-image preview-result" src="{{resultImage}}" mode="aspectFill" bindtap="previewResult" />
+      <view class="preview-fade"></view>
+      <button class="preview-share" open-type="share" hover-class="button-pressed">
+        <image class="preview-share-icon" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23FFFFFF'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M4%2012v8a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-8'/%3E%3Cpolyline%20points='16%206%2012%202%208%206'/%3E%3Cline%20x1='12'%20x2='12'%20y1='2'%20y2='15'/%3E%3C/svg%3E" mode="aspectFit" />
+      </button>
     </block>
     <block wx:else>
       <swiper
         class="preview-swiper"
         current="{{currentIndex}}"
         bindchange="onPreviewChange"
-        circular="{{false}}"
+        circular="{{true}}"
         duration="250"
       >
         <block wx:for="{{previewTemplates}}" wx:key="id">
@@ -55,25 +59,53 @@
     </view>
   </view>
 
-  <view class="action-panel" wx:if="{{resultReady}}">
+  <view class="action-panel result-panel" wx:if="{{resultReady}}">
     <view class="panel-handle"></view>
-    <view class="result-head">
-      <text class="result-title">{{previewTitle}}</text>
-      <text class="result-copy">变好了，保存或分享给朋友吧</text>
+    <view class="panel-head">
+      <text class="panel-title">你的照片</text>
+      <view class="change-template" bindtap="openTemplatePicker" hover-class="button-pressed">换模板</view>
     </view>
+
+    <view class="asset-row result-asset-row">
+      <view class="photo-slot result-photo-slot" bindtap="chooseImage" hover-class="button-pressed">
+        <image wx:if="{{imagePath}}" class="photo-slot-image" src="{{imagePath}}" mode="aspectFill" />
+        <view wx:else class="photo-empty">
+          <text class="upload-mark">⇧</text>
+          <text class="upload-copy">去上传</text>
+        </view>
+      </view>
+      <view wx:if="{{imagePath}}" class="remove-photo result-remove-photo" catchtap="removeImage">×</view>
+    </view>
+
+    <text class="ratio-title result-ratio-title">想要变成的比例</text>
+    <scroll-view class="ratio-scroll result-ratio-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="ratio-track">
+        <block wx:for="{{ratios}}" wx:key="*this">
+          <view
+            class="ratio-chip {{selectedRatio === item ? 'ratio-chip-active' : ''}}"
+            bindtap="selectRatio"
+            data-ratio="{{item}}"
+            hover-class="button-pressed"
+          >
+            {{item}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+
     <view class="result-actions">
-      <view class="result-action" bindtap="generateAgain" hover-class="button-pressed">
+      <view class="result-action result-action-secondary" bindtap="generateAgain" hover-class="button-pressed">
         <text class="result-action-icon">↻</text>
         <text class="result-action-label">再变一次</text>
       </view>
-      <view class="result-action" bindtap="downloadResult" hover-class="button-pressed">
-        <text class="result-action-icon">⇩</text>
-        <text class="result-action-label">下载</text>
-      </view>
-      <button class="result-action" open-type="share" hover-class="button-pressed">
+      <button class="result-action result-action-secondary" open-type="share" hover-class="button-pressed">
         <text class="result-action-icon">↗</text>
         <text class="result-action-label">分享</text>
       </button>
+      <view class="result-action result-action-primary" bindtap="downloadResult" hover-class="button-pressed">
+        <text class="result-action-icon">⇩</text>
+        <text class="result-action-label">下载</text>
+      </view>
     </view>
   </view>
 

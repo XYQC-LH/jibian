@@ -303,7 +303,20 @@ Page({
     }
 
     this.pendingIdempotencyKey = "";
-    this.applyTemplate(nextTemplate);
+
+    const app = getApp();
+    app.globalData.selectedTemplateId = nextTemplate.id;
+    this.strictTemplateId = "";
+
+    this.setData({
+      template: nextTemplate,
+      selectedTemplateId: nextTemplate.id,
+      templateReady: true,
+      currentIndex: index,
+      templateNavItems: toTemplateNavItems(nextTemplate.id),
+      previewImage: nextTemplate.cover,
+      previewTitle: getDisplayName(nextTemplate)
+    });
   },
 
   onNavSelect(event) {
@@ -378,6 +391,8 @@ Page({
     this.setData({
       resultReady: false,
       resultImage: ""
+    }, () => {
+      this.startGenerate();
     });
   },
 

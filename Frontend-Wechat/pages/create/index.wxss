@@ -149,8 +149,8 @@
 .preview-share {
   position: absolute;
   z-index: 3;
-  top: 46rpx;
-  right: 46rpx;
+  top: 36rpx;
+  right: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,6 +255,21 @@
   backdrop-filter: blur(46rpx);
   -webkit-backdrop-filter: blur(46rpx);
   box-shadow: 0 -16rpx 46rpx rgba(0, 0, 0, 0.08);
+}
+
+.result-panel {
+  padding: 28rpx 23rpx 0 46rpx;
+}
+
+.panel-handle {
+  position: absolute;
+  top: 19rpx;
+  left: 50%;
+  width: 115rpx;
+  height: 10rpx;
+  border-radius: 999rpx;
+  transform: translateX(-50%);
+  background: #E5E5EA;
 }
 
 .panel-head {
@@ -432,61 +447,78 @@
   background: #0E0C12;
 }
 
-.result-head {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6rpx;
-  padding: 10rpx 0 26rpx;
+.result-asset-row {
+  margin-top: 10rpx;
 }
 
-.result-title {
-  color: #20151D;
-  font-size: 34rpx;
-  font-weight: 900;
+.result-photo-slot {
+  margin-left: -12rpx;
 }
 
-.result-copy {
-  color: #8E7F8B;
-  font-size: 23rpx;
+.result-remove-photo {
+  left: 99rpx;
+}
+
+.result-ratio-title {
+  margin: 24rpx 0 19rpx -6rpx;
+}
+
+.result-ratio-scroll {
+  margin-left: -17rpx;
 }
 
 .result-actions {
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  padding: 10rpx 20rpx 30rpx;
+  gap: 17rpx;
+  width: 658rpx;
+  height: 88rpx;
+  margin-top: 36rpx;
 }
 
 .result-action {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  width: 150rpx;
-  height: 110rpx;
+  gap: 10rpx;
+  width: 208rpx;
+  height: 88rpx;
   margin: 0;
   padding: 0;
-  border-radius: 28rpx;
-  background: #F6F7FB;
-  line-height: 1;
+  border: 0;
+  border-radius: 999rpx;
+  font-size: 25rpx;
+  font-weight: 800;
+  line-height: 88rpx;
 }
 
 .result-action::after {
   border: 0;
 }
 
-.result-action-icon {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #A58CFF;
+.result-action-secondary {
+  color: #AF52DE;
+  background: #F3F3F6;
+}
+
+.result-action-primary {
+  color: #FFFFFF;
+  background: linear-gradient(90deg, #A58CFF 0%, #FF77B9 100%);
+}
+
+.result-action-icon,
+.result-action-label {
+  display: block;
   line-height: 1;
 }
 
+.result-action-icon {
+  font-size: 29rpx;
+  font-weight: 800;
+}
+
 .result-action-label {
-  font-size: 22rpx;
-  font-weight: 700;
-  color: #20151D;
-  line-height: 1;
+  font-size: 25rpx;
+  font-weight: 800;
 }
