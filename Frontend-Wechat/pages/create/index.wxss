@@ -116,6 +116,11 @@
   box-shadow: 0 15rpx 42rpx rgba(0, 0, 0, 0.10);
 }
 
+.preview-swiper {
+  width: 100%;
+  height: 100%;
+}
+
 .preview-image {
   display: block;
   width: 100%;
@@ -124,6 +129,7 @@
 
 .preview-fade {
   position: absolute;
+  z-index: 2;
   left: 0;
   right: 0;
   bottom: 0;
@@ -133,6 +139,7 @@
 
 .preview-title {
   position: absolute;
+  z-index: 3;
   left: 40rpx;
   bottom: 37rpx;
   max-width: 442rpx;
@@ -147,6 +154,7 @@
 
 .preview-share {
   position: absolute;
+  z-index: 3;
   top: 46rpx;
   right: 46rpx;
   display: flex;
@@ -178,10 +186,9 @@
 }
 
 .preview-share-icon {
-  color: #FFFFFF;
-  font-size: 32rpx;
-  font-weight: 700;
-  line-height: 38rpx;
+  display: block;
+  width: 38rpx;
+  height: 38rpx;
 }
 
 .preview-generating {

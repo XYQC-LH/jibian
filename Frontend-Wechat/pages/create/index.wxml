@@ -22,11 +22,23 @@
   </view>
 
   <view class="preview-card">
-    <image class="preview-image" src="{{previewImage}}" mode="aspectFill" />
+    <swiper
+      class="preview-swiper"
+      current="{{currentIndex}}"
+      bindchange="onPreviewChange"
+      circular="{{false}}"
+      duration="250"
+    >
+      <block wx:for="{{previewTemplates}}" wx:key="id">
+        <swiper-item>
+          <image class="preview-image" src="{{item.cover}}" mode="aspectFill" />
+        </swiper-item>
+      </block>
+    </swiper>
     <view class="preview-fade"></view>
     <text class="preview-title">{{previewTitle}}</text>
     <button class="preview-share" open-type="share" hover-class="button-pressed">
-      <text class="preview-share-icon">↗</text>
+      <image class="preview-share-icon" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23FFFFFF'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M4%2012v8a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-8'/%3E%3Cpolyline%20points='16%206%2012%202%208%206'/%3E%3Cline%20x1='12'%20x2='12'%20y1='2'%20y2='15'/%3E%3C/svg%3E" mode="aspectFit" />
     </button>
     <view class="preview-generating" wx:if="{{generating}}">
       <text class="generating-title">正在变化中...</text>

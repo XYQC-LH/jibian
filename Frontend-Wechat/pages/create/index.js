@@ -135,6 +135,8 @@ Page({
     template: getDefaultTemplate(),
     templateNavItems: toTemplateNavItems(getDefaultTemplate().id),
     templates: templateService.getCurrentTemplates(),
+    previewTemplates: getOrderedTemplates(),
+    currentIndex: 0,
     ratios: ["原图", "1:1", "3:4", "9:16", "4:3"],
     selectedRatio: "3:4",
     imagePath: "",
@@ -147,6 +149,7 @@ Page({
   progressTimer: null,
   pollTimer: null,
   pendingIdempotencyKey: "",
+  syncingPreview: false,
 
   onLoad(query = {}) {
     const requestedId = query.id || DEFAULT_TEMPLATE_ID;
@@ -177,14 +180,53 @@ Page({
 
   applyTemplate(template) {
     const safeTemplate = template || getDefaultTemplate();
+    const previewTemplates = getOrderedTemplates();
+    const currentIndex = Math.max(previewTemplates.findIndex((item) => getTemplateKey(item) === getTemplateKey(safeTemplate)), 0);
+
     getApp().globalData.selectedTemplateId = safeTemplate.id;
     this.setData({
       template: safeTemplate,
       templateNavItems: toTemplateNavItems(safeTemplate.id),
       templates: templateService.getCurrentTemplates(),
+      previewTemplates,
+      currentIndex,
       previewImage: safeTemplate.cover,
       previewTitle: getDisplayName(safeTemplate)
     });
+  },
+
+  onPreviewChange(event) {
+    if (this.data.generating || this.syncingPreview) {
+      return;
+    }
+
+    const index = Number(event.detail.current);
+    const previewTemplates = this.data.previewTemplates || [];
+    const nextTemplate = previewTemplates[index];
+
+    if (!nextTemplate) {
+      return;
+    }
+
+    this.pendingIdempotencyKey = "";
+    this.applyTemplate(nextTemplate);
+  },
+
+  onNavSelect(event) {
+    const { id } = event.currentTarget.dataset;
+    const previewTemplates = getOrderedTemplates();
+    const index = previewTemplates.findIndex((item) => getTemplateKey(item) === getTemplateKey(id));
+
+    if (index < 0) {
+      this.applyTemplate(resolveTemplate(id));
+      return;
+    }
+
+    this.syncingPreview = true;
+    this.setData({ currentIndex: index });
+    this.syncingPreview = false;
+    this.pendingIdempotencyKey = "";
+    this.applyTemplate(previewTemplates[index]);
   },
 
   onUnload() {
@@ -230,9 +272,7 @@ Page({
       return;
     }
 
-    const { id } = event.currentTarget.dataset;
-    this.pendingIdempotencyKey = "";
-    this.applyTemplate(resolveTemplate(id));
+    this.onNavSelect(event);
   },
 
   selectRatio(event) {
