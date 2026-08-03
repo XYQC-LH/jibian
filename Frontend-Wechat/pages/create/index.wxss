@@ -38,27 +38,30 @@
 
 .template-nav-shell {
   position: absolute;
-  left: 50%;
-  top: 26rpx;
-  transform: translateX(-50%);
+  left: 0;
+  top: 50rpx;
   z-index: 1;
+  box-sizing: border-box;
+  width: 750rpx;
+  height: 100rpx;
+  overflow: visible;
+  background: transparent;
+}
+
+.template-nav {
   box-sizing: border-box;
   width: 485rpx;
   height: 85rpx;
+  margin-top: 15rpx;
   overflow: hidden;
   border: 2rpx solid rgba(255, 255, 255, 0.7);
   border-radius: 36rpx;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 8rpx 20rpx rgba(142, 163, 255, 0.07);
-  backdrop-filter: blur(18rpx);
-  -webkit-backdrop-filter: blur(18rpx);
-}
-
-.template-nav {
-  width: 100%;
-  height: 85rpx;
   line-height: 85rpx;
   white-space: nowrap;
+  backdrop-filter: blur(18rpx);
+  -webkit-backdrop-filter: blur(18rpx);
 }
 
 .template-nav-track {
@@ -100,11 +103,13 @@
 }
 
 .preview-card {
-  position: relative;
+  position: absolute;
+  left: 31rpx;
+  top: 160rpx;
   z-index: 1;
   width: 688rpx;
   height: 767rpx;
-  margin: 60rpx auto 0;
+  margin: 0;
   overflow: hidden;
   border-radius: 54rpx;
   background: #EDEDF2;
@@ -333,6 +338,25 @@
   font-size: 20rpx;
   font-weight: 800;
   line-height: 28rpx;
+}
+
+.remove-photo {
+  position: absolute;
+  top: -12rpx;
+  left: 111rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 54rpx;
+  height: 54rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  border-radius: 999rpx;
+  color: #FFFFFF;
+  background: rgba(32, 21, 29, 0.9);
+  font-size: 31rpx;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .ratio-title {

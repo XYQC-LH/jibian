@@ -26,7 +26,7 @@
     <view class="preview-fade"></view>
     <text class="preview-title">{{previewTitle}}</text>
     <button class="preview-share" open-type="share" hover-class="button-pressed">
-      <text class="preview-share-icon">↗</text>
+      <image class="preview-share-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik00IDEydjhhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0ydi04Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTYgNiAxMiAyIDggNiIvPjxsaW5lIHgxPSIxMiIgeDI9IjEyIiB5MT0iMiIgeTI9IjE1Ii8+PC9zdmc+" mode="aspectFit" />
     </button>
     <view class="preview-generating" wx:if="{{generating}}">
       <text class="generating-title">正在变化中...</text>
