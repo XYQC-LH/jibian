@@ -204,7 +204,7 @@ function getHomeSections(category) {
     groupKeys.push(key);
   });
 
-  return groupKeys.slice(0, 3).map((key) => withLayout({
+  return groupKeys.map((key) => withLayout({
     key,
     title: `${key}玩法｜选一个马上开变`,
     icon: categoryIcons[key] || "✦",

@@ -41,7 +41,7 @@ function buildSections(items) {
     groupKeys.push(key);
   });
 
-  groupKeys.slice(0, 3).forEach((key) => {
+  groupKeys.forEach((key) => {
     const list = items.filter((item) => item.category === key).slice(0, 4);
 
     if (!list.length) {
