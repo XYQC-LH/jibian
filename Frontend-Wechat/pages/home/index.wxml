@@ -35,8 +35,8 @@
       <block wx:for="{{sections}}" wx:key="title" wx:for-item="section">
         <view class="home-section">
           <view class="home-section-head">
-            <text class="home-section-icon home-section-icon-{{section.iconClass}}">{{section.icon}}</text>
-            <text class="home-section-title">{{section.title}}</text>
+            <text wx:if="{{section.icon}}" class="home-section-icon home-section-icon-{{section.iconClass}}">{{section.icon}}</text>
+            <text class="home-section-title {{section.icon ? '' : 'home-section-title-no-icon'}}">{{section.title}}</text>
           </view>
           <scroll-view
             class="template-row"

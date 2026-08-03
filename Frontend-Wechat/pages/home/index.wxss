@@ -114,6 +114,7 @@
   white-space: nowrap;
 }
 
+
 .home-section-icon {
   width: 42rpx;
   height: 42rpx;
@@ -221,4 +222,8 @@
   color: var(--text-tertiary);
   font-size: 23rpx;
   line-height: 1.45;
+}
+
+.home-section-title-no-icon {
+  margin-left: 0;
 }
