@@ -1,4 +1,4 @@
-<view class="inspiration-page">
+<view class="inspiration-page" style="padding-top: {{statusBarHeight}}px;">
   <view class="inspiration-header">
     <text class="inspiration-title">灵感</text>
     <view class="collect-button" hover-class="button-pressed">☆</view>
@@ -24,12 +24,13 @@
         <view class="inspiration-card" data-id="{{item.id}}" bindtap="goCreate" hover-class="button-pressed">
           <view class="cover-wrap">
             <image class="cover-image" src="{{item.cover}}" mode="widthFix" />
+            <view class="cover-shade"></view>
             <view
               class="favorite-button {{item.favorite ? 'favorite-button-active' : ''}}"
               catchtap="toggleFavorite"
               data-id="{{item.id}}"
             >
-              {{item.favorite ? "★" : "☆"}}
+              <text class="favorite-star">{{item.favorite ? "★" : "☆"}}</text>
             </view>
           </view>
           <text class="card-name">{{item.name}}</text>
@@ -45,12 +46,13 @@
         <view class="inspiration-card" data-id="{{item.id}}" bindtap="goCreate" hover-class="button-pressed">
           <view class="cover-wrap">
             <image class="cover-image" src="{{item.cover}}" mode="widthFix" />
+            <view class="cover-shade"></view>
             <view
               class="favorite-button {{item.favorite ? 'favorite-button-active' : ''}}"
               catchtap="toggleFavorite"
               data-id="{{item.id}}"
             >
-              {{item.favorite ? "★" : "☆"}}
+              <text class="favorite-star">{{item.favorite ? "★" : "☆"}}</text>
             </view>
           </view>
           <text class="card-name">{{item.name}}</text>

@@ -1,9 +1,9 @@
 .inspiration-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 0 16rpx 180rpx;
-  background: #F4F3FA;
-  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Source Han Sans SC", sans-serif;
+  padding: 0 30rpx 180rpx;
+  background: #F6F7FB;
+  font-family: "Noto Sans SC", "Source Han Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .inspiration-header {
@@ -14,8 +14,8 @@
 }
 
 .inspiration-title {
-  color: var(--text-primary);
-  font-size: 44rpx;
+  color: #20151D;
+  font-size: 54rpx;
   font-weight: 900;
   line-height: 1;
 }
@@ -26,21 +26,21 @@
   justify-content: center;
   width: 54rpx;
   height: 54rpx;
-  color: var(--text-primary);
+  color: #8E7F8B;
   font-size: 33rpx;
   line-height: 1;
 }
 
 .category-scroll {
   width: 100%;
-  margin: 14rpx 0 24rpx;
+  margin: 22rpx 0 30rpx;
   white-space: nowrap;
 }
 
 .category-track {
   display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: 16rpx;
   min-width: 700rpx;
 }
 
@@ -49,43 +49,49 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-width: 86rpx;
-  height: 48rpx;
-  padding: 0 22rpx;
+  min-width: 100rpx;
+  height: 62rpx;
+  padding: 0 26rpx;
   border-radius: 999rpx;
-  color: #62606A;
+  color: #8E7F8B;
   background: #FFFFFF;
-  font-size: 22rpx;
+  font-size: 25rpx;
   font-weight: 800;
 }
 
 .category-chip-active {
-  color: var(--accent-primary);
-  background: #F0DDF8;
+  color: #AF52DE;
+  background: #F4ECFD;
+  border: 2rpx solid #E7D8F8;
 }
 
 .inspiration-grid {
   display: flex;
   align-items: flex-start;
-  gap: 20rpx;
+  gap: 22rpx;
 }
 
 .masonry-column {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 22rpx;
   min-width: 0;
 }
 
 .inspiration-card {
   width: 100%;
+  box-sizing: border-box;
+  border-radius: 38rpx;
+  background: #FFFFFF;
+  box-shadow: 0 6rpx 20rpx rgba(142, 163, 255, 0.09);
+  overflow: hidden;
 }
 
 .cover-wrap {
   position: relative;
   overflow: hidden;
-  border-radius: 20rpx;
+  border-radius: 34rpx;
   background: #E7E4EF;
 }
 
@@ -94,33 +100,50 @@
   width: 100%;
 }
 
+.cover-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 108rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
+  border-radius: 0 0 34rpx 34rpx;
+  pointer-events: none;
+}
+
 .favorite-button {
   position: absolute;
-  top: 12rpx;
-  right: 12rpx;
+  top: 20rpx;
+  right: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42rpx;
-  height: 42rpx;
+  width: 58rpx;
+  height: 58rpx;
   border-radius: 999rpx;
-  color: #B8B5C2;
-  background: rgba(255, 255, 255, 0.86);
-  font-size: 25rpx;
+  color: #C2C2C7;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(28rpx);
+  -webkit-backdrop-filter: blur(28rpx);
+}
+
+.favorite-star {
+  font-size: 30rpx;
   font-weight: 900;
+  line-height: 1;
 }
 
 .favorite-button-active {
-  color: #FFB340;
+  color: #FFD84D;
 }
 
 .card-name {
   display: block;
-  margin-top: 12rpx;
+  margin: 18rpx 20rpx 0;
   overflow: hidden;
-  color: var(--text-primary);
-  font-size: 24rpx;
-  font-weight: 900;
+  color: #20151D;
+  font-size: 27rpx;
+  font-weight: 800;
   line-height: 1.32;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -130,25 +153,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 9rpx;
+  margin: 12rpx 20rpx 18rpx;
 }
 
 .card-price {
-  color: #8D63D9;
-  font-size: 20rpx;
-  font-weight: 800;
+  color: #AF52DE;
+  font-size: 21rpx;
+  font-weight: 700;
 }
 
 .use-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 72rpx;
-  height: 36rpx;
-  padding: 0 14rpx;
+  min-width: 112rpx;
+  height: 54rpx;
+  padding: 0 20rpx;
   border-radius: 999rpx;
   color: #FFFFFF;
-  background: linear-gradient(135deg, #D99AF7, #F06CB5);
-  font-size: 20rpx;
-  font-weight: 900;
+  background: linear-gradient(90deg, #FF77B9, #A58CFF);
+  font-size: 21rpx;
+  font-weight: 800;
 }
