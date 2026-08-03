@@ -121,17 +121,6 @@ function getDisplayName(template) {
   return template ? (displayNames[getTemplateKey(template)] || template.name) : "";
 }
 
-function getMiniTemplate(activeId) {
-  const activeKey = getTemplateKey(activeId);
-  const preferredId = activeKey === "street-boyfriend" ? DEFAULT_TEMPLATE_ID : "street-boyfriend";
-  const preferred = findTemplateByKey(preferredId);
-  if (preferred && getTemplateKey(preferred) !== activeKey) {
-    return preferred;
-  }
-
-  return templateService.getCurrentTemplates().find((template) => getTemplateKey(template) !== activeKey) || getDefaultTemplate();
-}
-
 function toApiRatio(ratio) {
   return ratio === "原图" ? "auto" : ratio;
 }
@@ -151,8 +140,6 @@ Page({
     imagePath: "",
     previewImage: getDefaultTemplate().cover,
     previewTitle: getDisplayName(getDefaultTemplate()),
-    miniTemplate: getMiniTemplate(getDefaultTemplate().id),
-    miniTemplateName: getDisplayName(getMiniTemplate(getDefaultTemplate().id)),
     generating: false,
     progress: 0
   },
@@ -165,7 +152,6 @@ Page({
     const requestedId = query.id || DEFAULT_TEMPLATE_ID;
     const template = resolveTemplate(requestedId) || getDefaultTemplate();
     const imagePath = getApp().globalData.draftImage;
-    const miniTemplate = getMiniTemplate(template.id);
 
     getApp().globalData.selectedTemplateId = template.id;
     this.setData({
@@ -174,9 +160,7 @@ Page({
       templateNavItems: toTemplateNavItems(template.id),
       imagePath,
       previewImage: template.cover,
-      previewTitle: getDisplayName(template),
-      miniTemplate,
-      miniTemplateName: getDisplayName(miniTemplate)
+      previewTitle: getDisplayName(template)
     });
     this.loadTemplates(template.id);
   },
@@ -193,16 +177,13 @@ Page({
 
   applyTemplate(template) {
     const safeTemplate = template || getDefaultTemplate();
-    const miniTemplate = getMiniTemplate(safeTemplate.id);
     getApp().globalData.selectedTemplateId = safeTemplate.id;
     this.setData({
       template: safeTemplate,
       templateNavItems: toTemplateNavItems(safeTemplate.id),
       templates: templateService.getCurrentTemplates(),
       previewImage: safeTemplate.cover,
-      previewTitle: getDisplayName(safeTemplate),
-      miniTemplate,
-      miniTemplateName: getDisplayName(miniTemplate)
+      previewTitle: getDisplayName(safeTemplate)
     });
   },
 
@@ -283,15 +264,6 @@ Page({
     wx.navigateTo({
       url: "/pages/templates/index"
     });
-  },
-
-  selectMiniTemplate() {
-    if (this.data.generating || !this.data.miniTemplate) {
-      return;
-    }
-
-    this.pendingIdempotencyKey = "";
-    this.applyTemplate(this.data.miniTemplate);
   },
 
   async startGenerate() {

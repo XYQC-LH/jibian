@@ -1,5 +1,8 @@
 <view class="create-page" style="padding-top: {{statusBarHeight}}px;">
-  <view class="create-atmosphere"></view>
+  <view class="create-atmosphere">
+    <image class="create-atmosphere-image" src="/assets/design/hero-bg.png" mode="aspectFill" />
+    <view class="create-atmosphere-gradient"></view>
+  </view>
 
   <view class="template-nav-shell">
     <scroll-view class="template-nav" scroll-x enhanced show-scrollbar="{{false}}">
@@ -22,7 +25,9 @@
     <image class="preview-image" src="{{previewImage}}" mode="aspectFill" />
     <view class="preview-fade"></view>
     <text class="preview-title">{{previewTitle}}</text>
-    <button class="preview-share" open-type="share" hover-class="button-pressed">↗</button>
+    <button class="preview-share" open-type="share" hover-class="button-pressed">
+      <text class="preview-share-icon">↗</text>
+    </button>
     <view class="preview-generating" wx:if="{{generating}}">
       <text class="generating-title">正在变化中...</text>
       <text class="generating-copy">正在生成可保存的人物图</text>
@@ -34,8 +39,6 @@
   </view>
 
   <view class="action-panel">
-    <view class="panel-handle"></view>
-
     <view class="panel-head">
       <text class="panel-title">你的照片</text>
       <view class="change-template" bindtap="openTemplatePicker" hover-class="button-pressed">换模板</view>
@@ -50,16 +53,9 @@
         </view>
         <view wx:if="{{imagePath}}" class="remove-photo" catchtap="removeImage">×</view>
       </view>
-
-      <view class="template-mini" bindtap="selectMiniTemplate" hover-class="button-pressed">
-        <image class="template-mini-image" src="{{miniTemplate.cover}}" mode="aspectFill" />
-        <view class="template-mini-fade"></view>
-        <text class="template-mini-name">{{miniTemplateName}}</text>
-      </view>
     </view>
 
     <text class="ratio-title">想要变成的比例</text>
-
     <scroll-view class="ratio-scroll" scroll-x enhanced show-scrollbar="{{false}}">
       <view class="ratio-track">
         <block wx:for="{{ratios}}" wx:key="*this">
