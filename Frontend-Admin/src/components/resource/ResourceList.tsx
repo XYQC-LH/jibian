@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import {
   Edit,
   GripVertical,
+  Trash2,
 } from 'lucide-react';
 import { getModelLogoUrl } from '@/components/icons/models';
 import {
@@ -26,12 +27,14 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 import type { AIModel } from './types';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface SortableModelCardProps {
   model: AIModel;
   onEditInfo: () => void;
   onToggleEnabled: (nextEnabled: boolean) => void;
   toggleLoading: boolean;
+  onDelete: () => void;
   dragOverlay?: boolean;
   dragDisabled?: boolean;
 }
@@ -59,6 +62,7 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
   onEditInfo,
   onToggleEnabled,
   toggleLoading,
+  onDelete,
   dragOverlay = false,
   dragDisabled = false,
 }) => {
@@ -168,6 +172,15 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
               <Edit size={12} />
               编辑
             </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex h-7 items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2.5 text-xs text-text-muted hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition"
+              aria-label="删除模板"
+            >
+              <Trash2 size={12} />
+              删除
+            </button>
             <span
               className={`cursor-${dragDisabled ? 'default' : 'grab'} flex h-7 items-center rounded-md border border-white/10 bg-white/5 px-2.5 text-xs text-text-muted touch-none ${
                 dragDisabled ? 'opacity-50 cursor-default' : 'cursor-grab hover:bg-white/10'
@@ -191,6 +204,7 @@ interface ResourceListProps {
   loading: boolean;
   onEditInfo: (model: AIModel) => void;
   onToggleEnabled: (model: AIModel, nextEnabled: boolean) => void;
+  onDelete: (model: AIModel) => void;
   togglingModelId?: string | null;
   onReorderModels?: (reordered: AIModel[]) => void;
   dragDisabled?: boolean;
@@ -201,11 +215,13 @@ const ResourceList: React.FC<ResourceListProps> = ({
   loading,
   onEditInfo,
   onToggleEnabled,
+  onDelete,
   togglingModelId,
   onReorderModels,
   dragDisabled = false,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AIModel | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 4 },
@@ -241,9 +257,8 @@ const ResourceList: React.FC<ResourceListProps> = ({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="card-primary p-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: 10 }).map((_, i) => (          <div key={i} className="card-primary p-5">
             <div className="animate-pulse space-y-3">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 bg-white/10 rounded-lg shrink-0" />
@@ -272,13 +287,14 @@ const ResourceList: React.FC<ResourceListProps> = ({
   const sortableIds = models.map((m) => m.id);
 
   const grid = (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {models.map((model) => (
         <ModelCard
           key={model.id}
           model={model}
           onEditInfo={() => onEditInfo(model)}
           onToggleEnabled={(nextEnabled) => onToggleEnabled(model, nextEnabled)}
+          onDelete={() => setDeleteTarget(model)}
           toggleLoading={togglingModelId === model.id}
           dragDisabled={disableDrag}
         />
@@ -286,35 +302,59 @@ const ResourceList: React.FC<ResourceListProps> = ({
     </div>
   );
 
+  const confirmDialog = (
+    <ConfirmDialog
+      isOpen={deleteTarget !== null}
+      onClose={() => setDeleteTarget(null)}
+      onConfirm={() => {
+        if (deleteTarget) onDelete(deleteTarget);
+        setDeleteTarget(null);
+      }}
+      title="删除模板"
+      message={`确定要删除模板「${deleteTarget?.name ?? ''}」吗？此操作不可恢复，将永久从数据库中移除该模板。`}
+      confirmText="删除"
+      type="danger"
+    />
+  );
+
   if (disableDrag) {
-    return grid;
+    return (
+      <>
+        {grid}
+        {confirmDialog}
+      </>
+    );
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragCancel={handleDragCancel}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-        {grid}
-      </SortableContext>
-      <DragOverlay>
-        {activeModel ? (
-          <div className="pointer-events-none w-[min(100vw-2rem,26rem)]">
-            <ModelCard
-              model={activeModel}
-              onEditInfo={() => undefined}
-              onToggleEnabled={() => undefined}
-              toggleLoading={false}
-              dragOverlay
-            />
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragCancel={handleDragCancel}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+          {grid}
+        </SortableContext>
+        <DragOverlay>
+          {activeModel ? (
+            <div className="pointer-events-none w-[min(100vw-2rem,26rem)]">
+              <ModelCard
+                model={activeModel}
+                onEditInfo={() => undefined}
+                onToggleEnabled={() => undefined}
+                onDelete={() => undefined}
+                toggleLoading={false}
+                dragOverlay
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+      {confirmDialog}
+    </>
   );
 };
 
