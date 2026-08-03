@@ -93,11 +93,6 @@ Page({
     this.clearSelectPressTimer();
     this.selectPressTriggered = false;
     syncTabBar(this, "gallery");
-    if (this.data.isSelecting) {
-      wx.hideTabBar({ animation: false });
-    } else {
-      wx.showTabBar({ animation: false });
-    }
     await this.loadRecords();
   },
 
