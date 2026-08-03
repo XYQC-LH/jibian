@@ -31,7 +31,7 @@
     >
       <block wx:for="{{previewTemplates}}" wx:key="id">
         <swiper-item>
-          <image class="preview-image" src="{{item.cover}}" mode="aspectFill" />
+          <image class="preview-image" src="{{item.cover}}" mode="aspectFit" />
         </swiper-item>
       </block>
     </swiper>
