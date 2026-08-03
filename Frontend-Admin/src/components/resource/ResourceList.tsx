@@ -120,6 +120,17 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
               />
             </div>
           )}
+          {!dragOverlay && !dragDisabled && (
+            <span
+              className="absolute top-1.5 left-1.5 flex h-8 w-8 items-center justify-center rounded-lg bg-black/50 text-white/70 hover:bg-black/70 hover:text-white touch-none cursor-grab transition"
+              onPointerDown={(event) => event.stopPropagation()}
+              {...attributes}
+              {...listeners}
+              aria-label="拖拽排序"
+            >
+              <GripVertical size={18} />
+            </span>
+          )}
         </div>
 
         {/* 信息区 */}
@@ -181,17 +192,6 @@ const ModelCard: React.FC<SortableModelCardProps> = ({
               <Trash2 size={12} />
               删除
             </button>
-            <span
-              className={`cursor-${dragDisabled ? 'default' : 'grab'} flex h-7 items-center rounded-md border border-white/10 bg-white/5 px-2.5 text-xs text-text-muted touch-none ${
-                dragDisabled ? 'opacity-50 cursor-default' : 'cursor-grab hover:bg-white/10'
-              }`}
-              onPointerDown={(event) => event.stopPropagation()}
-              {...(dragOverlay ? {} : attributes)}
-              {...(dragOverlay ? {} : listeners)}
-            >
-              <GripVertical size={12} className="mr-1" />
-              拖拽排序
-            </span>
           </div>
         </div>
       </div>

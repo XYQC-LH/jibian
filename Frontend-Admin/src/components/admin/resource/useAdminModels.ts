@@ -363,6 +363,18 @@ export function useAdminModels(reloadKey: number) {
     toast.success('模板配置已更新');
   }, [replaceModel]);
 
+  const deleteModel = useCallback(async (model: AIModel) => {
+    try {
+      await apiClient.template.deleteTemplate(model.id);
+      setModels((prev) => prev.filter((m) => m.id !== model.id));
+      setModelsTotal((prev) => Math.max(0, prev - 1));
+      toast.success(`模板 ${model.name} 已删除`);
+    } catch (error: unknown) {
+      console.error('Delete template error:', error);
+      toast.error(getErrorMessage(error, '删除模板失败'));
+    }
+  }, []);
+
   return {
     models, modelsTotal, modelsPage, modelsHasNext, loadingMore, loading, baseStatus, searchTerm,
     showEditModal, editingModel, togglingModelId,
@@ -370,5 +382,6 @@ export function useAdminModels(reloadKey: number) {
     setSearchTerm, setShowEditModal, setEditingModel,
     updateModelOrder, toggleModelEnabled,
     handleEditModelSave, reorderModels, loadMoreModels, hasActiveQuery,
+    deleteModel,
   };
 }

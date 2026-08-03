@@ -93,6 +93,15 @@ export class TemplatesService {
     return { success: true, data: template };
   }
 
+  async deleteAdmin(id: string) {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.favorite.deleteMany({ where: { templateId: id } });
+      await tx.template.delete({ where: { id } });
+    });
+
+    return { success: true };
+  }
+
   private async getCategoryOrderByName() {
     const categories = await this.prisma.templateCategory.findMany({
       select: { name: true, sortOrder: true },

@@ -8,20 +8,6 @@
   overflow: visible;
 }
 
-.bottom-nav-glow {
-  position: absolute;
-  left: 4rpx;
-  right: 4rpx;
-  bottom: env(safe-area-inset-bottom);
-  height: 128rpx;
-  border-radius: 62rpx;
-  background: linear-gradient(180deg, rgba(250, 246, 255, 0.55), rgba(223, 210, 255, 0.2));
-  box-shadow:
-    0 0 28rpx rgba(175, 82, 222, 0.32),
-    0 -8rpx 34rpx rgba(158, 140, 255, 0.28),
-    0 12rpx 30rpx rgba(175, 82, 222, 0.18);
-}
-
 .bottom-nav-card {
   position: absolute;
   left: 0;
@@ -33,11 +19,12 @@
   box-sizing: border-box;
   height: 128rpx;
   padding: 12rpx 15rpx 0;
-  border-radius: 62rpx;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow:
-    inset 0 2rpx 0 rgba(255, 255, 255, 0.9),
-    inset 0 -2rpx 0 rgba(226, 214, 255, 0.55);
+  border-radius: 46rpx 46rpx 62rpx 62rpx;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2rpx solid #DDEBFF;
+  backdrop-filter: blur(48rpx);
+  -webkit-backdrop-filter: blur(48rpx);
+  box-shadow: 0 20rpx 56rpx rgba(142, 163, 255, 0.18);
 }
 
 .bottom-nav-item {
@@ -57,34 +44,40 @@
   width: 152rpx;
   height: 88rpx;
   border-radius: 43rpx;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F9F3FF 52%, #F8EAF4 100%);
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.42)),
+    linear-gradient(112deg, rgba(95, 211, 220, 0.52), rgba(246, 166, 221, 0.52) 55%, rgba(158, 140, 255, 0.52));
+  border: 2rpx solid rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(40rpx);
+  -webkit-backdrop-filter: blur(40rpx);
   box-shadow:
-    0 11rpx 22rpx rgba(175, 82, 222, 0.14),
-    inset 0 2rpx 0 rgba(255, 255, 255, 0.96);
+    0 2rpx 16rpx rgba(255, 255, 255, 0.4),
+    0 16rpx 36rpx rgba(165, 140, 255, 0.18);
   transform: translateX(-50%);
 }
 
 .bottom-nav-active-shine {
   position: absolute;
   top: 12rpx;
-  left: 17rpx;
+  left: 20rpx;
   width: 112rpx;
   height: 23rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(90deg, rgba(175, 82, 222, 0.16), rgba(246, 166, 221, 0.18));
+  border-radius: 12rpx;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.1));
 }
 
 .bottom-nav-label {
   position: relative;
   z-index: 1;
-  color: #85828E;
+  color: #8E7F8B;
   font-size: 27rpx;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 50rpx;
 }
 
 .bottom-nav-item-active .bottom-nav-label {
-  color: var(--text-primary);
+  color: #20151D;
+  font-weight: 800;
 }
 
 .bottom-nav-pressed {

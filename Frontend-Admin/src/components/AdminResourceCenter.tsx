@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Plus, Settings } from 'lucide-react';
+import { Archive, LayoutTemplate, Plus, Repeat, Rocket, Settings } from 'lucide-react';
 import ResourceActions from '@/components/resource/ResourceActions';
 import AdminResourceModelsSection from '@/components/admin/resource/AdminResourceModelsSection';
 import AddTemplateModal from '@/components/admin/resource/AddTemplateModal';
 import EditModelModal from '@/components/admin/resource/EditModelModal';
 import TemplateCategoryBar from '@/components/admin/resource/TemplateCategoryBar';
+import CategoryManageModal from '@/components/admin/resource/CategoryManageModal';
 import { useAdminModels } from '@/components/admin/resource/useAdminModels';
 import { useAdminTemplateStats } from '@/components/admin/resource/useAdminTemplateStats';
 import { useAdminTemplateCategories } from '@/components/admin/resource/useAdminTemplateCategories';
@@ -14,6 +15,7 @@ import { useAdminTemplateCategories } from '@/components/admin/resource/useAdmin
 const AdminResourceCenter: React.FC = () => {
   const [reloadKey, setReloadKey] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
   const models = useAdminModels(reloadKey);
@@ -29,6 +31,33 @@ const AdminResourceCenter: React.FC = () => {
     () => categories.categories.map((item) => item.name),
     [categories.categories]
   );
+
+  const templateStatCards = [
+    {
+      title: '模板总数',
+      value: templateStats.loading ? '...' : String(templateStats.stats?.total ?? 0),
+      icon: LayoutTemplate,
+      color: 'from-purple-600 to-purple-700',
+    },
+    {
+      title: '已上线',
+      value: templateStats.loading ? '...' : String(templateStats.stats?.published ?? 0),
+      icon: Rocket,
+      color: 'from-green-600 to-green-700',
+    },
+    {
+      title: '已下架',
+      value: templateStats.loading ? '...' : String(templateStats.stats?.offline ?? 0),
+      icon: Archive,
+      color: 'from-slate-600 to-slate-700',
+    },
+    {
+      title: '累计使用次数',
+      value: templateStats.loading ? '...' : String(templateStats.stats?.total_usage ?? 0),
+      icon: Repeat,
+      color: 'from-blue-600 to-blue-700',
+    },
+  ];
 
   const categoryCounts = useMemo(() => {
     return models.filteredModels.reduce<Record<string, number>>((counts, model) => {
@@ -74,6 +103,25 @@ const AdminResourceCenter: React.FC = () => {
           </div>
         </div>
 
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {templateStatCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <div key={card.title} className="card-primary p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-text-muted text-sm mb-1">{card.title}</p>
+                    <p className="text-2xl font-bold text-text-primary">{card.value}</p>
+                  </div>
+                  <div className={`w-12 h-12 bg-gradient-to-br ${card.color} rounded-xl flex items-center justify-center`}>
+                    <Icon className="text-white w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+
         <TemplateCategoryBar
           categories={categories.categories}
           loading={categories.loading}
@@ -81,9 +129,7 @@ const AdminResourceCenter: React.FC = () => {
           categoryCounts={categoryCounts}
           totalCount={models.filteredModels.length}
           onSelectCategory={setSelectedCategoryName}
-          onCreate={categories.create}
-          onUpdate={categories.update}
-          onRemove={categories.remove}
+          onManage={() => setShowCategoryModal(true)}
           onReorder={categories.reorder}
         />
 
@@ -96,8 +142,6 @@ const AdminResourceCenter: React.FC = () => {
           selectedCategoryName={selectedCategoryName}
           loading={models.loading}
           togglingModelId={models.togglingModelId}
-          templateStats={templateStats.stats}
-          templateStatsLoading={templateStats.loading}
           onSearchChange={models.setSearchTerm}
           onToggleEnabled={(model, nextEnabled) => {
             void models.toggleModelEnabled(model, nextEnabled);
@@ -105,6 +149,9 @@ const AdminResourceCenter: React.FC = () => {
           onEditInfo={(model) => {
             models.setEditingModel(model);
             models.setShowEditModal(true);
+          }}
+          onDelete={(model) => {
+            void models.deleteModel(model);
           }}
           onReorderModels={models.canReorderModels ? models.reorderModels : undefined}
           dragDisabled={!models.canReorderModels}
@@ -127,6 +174,16 @@ const AdminResourceCenter: React.FC = () => {
             categoryOptions={categoryOptions}
             onClose={() => setShowAddModal(false)}
             onCreated={handleRefreshAll}
+          />
+        )}
+
+        {showCategoryModal && (
+          <CategoryManageModal
+            categories={categories.categories}
+            onCreate={categories.create}
+            onUpdate={categories.update}
+            onRemove={categories.remove}
+            onClose={() => setShowCategoryModal(false)}
           />
         )}
       </div>

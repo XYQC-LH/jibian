@@ -119,4 +119,9 @@ export class TemplateAdminClient extends BaseAdminClient {
     const data = ensureData(response.data, 'Failed to reorder template categories');
     return Number(data?.updated || 0);
   }
+
+  async deleteTemplate(id: string): Promise<void> {
+    const response = await this.client.delete<ApiResponse<unknown>>(`/api/v1/admin/templates/${id}`);
+    ensureData(response.data, 'Failed to delete template');
+  }
 }

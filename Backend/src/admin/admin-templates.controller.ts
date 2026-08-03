@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { AdminGuard } from "../auth/admin.guard";
 import { CreateTemplateDto } from "../templates/dto/create-template.dto";
 import { UpdateTemplateDto } from "../templates/dto/update-template.dto";
@@ -31,5 +31,10 @@ export class AdminTemplatesController {
   @Patch(":id")
   update(@Param("id") id: string, @Body() dto: UpdateTemplateDto) {
     return this.templateService.updateAdmin(id, dto);
+  }
+
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.templateService.deleteAdmin(id);
   }
 }
