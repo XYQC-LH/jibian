@@ -51,8 +51,8 @@
           <text class="upload-mark">⇧</text>
           <text class="upload-copy">去上传</text>
         </view>
-        <view wx:if="{{imagePath}}" class="remove-photo" catchtap="removeImage">×</view>
       </view>
+      <view wx:if="{{imagePath}}" class="remove-photo" catchtap="removeImage">×</view>
     </view>
 
     <text class="ratio-title">想要变成的比例</text>
