@@ -9,7 +9,7 @@
       <view class="template-nav-track">
         <block wx:for="{{templateNavItems}}" wx:key="id">
           <view
-            class="template-nav-pill {{template.id === item.id ? 'template-nav-pill-active' : ''}}"
+            class="template-nav-pill {{selectedTemplateId === item.id ? 'template-nav-pill-active' : ''}}"
             bindtap="selectTemplate"
             data-id="{{item.id}}"
             hover-class="button-pressed"

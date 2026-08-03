@@ -22,7 +22,7 @@ function buildSections(items) {
   const displayNameOf = (key) => (
     templateService.getCategoryDisplayName(key) || `${key}玩法｜选一个马上开变`
   );
-  const iconOf = (key) => templateService.getCategoryIcon(key) || "✦";
+  const iconOf = (key) => templateService.getCategoryIcon(key);
 
   const sections = [];
   const hot = items.slice(0, 4);
@@ -67,6 +67,10 @@ function buildSections(items) {
   });
 
   return sections;
+}
+
+function isChooseMediaCancel(err) {
+  return String(err && err.errMsg || "").includes("cancel");
 }
 
 Page({
@@ -136,9 +140,7 @@ Page({
   goCreate(event) {
     const { id } = event.currentTarget.dataset;
 
-    wx.navigateTo({
-      url: `/pages/create/index?id=${id}`
-    });
+    this.chooseImageAndCreate(id);
   },
 
   goHeroBanner(event) {
@@ -148,8 +150,41 @@ Page({
       return;
     }
 
-    wx.navigateTo({
-      url: `/pages/create/index?id=${encodeURIComponent(templateId)}`
+    this.chooseImageAndCreate(templateId);
+  },
+
+  chooseImageAndCreate(templateId) {
+    if (!templateId) {
+      return;
+    }
+
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ["image"],
+      sourceType: ["album", "camera"],
+      success: (res) => {
+        const imagePath = res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath;
+
+        if (!imagePath) {
+          wx.showToast({ title: "选择图片失败", icon: "none" });
+          return;
+        }
+
+        const app = getApp();
+        app.globalData.selectedTemplateId = templateId;
+        app.globalData.draftImage = imagePath;
+
+        wx.switchTab({
+          url: "/pages/create/index"
+        });
+      },
+      fail: (err) => {
+        if (isChooseMediaCancel(err)) {
+          return;
+        }
+
+        wx.showToast({ title: "选择图片失败", icon: "none" });
+      }
     });
   },
 

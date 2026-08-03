@@ -8,8 +8,8 @@ import type { TemplateCategory } from '@/lib/api-clients/clients/templateClient'
 
 interface CategoryManageModalProps {
   categories: TemplateCategory[];
-  onCreate: (name: string, displayName?: string) => Promise<unknown>;
-  onUpdate: (id: string, input: { name?: string; display_name?: string }) => Promise<unknown>;
+  onCreate: (name: string, displayName?: string, icon?: string) => Promise<unknown>;
+  onUpdate: (id: string, input: { name?: string; display_name?: string; icon?: string }) => Promise<unknown>;
   onRemove: (id: string) => Promise<unknown>;
   onClose: () => void;
 }
@@ -23,6 +23,7 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
 }) => {
   const [newName, setNewName] = useState('');
   const [newDisplayName, setNewDisplayName] = useState('');
+  const [newIcon, setNewIcon] = useState('');
   const [busy, setBusy] = useState(false);
 
   const handleAdd = async () => {
@@ -33,9 +34,10 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
     }
     setBusy(true);
     try {
-      await onCreate(name, newDisplayName.trim() || undefined);
+      await onCreate(name, newDisplayName.trim() || undefined, newIcon.trim() || undefined);
       setNewName('');
       setNewDisplayName('');
+      setNewIcon('');
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, '创建分类失败'));
     } finally {
@@ -43,7 +45,7 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
     }
   };
 
-  const handleUpdate = async (category: TemplateCategory, name: string, displayName: string) => {
+  const handleUpdate = async (category: TemplateCategory, name: string, displayName: string, icon: string) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
       toast.error('主名称不能为空');
@@ -54,6 +56,7 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
       await onUpdate(category.id, {
         name: trimmedName,
         display_name: displayName.trim() || undefined,
+        icon: icon.trim() || undefined,
       });
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, '保存分类失败'));
@@ -108,7 +111,7 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
             <Plus size={15} className="text-accent" />
             <span className="text-sm font-medium text-text-primary">新增分类</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input
               className="input-primary px-3 py-2 text-sm"
               value={newName}
@@ -122,6 +125,13 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
               onChange={(e) => setNewDisplayName(e.target.value)}
               placeholder="副名称（长，展示用）"
               maxLength={80}
+            />
+            <input
+              className="input-primary px-3 py-2 text-sm"
+              value={newIcon}
+              onChange={(e) => setNewIcon(e.target.value)}
+              placeholder="图标（emoji）"
+              maxLength={32}
             />
           </div>
           <button
@@ -142,7 +152,7 @@ const CategoryManageModal: React.FC<CategoryManageModalProps> = ({
 type CategoryEditRowProps = {
   category: TemplateCategory;
   busy: boolean;
-  onSave: (category: TemplateCategory, name: string, displayName: string) => Promise<void>;
+  onSave: (category: TemplateCategory, name: string, displayName: string, icon: string) => Promise<void>;
   onRemove: (category: TemplateCategory) => Promise<void>;
 };
 
@@ -154,11 +164,12 @@ const CategoryEditRow: React.FC<CategoryEditRowProps> = ({
 }) => {
   const [name, setName] = useState(category.name);
   const [displayName, setDisplayName] = useState(category.display_name);
+  const [icon, setIcon] = useState(String(category.icon ?? ''));
   const [dirty, setDirty] = useState(false);
 
   return (
     <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-white/[0.03]">
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
         <input
           className="input-primary px-2.5 py-1.5 text-sm"
           value={name}
@@ -179,11 +190,21 @@ const CategoryEditRow: React.FC<CategoryEditRowProps> = ({
           placeholder="副名称（长，展示用）"
           maxLength={80}
         />
+        <input
+          className="input-primary px-2.5 py-1.5 text-sm"
+          value={icon}
+          onChange={(e) => {
+            setIcon(e.target.value);
+            setDirty(true);
+          }}
+          placeholder="图标（emoji）"
+          maxLength={32}
+        />
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
-          onClick={() => void onSave(category, name, displayName)}
+          onClick={() => void onSave(category, name, displayName, icon)}
           disabled={busy || !dirty}
           className="p-1.5 text-accent hover:text-accent/80 transition-colors disabled:opacity-30"
           aria-label={`保存分类 ${category.name}`}

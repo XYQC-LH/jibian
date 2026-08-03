@@ -27,17 +27,18 @@ export function useAdminTemplateCategories() {
     void refetch();
   }, [refetch]);
 
-  const create = useCallback(async (name: string, displayName?: string) => {
+  const create = useCallback(async (name: string, displayName?: string, icon?: string) => {
     const created = await apiClient.template.createCategory({
       name,
       display_name: displayName || undefined,
+      icon: icon || undefined,
     });
     setCategories((prev) => [...prev, created].sort((a, b) => a.sort_order - b.sort_order));
     toast.success('分类已创建');
     return created;
   }, []);
 
-  const update = useCallback(async (id: string, input: { name?: string; display_name?: string }) => {
+  const update = useCallback(async (id: string, input: { name?: string; display_name?: string; icon?: string }) => {
     const updated = await apiClient.template.updateCategory(id, input);
     setCategories((prev) => prev.map((item) => (item.id === id ? updated : item)));
     toast.success('分类已更新');

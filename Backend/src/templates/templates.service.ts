@@ -67,6 +67,7 @@ export class TemplatesService {
     return sorted.map((category) => ({
       name: category.name,
       display_name: category.displayName,
+      icon: category.icon,
       sort_order: category.sortOrder,
     }));
   }

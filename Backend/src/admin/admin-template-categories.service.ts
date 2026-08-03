@@ -8,6 +8,7 @@ import { PrismaService } from "../prisma/prisma.service";
 export interface TemplateCategoryInput {
   name?: string;
   display_name?: string;
+  icon?: string;
 }
 
 @Injectable()
@@ -76,6 +77,7 @@ export class AdminTemplateCategoriesService {
       data: {
         name,
         displayName: displayName || name,
+        icon: String(input.icon || "").trim() || null,
         sortOrder: nextOrder,
       },
     });
@@ -106,6 +108,9 @@ export class AdminTemplateCategoriesService {
     if (input.display_name !== undefined) {
       const displayName = String(input.display_name).trim();
       data.displayName = displayName || String(input.name || existing.name).trim();
+    }
+    if (input.icon !== undefined) {
+      data.icon = String(input.icon).trim() || null;
     }
 
     const updated = await this.prisma.templateCategory.update({
@@ -145,6 +150,7 @@ export class AdminTemplateCategoriesService {
     id: string;
     name: string;
     displayName: string;
+    icon: string | null;
     sortOrder: number;
     createdAt: Date;
   }) {
@@ -152,6 +158,7 @@ export class AdminTemplateCategoriesService {
       id: category.id,
       name: category.name,
       display_name: category.displayName,
+      icon: category.icon,
       sort_order: category.sortOrder,
       created_at: category.createdAt.toISOString(),
     };

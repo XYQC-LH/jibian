@@ -105,15 +105,11 @@ function getCategoryDisplayName(name) {
 function getCategoryIcon(name) {
   const item = remoteCategoryMap[name];
 
-  if (item && item.display_name) {
-    const match = item.display_name.match(/^(\p{Extended_Pictographic}|\p{Emoji_Presentation})/u);
-
-    if (match) {
-      return match[1];
-    }
+  if (item && item.icon) {
+    return item.icon;
   }
 
-  return templateStore.categoryIcons[name] || "";
+  return "";
 }
 
 function getCurrentTemplates() {

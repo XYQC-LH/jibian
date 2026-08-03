@@ -385,6 +385,7 @@ model TemplateCategory {
   id          String   @id @default(uuid()) @db.Uuid
   name        String   @unique @db.VarChar(32)
   displayName String   @map("display_name") @db.VarChar(80)
+  icon        String?  @db.VarChar(32)
   sortOrder   Int      @default(0) @map("sort_order")
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
 

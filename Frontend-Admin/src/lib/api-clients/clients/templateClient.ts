@@ -85,7 +85,7 @@ export class TemplateAdminClient extends BaseAdminClient {
     return data?.items || [];
   }
 
-  async createCategory(input: { name: string; display_name?: string }): Promise<TemplateCategory> {
+  async createCategory(input: { name: string; display_name?: string; icon?: string }): Promise<TemplateCategory> {
     const response = await this.client.post<ApiResponse<TemplateCategory>>(
       '/api/v1/admin/template-categories',
       input
@@ -95,7 +95,7 @@ export class TemplateAdminClient extends BaseAdminClient {
 
   async updateCategory(
     id: string,
-    input: { name?: string; display_name?: string }
+    input: { name?: string; display_name?: string; icon?: string }
   ): Promise<TemplateCategory> {
     const response = await this.client.put<ApiResponse<TemplateCategory>>(
       `/api/v1/admin/template-categories/${id}`,

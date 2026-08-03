@@ -81,8 +81,12 @@ function findTemplateByKey(key) {
   return templateService.getCurrentTemplates().find((template) => getTemplateKey(template) === key);
 }
 
+function findTemplateById(id) {
+  return templateService.getCurrentTemplates().find((template) => template.id === id);
+}
+
 function resolveTemplate(id) {
-  return findTemplateByKey(getTemplateKey(id)) || templateService.findTemplate(id);
+  return findTemplateById(id);
 }
 
 function getDefaultTemplate() {
@@ -133,6 +137,8 @@ Page({
   data: {
     statusBarHeight: 0,
     template: getDefaultTemplate(),
+    selectedTemplateId: getDefaultTemplate().id,
+    templateReady: true,
     templateNavItems: toTemplateNavItems(getDefaultTemplate().id),
     templates: templateService.getCurrentTemplates(),
     previewTemplates: getOrderedTemplates(),
@@ -150,49 +156,135 @@ Page({
   pollTimer: null,
   pendingIdempotencyKey: "",
   syncingPreview: false,
+  strictTemplateId: "",
 
   onLoad(query = {}) {
-    const requestedId = query.id || DEFAULT_TEMPLATE_ID;
-    const template = resolveTemplate(requestedId) || getDefaultTemplate();
-    const imagePath = getApp().globalData.draftImage;
+    const app = getApp();
+    const explicitId = query.id || app.globalData.selectedTemplateId;
+    const requestedId = explicitId || DEFAULT_TEMPLATE_ID;
+    const template = explicitId ? resolveTemplate(requestedId) : getDefaultTemplate();
+    const imagePath = app.globalData.draftImage || "";
 
-    getApp().globalData.selectedTemplateId = template.id;
+    this.strictTemplateId = explicitId ? requestedId : "";
+    if (explicitId) {
+      app.globalData.selectedTemplateId = requestedId;
+    }
     this.setData({
       statusBarHeight: getStatusBarHeight(),
-      template,
-      templateNavItems: toTemplateNavItems(template.id),
-      imagePath,
-      previewImage: template.cover,
-      previewTitle: getDisplayName(template)
+      selectedTemplateId: requestedId,
+      imagePath
     });
-    this.loadTemplates(template.id);
+
+    if (template) {
+      this.applyTemplate(template);
+    } else {
+      this.setPendingTemplate(requestedId, imagePath);
+    }
+
+    this.loadTemplates(requestedId);
   },
 
   onShow() {
     syncTabBar(this, "create");
+    this.syncDraftFromGlobal();
   },
 
   loadTemplates(activeId) {
     templateService.loadTemplates().then(() => {
-      this.applyTemplate(resolveTemplate(activeId));
+      const app = getApp();
+      const requestedId = this.strictTemplateId
+        || activeId
+        || app.globalData.selectedTemplateId
+        || this.data.selectedTemplateId
+        || DEFAULT_TEMPLATE_ID;
+      const template = this.strictTemplateId
+        ? resolveTemplate(requestedId)
+        : (resolveTemplate(requestedId) || findTemplateByKey(getTemplateKey(requestedId)) || getDefaultTemplate());
+
+      if (template) {
+        this.applyTemplate(template);
+        this.syncDraftFromGlobal();
+        return;
+      }
+
+      this.setPendingTemplate(requestedId, app.globalData.draftImage || this.data.imagePath, "模板不可用");
     });
   },
 
-  applyTemplate(template) {
-    const safeTemplate = template || getDefaultTemplate();
-    const previewTemplates = getOrderedTemplates();
-    const currentIndex = Math.max(previewTemplates.findIndex((item) => getTemplateKey(item) === getTemplateKey(safeTemplate)), 0);
+  syncDraftFromGlobal() {
+    const app = getApp();
+    const selectedId = app.globalData.selectedTemplateId;
+    const imagePath = app.globalData.draftImage || "";
+    const currentTemplate = this.data.template;
+    const targetTemplate = selectedId ? resolveTemplate(selectedId) : currentTemplate;
 
-    getApp().globalData.selectedTemplateId = safeTemplate.id;
+    if (selectedId && selectedId !== this.data.selectedTemplateId) {
+      this.strictTemplateId = selectedId;
+    }
+
+    if (selectedId && !targetTemplate) {
+      this.pendingIdempotencyKey = "";
+      this.setPendingTemplate(selectedId, imagePath);
+      this.loadTemplates(selectedId);
+      return;
+    }
+
+    if (targetTemplate && (!currentTemplate || targetTemplate.id !== currentTemplate.id)) {
+      this.pendingIdempotencyKey = "";
+      this.applyTemplate(targetTemplate);
+    }
+
+    if (imagePath !== this.data.imagePath) {
+      this.pendingIdempotencyKey = "";
+      this.setData({ imagePath });
+    }
+  },
+
+  applyTemplate(template) {
+    if (!template) {
+      return false;
+    }
+
+    const previewTemplates = getOrderedTemplates();
+    const currentIndex = Math.max(previewTemplates.findIndex((item) => item.id === template.id), 0);
+    const app = getApp();
+
+    this.strictTemplateId = "";
+    app.globalData.selectedTemplateId = template.id;
+
     this.setData({
-      template: safeTemplate,
-      templateNavItems: toTemplateNavItems(safeTemplate.id),
+      template,
+      selectedTemplateId: template.id,
+      templateReady: true,
+      templateNavItems: toTemplateNavItems(template.id),
       templates: templateService.getCurrentTemplates(),
       previewTemplates,
       currentIndex,
-      previewImage: safeTemplate.cover,
-      previewTitle: getDisplayName(safeTemplate)
+      previewImage: template.cover,
+      previewTitle: getDisplayName(template)
     });
+
+    return true;
+  },
+
+  setPendingTemplate(templateId, imagePath, title = "模板加载中") {
+    const nextData = {
+      template: null,
+      selectedTemplateId: templateId,
+      templateReady: false,
+      templateNavItems: [],
+      templates: templateService.getCurrentTemplates(),
+      previewTemplates: [],
+      currentIndex: 0,
+      previewImage: "",
+      previewTitle: title
+    };
+
+    if (typeof imagePath === "string") {
+      nextData.imagePath = imagePath;
+    }
+
+    this.setData(nextData);
   },
 
   onPreviewChange(event) {
@@ -218,7 +310,16 @@ Page({
     const index = previewTemplates.findIndex((item) => getTemplateKey(item) === getTemplateKey(id));
 
     if (index < 0) {
-      this.applyTemplate(resolveTemplate(id));
+      const template = resolveTemplate(id);
+
+      if (!template) {
+        this.strictTemplateId = id;
+        this.setPendingTemplate(id, this.data.imagePath);
+        this.loadTemplates(id);
+        return;
+      }
+
+      this.applyTemplate(template);
       return;
     }
 
@@ -317,9 +418,18 @@ Page({
     }
 
     const app = getApp();
+    const selectedId = app.globalData.selectedTemplateId || this.data.selectedTemplateId;
+    const template = this.data.template;
+
+    if (!template || !this.data.templateReady || template.id !== selectedId) {
+      wx.showToast({ title: "模板加载中，请稍后", icon: "none" });
+      this.loadTemplates(selectedId);
+      return;
+    }
+
     await app.ensureLogin();
 
-    if (app.globalData.credits < this.data.template.price) {
+    if (app.globalData.credits < template.price) {
       wx.showModal({
         title: "积分不足",
         content: "当前积分不足，请先兑换积分或购买权益后再生成。",
@@ -345,7 +455,7 @@ Page({
       this.pendingIdempotencyKey = this.pendingIdempotencyKey || createIdempotencyKey();
       const upload = await api.uploadInputImage(this.data.imagePath);
       const task = await api.createTask({
-        template_id: this.data.template.id,
+        template_id: template.id,
         input_asset_id: upload.asset_id,
         ratio: toApiRatio(this.data.selectedRatio),
         idempotency_key: this.pendingIdempotencyKey
@@ -416,9 +526,12 @@ Page({
   },
 
   onShareAppMessage() {
+    const template = this.data.template;
+    const selectedId = this.data.selectedTemplateId;
+
     return {
-      title: `即变 - ${this.data.template.name}`,
-      path: `/pages/create/index?id=${this.data.template.id}`,
+      title: template ? `即变 - ${template.name}` : "即变 - 一张图,变出新玩法",
+      path: selectedId ? `/pages/create/index?id=${selectedId}` : "/pages/create/index",
       imageUrl: this.data.previewImage
     };
   }
