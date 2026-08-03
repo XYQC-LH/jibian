@@ -2,10 +2,34 @@ const { getMenuButtonRightGap, getStatusBarHeight } = require("../../utils/syste
 const api = require("../../services/api");
 const { saveImageToAlbum } = require("../../utils/saveImage");
 
+function dayStart(time) {
+  const date = new Date(time);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+function dayTitle(time) {
+  const today = dayStart(Date.now());
+  const target = dayStart(time);
+  const diff = Math.round((today - target) / 86400000);
+
+  if (diff === 0) {
+    return "今天";
+  }
+
+  if (diff === 1) {
+    return "昨天";
+  }
+
+  const date = new Date(time);
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
 function buildItems(records) {
   return records.map((record) => ({
     ...record,
-    image: record.result || record.cover
+    image: record.result || record.cover,
+    savedAt: record.savedAt || Date.now()
   }));
 }
 
@@ -13,7 +37,32 @@ function buildCreations(creations) {
   return creations.map((item) => ({
     id: item.id,
     title: item.title,
-    image: item.cover_url || item.cover_storage_key || ""
+    image: item.cover_url || item.cover_storage_key || "",
+    savedAt: new Date(item.created_at).getTime()
+  }));
+}
+
+function buildGroups(items, selectedIds) {
+  const groups = [];
+
+  items.forEach((item) => {
+    const title = dayTitle(item.savedAt || Date.now());
+    let group = groups.find((entry) => entry.title === title);
+
+    if (!group) {
+      group = { title, items: [] };
+      groups.push(group);
+    }
+
+    group.items.push({
+      ...item,
+      selected: selectedIds.includes(item.id)
+    });
+  });
+
+  return groups.map((group) => ({
+    ...group,
+    allSelected: group.items.length > 0 && group.items.every((item) => item.selected)
   }));
 }
 
@@ -22,6 +71,7 @@ Page({
     statusBarHeight: 0,
     menuButtonRightGap: 0,
     items: [],
+    groups: [],
     selectedIds: [],
     allSelected: false
   },
@@ -49,18 +99,22 @@ Page({
   },
 
   applyItems(items, selectedIds) {
+    const nextSelectedIds = selectedIds.filter((id) => items.some((item) => item.id === id));
+    const nextItems = items.map((item) => ({
+      ...item,
+      selected: nextSelectedIds.includes(item.id)
+    }));
+
     this.setData({
-      items: items.map((item) => ({
-        ...item,
-        selected: selectedIds.includes(item.id)
-      })),
-      selectedIds,
-      allSelected: items.length > 0 && selectedIds.length === items.length
+      items: nextItems,
+      groups: buildGroups(nextItems, nextSelectedIds),
+      selectedIds: nextSelectedIds,
+      allSelected: nextItems.length > 0 && nextSelectedIds.length === nextItems.length
     });
   },
 
   refreshSelection(selectedIds) {
-    this.applyItems(this.data.items, selectedIds);
+    this.applyItems(this.data.items, Array.from(new Set(selectedIds)));
   },
 
   goBack() {
@@ -80,6 +134,25 @@ Page({
     const selectedIds = this.data.allSelected ? [] : this.data.items.map((item) => item.id);
 
     this.refreshSelection(selectedIds);
+  },
+
+  toggleGroup(event) {
+    const { title } = event.currentTarget.dataset;
+    const group = this.data.groups.find((item) => item.title === title);
+    if (!group) {
+      return;
+    }
+
+    const groupIds = group.items.map((item) => item.id);
+    const selected = new Set(this.data.selectedIds);
+
+    if (group.allSelected) {
+      groupIds.forEach((id) => selected.delete(id));
+    } else {
+      groupIds.forEach((id) => selected.add(id));
+    }
+
+    this.refreshSelection(Array.from(selected));
   },
 
   shareSelected() {

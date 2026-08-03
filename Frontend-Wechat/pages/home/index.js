@@ -1,3 +1,4 @@
+const api = require("../../services/api");
 const templateService = require("../../services/templateService");
 const { syncTabBar } = require("../../components/bottom-nav/tabs");
 
@@ -68,6 +69,7 @@ function buildSections(items) {
 Page({
   data: {
     creditBalance: 0,
+    homeBanners: [],
     sections: templateService.getHomeSections("热门")
   },
 
@@ -79,6 +81,7 @@ Page({
     this.setData({
       creditBalance: getApp().globalData.credits
     });
+    this.loadHomeBanners();
     this.loadTemplates();
   },
 
@@ -97,6 +100,23 @@ Page({
     });
   },
 
+  loadHomeBanners() {
+    api.getHomeOperation().then((config) => {
+      const banners = Array.isArray(config && config.home_banners)
+        ? config.home_banners.filter((item) => item && item.image_url && item.template_id)
+        : [];
+
+      this.setData({
+        homeBanners: banners
+      });
+    }).catch((err) => {
+      console.warn("[operation fallback]", err);
+      this.setData({
+        homeBanners: []
+      });
+    });
+  },
+
   goProfile() {
     wx.navigateTo({
       url: "/pages/profile/index"
@@ -108,6 +128,18 @@ Page({
 
     wx.navigateTo({
       url: `/pages/create/index?id=${id}`
+    });
+  },
+
+  goHeroBanner(event) {
+    const { templateId } = event.currentTarget.dataset;
+
+    if (!templateId) {
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/create/index?id=${encodeURIComponent(templateId)}`
     });
   },
 

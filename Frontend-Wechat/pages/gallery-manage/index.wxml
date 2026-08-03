@@ -1,15 +1,27 @@
 <view class="gallery-manage-page" style="padding-top: {{statusBarHeight}}px;">
   <view class="manage-nav">
     <view class="close-button" bindtap="goBack" hover-class="button-pressed">×</view>
-    <text class="manage-title">已选择{{selectedIds.length}}项</text>
     <view class="select-all" style="right: {{menuButtonRightGap}}px;" bindtap="toggleAll" hover-class="button-pressed">{{allSelected ? "取消" : "全选"}}</view>
+    <text class="manage-title">已选择{{selectedIds.length}}项</text>
   </view>
 
-  <view class="manage-grid" wx:if="{{items.length}}">
-    <block wx:for="{{items}}" wx:key="id">
-      <view class="manage-card" data-id="{{item.id}}" bindtap="toggleItem" hover-class="button-pressed">
-        <image class="manage-image" src="{{item.image}}" mode="aspectFill" />
-        <view class="check-badge {{item.selected ? 'check-badge-active' : ''}}">{{item.selected ? "✓" : ""}}</view>
+  <view class="manage-groups" wx:if="{{items.length}}">
+    <block wx:for="{{groups}}" wx:key="title" wx:for-item="group">
+      <view class="manage-group">
+        <view class="manage-group-header">
+          <text class="group-title">{{group.title}}</text>
+          <view class="group-select" data-title="{{group.title}}" bindtap="toggleGroup" hover-class="button-pressed">{{group.allSelected ? "取消" : "全选"}}</view>
+        </view>
+        <view class="manage-grid">
+          <block wx:for="{{group.items}}" wx:key="id" wx:for-item="work">
+            <view class="manage-card {{work.selected ? 'manage-card-selected' : ''}}" data-id="{{work.id}}" bindtap="toggleItem" hover-class="button-pressed">
+              <image class="manage-image" src="{{work.image}}" mode="aspectFill" />
+              <view class="check-badge {{work.selected ? 'check-badge-active' : ''}}">
+                <text class="check-mark" wx:if="{{work.selected}}">✓</text>
+              </view>
+            </view>
+          </block>
+        </view>
       </view>
     </block>
   </view>
@@ -20,17 +32,19 @@
   </view>
 
   <view class="manage-actions">
-    <view class="action-item" bindtap="shareSelected" hover-class="button-pressed">
+    <view class="action-hairline"></view>
+    <view class="action-item action-share" bindtap="shareSelected" hover-class="button-pressed">
       <text class="action-icon">↗</text>
       <text class="action-label">分享</text>
     </view>
-    <view class="action-item" bindtap="downloadSelected" hover-class="button-pressed">
+    <view class="action-item action-download" bindtap="downloadSelected" hover-class="button-pressed">
       <text class="action-icon">↓</text>
       <text class="action-label">下载</text>
     </view>
-    <view class="action-item action-danger" bindtap="deleteSelected" hover-class="button-pressed">
+    <view class="action-item action-delete action-danger" bindtap="deleteSelected" hover-class="button-pressed">
       <text class="action-icon">×</text>
       <text class="action-label">删除</text>
     </view>
+    <view class="home-indicator"></view>
   </view>
 </view>
