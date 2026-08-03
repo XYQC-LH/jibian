@@ -119,13 +119,11 @@ Page({
 
   onHide() {
     this.clearSelectPressTimer();
-    wx.showTabBar({ animation: false });
-  },
+    },
 
   onUnload() {
     this.clearSelectPressTimer();
-    wx.showTabBar({ animation: false });
-  },
+    },
 
   clearSelectPressTimer() {
     if (!this.selectPressTimer) {
@@ -203,13 +201,11 @@ Page({
     }
 
     this.applyItems(this.data.items, selectedIds, true);
-    wx.hideTabBar({ animation: false });
-  },
+    },
 
   exitSelectMode() {
     this.applyItems(this.data.items, [], false);
-    wx.showTabBar({ animation: false });
-  },
+    },
 
   toggleItem(event) {
     const { id } = event.currentTarget.dataset;
