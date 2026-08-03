@@ -261,8 +261,8 @@ Page({
       return;
     }
 
-    wx.navigateTo({
-      url: "/pages/templates/index"
+    wx.switchTab({
+      url: "/pages/inspiration/index"
     });
   },
 
