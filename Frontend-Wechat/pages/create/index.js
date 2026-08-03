@@ -149,7 +149,9 @@ Page({
     previewImage: getDefaultTemplate().cover,
     previewTitle: getDisplayName(getDefaultTemplate()),
     generating: false,
-    progress: 0
+    progress: 0,
+    resultReady: false,
+    resultImage: ""
   },
 
   progressTimer: null,
@@ -368,6 +370,70 @@ Page({
     });
   },
 
+  generateAgain() {
+    if (this.data.generating) {
+      return;
+    }
+
+    this.setData({
+      resultReady: false,
+      resultImage: ""
+    });
+  },
+
+  previewResult() {
+    if (!this.data.resultImage) {
+      return;
+    }
+
+    wx.previewImage({
+      urls: [this.data.resultImage],
+      current: this.data.resultImage
+    });
+  },
+
+  downloadResult() {
+    const url = this.data.resultImage;
+
+    if (!url) {
+      wx.showToast({ title: "暂无结果可下载", icon: "none" });
+      return;
+    }
+
+    wx.showLoading({ title: "下载中..." });
+    wx.downloadFile({
+      url,
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode !== 200) {
+          wx.showToast({ title: "下载失败", icon: "none" });
+          return;
+        }
+        wx.saveImageToPhotosAlbum({
+          filePath: res.tempFilePath,
+          success: () => {
+            wx.showToast({ title: "已保存到相册", icon: "success" });
+          },
+          fail: (err) => {
+            if (String(err && err.errMsg || "").includes("auth")) {
+              wx.showModal({
+                title: "需要相册权限",
+                content: "请在设置中开启保存到相册的权限",
+                showCancel: false
+              });
+              return;
+            }
+            wx.showToast({ title: "保存失败", icon: "none" });
+          }
+        });
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: "下载失败", icon: "none" });
+      }
+    });
+  },
+
   selectTemplate(event) {
     if (this.data.generating) {
       return;
@@ -448,7 +514,9 @@ Page({
     this.clearProgress();
     this.setData({
       generating: true,
-      progress: 8
+      progress: 8,
+      resultReady: false,
+      resultImage: ""
     });
 
     try {
@@ -481,8 +549,15 @@ Page({
 
         if (task.status === "succeeded") {
           this.clearPolling();
-          this.setData({ generating: false, progress: 100 });
-          wx.navigateTo({ url: `/pages/result/index?taskId=${taskId}` });
+          const resultUrl = task.result && task.result.url;
+
+          this.setData({
+            generating: false,
+            progress: 100,
+            resultImage: resultUrl || this.data.previewImage,
+            resultReady: true
+          });
+          getApp().globalData.currentTaskId = taskId;
         }
 
         if (task.status === "failed") {

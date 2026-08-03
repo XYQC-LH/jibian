@@ -269,7 +269,7 @@
 .ratio-title {
   display: block;
   color: #20151D;
-  font-size: 25rpx;
+  font-size: 28rpx;
   font-weight: 900;
   line-height: 36rpx;
 }
@@ -371,7 +371,7 @@
 }
 
 .ratio-title {
-  margin: 69rpx 0 4rpx;
+  margin: 69rpx 0 19rpx;
 }
 
 .ratio-scroll {
@@ -413,7 +413,7 @@
   align-items: center;
   justify-content: center;
   height: 88rpx;
-  margin: 32rpx 21rpx 0;
+  margin: 24rpx 46rpx 0;
   border-radius: 999rpx;
   color: #FFFFFF;
   background: linear-gradient(90deg, #A58CFF 0%, #FF77B9 100%);
@@ -426,4 +426,67 @@
   color: #8E7F8B;
   background: #EDEDF2;
   box-shadow: none;
+}
+
+.preview-result {
+  background: #0E0C12;
+}
+
+.result-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  padding: 10rpx 0 26rpx;
+}
+
+.result-title {
+  color: #20151D;
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.result-copy {
+  color: #8E7F8B;
+  font-size: 23rpx;
+}
+
+.result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10rpx 20rpx 30rpx;
+}
+
+.result-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  width: 150rpx;
+  height: 110rpx;
+  margin: 0;
+  padding: 0;
+  border-radius: 28rpx;
+  background: #F6F7FB;
+  line-height: 1;
+}
+
+.result-action::after {
+  border: 0;
+}
+
+.result-action-icon {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #A58CFF;
+  line-height: 1;
+}
+
+.result-action-label {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #20151D;
+  line-height: 1;
 }

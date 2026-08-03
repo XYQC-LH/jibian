@@ -22,24 +22,29 @@
   </view>
 
   <view class="preview-card">
-    <swiper
-      class="preview-swiper"
-      current="{{currentIndex}}"
-      bindchange="onPreviewChange"
-      circular="{{false}}"
-      duration="250"
-    >
-      <block wx:for="{{previewTemplates}}" wx:key="id">
-        <swiper-item>
-          <image class="preview-image" src="{{item.cover}}" mode="aspectFit" />
-        </swiper-item>
-      </block>
-    </swiper>
-    <view class="preview-fade"></view>
-    <text class="preview-title">{{previewTitle}}</text>
-    <button class="preview-share" open-type="share" hover-class="button-pressed">
-      <image class="preview-share-icon" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23FFFFFF'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M4%2012v8a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-8'/%3E%3Cpolyline%20points='16%206%2012%202%208%206'/%3E%3Cline%20x1='12'%20x2='12'%20y1='2'%20y2='15'/%3E%3C/svg%3E" mode="aspectFit" />
-    </button>
+    <block wx:if="{{resultReady}}">
+      <image class="preview-image preview-result" src="{{resultImage}}" mode="aspectFit" bindtap="previewResult" />
+    </block>
+    <block wx:else>
+      <swiper
+        class="preview-swiper"
+        current="{{currentIndex}}"
+        bindchange="onPreviewChange"
+        circular="{{false}}"
+        duration="250"
+      >
+        <block wx:for="{{previewTemplates}}" wx:key="id">
+          <swiper-item>
+            <image class="preview-image" src="{{item.cover}}" mode="aspectFit" />
+          </swiper-item>
+        </block>
+      </swiper>
+      <view class="preview-fade"></view>
+      <text class="preview-title">{{previewTitle}}</text>
+      <button class="preview-share" open-type="share" hover-class="button-pressed">
+        <image class="preview-share-icon" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23FFFFFF'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M4%2012v8a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-8'/%3E%3Cpolyline%20points='16%206%2012%202%208%206'/%3E%3Cline%20x1='12'%20x2='12'%20y1='2'%20y2='15'/%3E%3C/svg%3E" mode="aspectFit" />
+      </button>
+    </block>
     <view class="preview-generating" wx:if="{{generating}}">
       <text class="generating-title">正在变化中...</text>
       <text class="generating-copy">正在生成可保存的人物图</text>
@@ -50,7 +55,29 @@
     </view>
   </view>
 
-  <view class="action-panel">
+  <view class="action-panel" wx:if="{{resultReady}}">
+    <view class="panel-handle"></view>
+    <view class="result-head">
+      <text class="result-title">{{previewTitle}}</text>
+      <text class="result-copy">变好了，保存或分享给朋友吧</text>
+    </view>
+    <view class="result-actions">
+      <view class="result-action" bindtap="generateAgain" hover-class="button-pressed">
+        <text class="result-action-icon">↻</text>
+        <text class="result-action-label">再变一次</text>
+      </view>
+      <view class="result-action" bindtap="downloadResult" hover-class="button-pressed">
+        <text class="result-action-icon">⇩</text>
+        <text class="result-action-label">下载</text>
+      </view>
+      <button class="result-action" open-type="share" hover-class="button-pressed">
+        <text class="result-action-icon">↗</text>
+        <text class="result-action-label">分享</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="action-panel" wx:else>
     <view class="panel-head">
       <text class="panel-title">你的照片</text>
       <view class="change-template" bindtap="openTemplatePicker" hover-class="button-pressed">换模板</view>
