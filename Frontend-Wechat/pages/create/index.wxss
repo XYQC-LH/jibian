@@ -156,15 +156,25 @@
   height: 38rpx;
   margin: 0;
   padding: 0;
+  border: 0;
   border-radius: 0;
   color: #FFFFFF;
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none;
   font-size: 32rpx;
   line-height: 38rpx;
+  overflow: visible;
 }
 
 .preview-share::after {
   border: 0;
+  background: transparent;
+}
+
+.preview-share::before {
+  border: 0;
+  background: transparent;
 }
 
 .preview-share-icon {

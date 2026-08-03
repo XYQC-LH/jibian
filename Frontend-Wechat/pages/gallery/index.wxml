@@ -1,5 +1,11 @@
-<view class="gallery-page" style="padding-top: {{statusBarHeight}}px;">
-  <view class="gallery-header">
+<view class="gallery-page {{isSelecting ? 'gallery-page-selecting' : ''}}" style="padding-top: {{statusBarHeight}}px;">
+  <view class="manage-nav" wx:if="{{isSelecting}}">
+    <view class="close-button" bindtap="exitSelectMode" hover-class="button-pressed">×</view>
+    <view class="select-all" style="right: {{menuButtonRightGap}}px;" bindtap="toggleAll" hover-class="button-pressed">{{allSelected ? "取消" : "全选"}}</view>
+    <text class="manage-title">已选择{{selectedIds.length}}项</text>
+  </view>
+
+  <view class="gallery-header" wx:else>
     <view>
       <text class="gallery-title">图库</text>
       <text class="gallery-subtitle">你的生成作品会自动保存在这里</text>
@@ -7,13 +13,24 @@
   </view>
 
   <block wx:if="{{hasRecords}}">
-    <view class="gallery-groups">
+    <view class="{{isSelecting ? 'manage-groups' : 'gallery-groups'}}">
       <block wx:for="{{groups}}" wx:key="title" wx:for-item="group">
-        <view class="gallery-group">
-          <text class="group-title">{{group.title}}</text>
-          <view class="gallery-grid">
+        <view class="{{isSelecting ? 'manage-group' : 'gallery-group'}}">
+          <view class="manage-group-header" wx:if="{{isSelecting}}">
+            <text class="manage-group-title">{{group.title}}</text>
+            <view class="group-select" data-title="{{group.title}}" bindtap="toggleGroup" hover-class="button-pressed">{{group.allSelected ? "取消" : "全选"}}</view>
+          </view>
+          <text class="group-title" wx:else>{{group.title}}</text>
+          <view class="{{isSelecting ? 'manage-grid' : 'gallery-grid'}}">
             <block wx:for="{{group.items}}" wx:key="id" wx:for-item="work">
+              <view class="manage-card {{work.selected ? 'manage-card-selected' : ''}}" wx:if="{{isSelecting}}" data-id="{{work.id}}" bindtap="toggleItem" hover-class="button-pressed">
+                <image class="manage-image" src="{{work.image}}" mode="aspectFill" />
+                <view class="check-badge {{work.selected ? 'check-badge-active' : ''}}">
+                  <text class="check-mark" wx:if="{{work.selected}}">✓</text>
+                </view>
+              </view>
               <image
+                wx:else
                 class="gallery-image"
                 src="{{work.image}}"
                 mode="aspectFill"
@@ -36,6 +53,23 @@
     <view class="empty-icon"></view>
     <text class="empty-title">还没有作品</text>
     <text class="empty-copy">去变出你的第一个作品吧！</text>
+  </view>
+
+  <view class="manage-actions" wx:if="{{isSelecting}}">
+    <view class="action-hairline"></view>
+    <view class="action-item action-share" bindtap="shareSelected" hover-class="button-pressed">
+      <text class="action-icon">↗</text>
+      <text class="action-label">分享</text>
+    </view>
+    <view class="action-item action-download" bindtap="downloadSelected" hover-class="button-pressed">
+      <text class="action-icon">↓</text>
+      <text class="action-label">下载</text>
+    </view>
+    <view class="action-item action-delete action-danger" bindtap="deleteSelected" hover-class="button-pressed">
+      <text class="action-icon">×</text>
+      <text class="action-label">删除</text>
+    </view>
+    <view class="home-indicator"></view>
   </view>
 
 </view>

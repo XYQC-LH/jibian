@@ -76,12 +76,7 @@
           "query": "",
           "scene": null
         },
-        {
-          "name": "玩法列表",
-          "pathName": "pages/templates/index",
-          "query": "",
-          "scene": null
-        },
+
         {
           "name": "我的",
           "pathName": "pages/profile/index",

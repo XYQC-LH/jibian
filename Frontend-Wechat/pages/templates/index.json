@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "选择玩法",
-  "usingComponents": {
-    "bottom-nav": "../../components/bottom-nav/index"
-  }
-}

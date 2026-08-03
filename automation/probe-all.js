@@ -11,7 +11,6 @@ async function sleep(ms) {
 
     const pages = [
       "/pages/home/index",
-      "/pages/templates/index",
       "/pages/inspiration/index",
       "/pages/favorites/index",
       "/pages/profile/index",

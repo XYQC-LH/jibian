@@ -77,39 +77,7 @@ async function main() {
   const sectionsAfterAnime = await page.$$(".home-section");
   assert(sectionsAfterAnime.length > 0, "风格分类加载区块", `区块数: ${sectionsAfterAnime.length}`);
 
-  // 跳转玩法列表
-  await miniProgram.reLaunch("/pages/templates/index");
-  await sleep(1200);
-  page = await miniProgram.currentPage();
-  assert(page.path === "pages/templates/index", "跳转玩法列表", `实际: ${page.path}`);
-
-  // ============ 2. 玩法列表 ============
-  console.log("== 玩法列表 ==");
-  const tplCount = await page.$(".templates-section-count");
-  const tplCountText = tplCount ? await tplCount.text() : "";
-  assert(/\d+ 个效果/.test(tplCountText), "模板数量文案", tplCountText);
-
-  const tplCards = await page.$$(".templates-card");
-  assert(tplCards.length > 0, "模板卡片渲染", `数量: ${tplCards.length}`);
-
-  // 点击第一个模板跳转创建页
-  const firstCard = tplCards[0];
-  if (firstCard) {
-    const cardName = await firstCard.text();
-    try {
-      await firstCard.scrollIntoView();
-      await sleep(300);
-    } catch (e) {
-      // 部分版本不支持 scrollIntoView，忽略
-    }
-    await firstCard.tap();
-    await sleep(3000);
-    page = await miniProgram.currentPage();
-    assert(page.path === "pages/create/index", "点击模板跳转创建页", `实际: ${page.path}`);
-    console.log(`  模板: ${cardName.split("\n")[0].trim()}`);
-  }
-
-  // ============ 3. 创建页 ============
+  // ============ 2. 创建页 ============
   console.log("== 创建页 ==");
   await miniProgram.reLaunch("/pages/create/index");
   await sleep(1500);
