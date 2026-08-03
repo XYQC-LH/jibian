@@ -57,6 +57,8 @@ function buildSections(items) {
   return sections;
 }
 
+const PAGE_BATCH_SIZE = 2;
+
 function isChooseMediaCancel(err) {
   return String(err && err.errMsg || "").includes("cancel");
 }
@@ -65,10 +67,12 @@ Page({
   data: {
     creditBalance: 0,
     homeBanners: [],
-    sections: templateService.getHomeSections()
+    sections: []
   },
 
   remoteItems: null,
+  allSections: [],
+  visibleCount: 0,
 
   onShow() {
     syncTabBar(this, "home");
@@ -88,11 +92,21 @@ Page({
   },
 
   refreshSections() {
-    const sections = this.remoteItems
+    this.allSections = this.remoteItems
       ? buildSections(this.remoteItems)
       : templateService.getHomeSections();
 
-    this.setData({ sections });
+    this.visibleCount = Math.min(PAGE_BATCH_SIZE, this.allSections.length);
+    this.setData({ sections: this.allSections.slice(0, this.visibleCount) });
+  },
+
+  loadMoreSections() {
+    if (this.visibleCount >= this.allSections.length) {
+      return;
+    }
+
+    this.visibleCount = Math.min(this.visibleCount + PAGE_BATCH_SIZE, this.allSections.length);
+    this.setData({ sections: this.allSections.slice(0, this.visibleCount) });
   },
 
   loadTemplates() {
