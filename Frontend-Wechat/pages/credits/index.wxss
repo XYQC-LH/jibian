@@ -84,11 +84,14 @@
 
 .recharge-tabs {
   display: flex;
-  height: 68rpx;
-  margin-top: 18rpx;
-  padding: 6rpx;
-  border-radius: 22rpx;
-  background: #FFFFFF;
+  align-items: center;
+  height: 81rpx;
+  margin: 0 auto;
+  margin-top: 20rpx;
+  padding: 8rpx;
+  border-radius: 40rpx;
+  background: #F3C3DA;
+  width: 450rpx;
 }
 
 .recharge-tab {
@@ -96,15 +99,16 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  border-radius: 18rpx;
-  color: #7B7B84;
-  font-size: 24rpx;
-  font-weight: 900;
+  height: 65rpx;
+  border-radius: 33rpx;
+  color: #FFFFFF;
+  font-size: 29rpx;
+  font-weight: 700;
 }
 
 .recharge-tab-active {
-  color: var(--accent-primary);
-  background: var(--accent-soft);
+  color: #21121D;
+  background: #FFFFFF;
 }
 
 .detail-switch {
