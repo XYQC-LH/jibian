@@ -37,12 +37,14 @@
 }
 
 .template-nav-shell {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 26rpx;
+  transform: translateX(-50%);
   z-index: 1;
   box-sizing: border-box;
   width: 485rpx;
   height: 85rpx;
-  margin: 0 auto;
   overflow: hidden;
   border: 2rpx solid rgba(255, 255, 255, 0.7);
   border-radius: 36rpx;
