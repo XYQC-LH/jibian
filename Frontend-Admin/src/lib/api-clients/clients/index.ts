@@ -3,7 +3,6 @@ export * from './financeClient';
 export * from './modelClient';
 export * from './moderationClient';
 export * from './orderClient';
-export * from './ossClient';
 export * from './systemClient';
 export * from './taskClient';
 export * from './_base';
