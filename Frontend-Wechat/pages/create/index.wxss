@@ -50,24 +50,16 @@
 
 .template-nav {
   box-sizing: border-box;
-  width: 485rpx;
+  width: 750rpx;
   height: 85rpx;
   margin-top: 15rpx;
-  overflow: hidden;
-  border: 2rpx solid rgba(255, 255, 255, 0.7);
-  border-radius: 36rpx;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 8rpx 20rpx rgba(142, 163, 255, 0.07);
   line-height: 85rpx;
   white-space: nowrap;
-  backdrop-filter: blur(18rpx);
-  -webkit-backdrop-filter: blur(18rpx);
 }
 
 .template-nav-track {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8rpx;
   height: 85rpx;
   padding: 0 12rpx;
