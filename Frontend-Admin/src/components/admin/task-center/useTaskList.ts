@@ -111,7 +111,7 @@ export function useTaskList(isAuthorized: boolean): UseTaskListReturn {
         const progressDetail = typeof tRecord.progress_detail === 'object' && tRecord.progress_detail ? tRecord.progress_detail as Record<string, unknown> | null : null
         const etaSeconds = progressDetail?.eta_seconds != null ? Number(progressDetail.eta_seconds) : undefined
 
-        const displayModel = t.model_id || t.operation || '-'
+        const displayModel = t.model_name || t.model_id || t.operation || '-'
         const outputType = String(t.type || 'image').toLowerCase()
         const normalizedType: UIMappedTask['type'] =
           outputType === 'video' ? 'video' : outputType === 'audio' ? 'audio' : outputType === 'other' ? 'other' : 'image'
@@ -120,7 +120,7 @@ export function useTaskList(isAuthorized: boolean): UseTaskListReturn {
           id: t.id.toString(),
           type: normalizedType,
           model: displayModel,
-          modelName: t.model_id ?? undefined,
+          modelName: t.model_name ?? undefined,
           vendor: String(t.vendor || '').trim() || null,
           sourceId: String(t.source_id || '').trim() || null,
           attempts: Array.isArray(t.attempts) ? t.attempts.map((a) => {

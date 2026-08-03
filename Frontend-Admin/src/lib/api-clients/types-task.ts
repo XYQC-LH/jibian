@@ -20,6 +20,7 @@ export interface Task {
   status: BackendTaskStatus;
   prompt?: string;
   model_id?: string | null;
+  model_name?: string | null;
   aspect_ratio?: string;
   created_at?: string;
   updated_at?: string;

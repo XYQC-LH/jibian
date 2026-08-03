@@ -72,6 +72,7 @@ const mapAdminTaskRecord = (task: Record<string, unknown>): Task => {
   status: normalizeAdminTaskStatus(t.status),
   type: typeof t.type === 'string' && (t.type as string).trim() ? t.type as string : normalizeTaskTypeFromPayload(t),
   model_id: t.model_id,
+  model_name: t.model_name ?? null,
   input_payload: t.input_payload ?? undefined,
   output_payload: t.output_payload ?? undefined,
   result: t.result ?? null,
