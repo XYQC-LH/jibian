@@ -11,6 +11,23 @@ export interface TemplateCategoryInput {
   icon?: string;
 }
 
+const categorySelect = {
+  id: true,
+  name: true,
+  displayName: true,
+  icon: true,
+  sortOrder: true,
+};
+
+type TemplateCategoryRow = {
+  id: string;
+  name: string;
+  displayName: string;
+  icon: string | null;
+  sortOrder: number;
+  createdAt?: Date | null;
+};
+
 @Injectable()
 export class AdminTemplateCategoriesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -22,7 +39,8 @@ export class AdminTemplateCategoriesService {
     }
 
     const categories = await this.prisma.templateCategory.findMany({
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: categorySelect,
+      orderBy: [{ sortOrder: "asc" }],
     });
 
     return {
@@ -80,6 +98,7 @@ export class AdminTemplateCategoriesService {
         icon: String(input.icon || "").trim() || null,
         sortOrder: nextOrder,
       },
+      select: categorySelect,
     });
 
     return { success: true, data: this.serialize(created) };
@@ -116,6 +135,7 @@ export class AdminTemplateCategoriesService {
     const updated = await this.prisma.templateCategory.update({
       where: { id },
       data,
+      select: categorySelect,
     });
 
     return { success: true, data: this.serialize(updated) };
@@ -146,21 +166,14 @@ export class AdminTemplateCategoriesService {
     return { success: true, data: { updated: updatedCount } };
   }
 
-  private serialize(category: {
-    id: string;
-    name: string;
-    displayName: string;
-    icon: string | null;
-    sortOrder: number;
-    createdAt: Date;
-  }) {
+  private serialize(category: TemplateCategoryRow) {
     return {
       id: category.id,
       name: category.name,
       display_name: category.displayName,
       icon: category.icon,
       sort_order: category.sortOrder,
-      created_at: category.createdAt.toISOString(),
+      created_at: category.createdAt ? category.createdAt.toISOString() : null,
     };
   }
 }

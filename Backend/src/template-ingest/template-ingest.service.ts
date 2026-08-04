@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import type { Asset, Prisma, Template, TemplateCategory } from "@prisma/client";
+import type { Asset, Prisma, Template } from "@prisma/client";
 import { AssetsService } from "../assets/assets.service";
 import { OperationService } from "../operation/operation.service";
 import { FINANCE_CREDIT_PER_CNY, PricingService } from "../pricing/pricing.service";
@@ -17,8 +17,24 @@ import { UpdateTemplateIngestDto } from "./dto/update-template-ingest.dto";
 
 const allowedIngestAssetTypes = ["template_cover", "operation_banner"] as const;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const categorySelect = {
+  id: true,
+  name: true,
+  displayName: true,
+  icon: true,
+  sortOrder: true,
+};
 
 type TemplateWithCover = Template & { coverAsset?: Asset | null };
+
+type TemplateCategoryRow = {
+  id: string;
+  name: string;
+  displayName: string;
+  icon: string | null;
+  sortOrder: number;
+  createdAt?: Date | null;
+};
 
 type TemplateStats = {
   task_count: number;
@@ -40,7 +56,8 @@ export class TemplateIngestService {
 
   async listCategories() {
     const categories = await this.prisma.templateCategory.findMany({
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: categorySelect,
+      orderBy: [{ sortOrder: "asc" }],
     });
 
     return {
@@ -70,6 +87,7 @@ export class TemplateIngestService {
         icon: String(dto.icon ?? "").trim() || null,
         sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
       },
+      select: categorySelect,
     });
 
     return { success: true, data: this.serializeCategory(category) };
@@ -101,7 +119,7 @@ export class TemplateIngestService {
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
-      const category = await tx.templateCategory.update({ where: { id }, data });
+      const category = await tx.templateCategory.update({ where: { id }, data, select: categorySelect });
       if (nextName !== existing.name) {
         await tx.template.updateMany({
           where: { category: existing.name },
@@ -588,14 +606,14 @@ export class TemplateIngestService {
     return stats;
   }
 
-  private serializeCategory(category: TemplateCategory) {
+  private serializeCategory(category: TemplateCategoryRow) {
     return {
       id: category.id,
       name: category.name,
       display_name: category.displayName,
       icon: category.icon,
       sort_order: category.sortOrder,
-      created_at: category.createdAt.toISOString(),
+      created_at: category.createdAt ? category.createdAt.toISOString() : null,
     };
   }
 

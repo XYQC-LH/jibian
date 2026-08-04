@@ -52,7 +52,13 @@ export class TemplatesService {
   async listCategories() {
     const [categories, categoryOrderByName] = await Promise.all([
       this.prisma.templateCategory.findMany({
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        select: {
+          name: true,
+          displayName: true,
+          icon: true,
+          sortOrder: true,
+        },
+        orderBy: [{ sortOrder: "asc" }],
       }),
       this.getCategoryOrderByName(),
     ]);
